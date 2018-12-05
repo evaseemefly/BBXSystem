@@ -53,3 +53,40 @@ class BBXInfo(models.Model):
     shiptype=models.CharField(choices=CHOICE_SHOPTYPE)
     sort=models.IntegerField(default=99)
 
+class MeteorologicalData(models.Model):
+    '''
+        气象要素
+    '''
+    mid=models.AutoField(primary_key=True)
+    rain=models.FloatField(max_length=10,null=True)
+    vis=models.FloatField(max_length=10,null=True)
+    cloudc=models.FloatField(max_length=10,null=True)
+    wd=models.FloatField(max_length=10,null=True)
+    ws=models.FloatField(max_length=10,null=True)
+    cwd=models.FloatField(max_length=10,null=True)
+    cws=models.FloatField(max_length=10,null=True)
+    at=models.FloatField(max_length=4,null=True)
+    dpt=models.FloatField(max_length=10,null=True)
+    bp=models.FloatField(max_length=10,null=True)
+    wetnow=models.FloatField(max_length=10,null=True)
+    wet1=models.FloatField(max_length=10,null=True)
+    wet2=models.FloatField(max_length=10,null=True)
+    cloudc=models.IntegerField(max_length=10,null=True)
+    clouds=models.FloatField(max_length=10,null=True)
+    cloudms=models.FloatField(max_length=10,null=True)
+    cloudhs=models.FloatField(max_length=10,null=True)
+
+class HydrologyData(models.Model):
+    '''
+        水文要素
+    '''
+    hid=models.AutoField(primary_key=True)
+    wt=models.FloatField(max_length=4,null=True)
+    wvs=models.FloatField(max_length=4,null=True)
+    wv=models.FloatField(max_length=4,null=True)
+    surge1d=models.FloatField(max_length=4,null=True)
+    surge1c=models.FloatField(max_length=4,null=True)
+    surge1h=models.FloatField(max_length=4,null=True)
+    surge2d=models.FloatField(max_length=4,null=True)
+    surge2c=models.FloatField(max_length=4,null=True)
+    surge2h=models.FloatField(max_length=4,null=True)
