@@ -1,35 +1,8 @@
 from django.db import models
 import datetime
+from datetime import datetime
 # Create your models here.
-class BBXInfo(models.Model):
-    '''
-        海洋站详情
-    '''
-    id=models.AutoField(primary_key=True)
-    # 父级节点
-    pid=models.IntegerField(default=0)
-    name=models.CharField(max_length=50,verbose_name=u"海洋站名称")
-    code=models.CharField(max_length=6,verbose_name=u"海洋站站代码")
-    area=models.CharField(max_length=2,choices=(("n","北海"),("e","东海"),("s","南海")),verbose_name="所属区域")
-    Lon=models.FloatField(max_length=6,verbose_name="经度")
-    Lat=models.FloatField(max_length=6,verbose_name="维度")
-    remark = models.CharField(max_length=200, verbose_name=u"备注", null=True)
-    class Meta:
-        verbose_name=u"海洋站信息"
-        verbose_name_plural=verbose_name
 
-class BBXSpaceInfo(models.Model):
-    '''
-        船舶基础数据（空间信息）
-    '''
-    bsid=models.AutoField(primary_key=True)
-    biid=models.ForeignKey('')
-    code=models.CharField(max_length=10,default='')
-    nowdate=models.DateTimeField(default=datetime.now)
-    lat=models.FloatField(max_length=6,verbose_name="经度")
-    lon=models.FloatField(max_length=6,verbose_name="维度")
-    heading=models.FloatField(null=True,verbose_name="船首向")
-    speed=models.FloatField(null=True,verbose_name="速度")
 
 class BBXInfo(models.Model):
     '''
@@ -42,51 +15,133 @@ class BBXInfo(models.Model):
     )
     CHOICE_SHOPTYPE=(
         ('s','小型'),
-        ('m'.'中型'),
+        ('m','中型'),
         ('l','大型')
     )
-    biid=models.AutoField(primary_key=True)
+    bid=models.AutoField(primary_key=True)
     code=models.CharField(max_length=10,default='')
-    area=models.CharField(choices=CHOICE_AREA)
-    desc=models.CharField(max_length=200)
-    shipton=models.FloatField(default=100)
-    shiptype=models.CharField(choices=CHOICE_SHOPTYPE)
-    sort=models.IntegerField(default=99)
+    area=models.CharField(choices=CHOICE_AREA,verbose_name="所属海区",max_length=2)
+    desc=models.CharField(max_length=200,verbose_name="描述信息")
+    shipton=models.FloatField(default=100,verbose_name="吨位-单位百万",max_length=4)
+    shiptype=models.CharField(choices=CHOICE_SHOPTYPE,verbose_name="船型",max_length=2)
+    sort=models.IntegerField(default=99,verbose_name="排序")
+    class Meta:
+        verbose_name=u"船舶基础信息"
+        verbose_name_plural=verbose_name
+
+class BBXSpaceInfo(models.Model):
+    '''
+        船舶基础数据（空间信息）
+    '''
+    bsid=models.AutoField(primary_key=True)
+    bid=models.ForeignKey(BBXInfo,on_delete=models.CASCADE)
+    code=models.CharField(max_length=10,default='')
+    nowdate=models.DateTimeField(default=datetime.now)
+    lat=models.FloatField(max_length=6,verbose_name="经度")
+    lon=models.FloatField(max_length=6,verbose_name="维度")
+    heading=models.FloatField(null=True,verbose_name="船首向")
+    speed=models.FloatField(null=True,verbose_name="速度")
+    class Meta:
+        verbose_name=u"船舶基础数据（空间信息）"
+        verbose_name_plural=verbose_name
+
+class BBXSpaceTempInfo(models.Model):
+    '''
+        船舶基础数据（临时表）
+    '''
+    bsid=models.AutoField(primary_key=True)
+    bid=models.ForeignKey(BBXInfo,on_delete=models.CASCADE)
+    code=models.CharField(max_length=10,default='')
+    nowdate=models.DateTimeField(default=datetime.now)
+    lat=models.FloatField(max_length=6,verbose_name="经度")
+    lon=models.FloatField(max_length=6,verbose_name="维度")
+    heading=models.FloatField(null=True,verbose_name="船首向")
+    speed=models.FloatField(null=True,verbose_name="速度")
+    class Meta:
+        verbose_name=u"船舶基础数据（临时表）"
+        verbose_name_plural=verbose_name
+
+class RealtimeData(models.Model):
+    '''
+        志愿船的水文气象要素（临时表）
+    '''
+    rdid=models.AutoField(primary_key=True)
+    bid = models.ForeignKey(BBXInfo, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(default=datetime.now, verbose_name="时间戳")
+    rain = models.FloatField(max_length=10, null=True, verbose_name="降水")
+    vis = models.FloatField(max_length=10, null=True, verbose_name="能见度")
+    cloudc = models.FloatField(max_length=10, null=True, verbose_name="云量")
+    wd = models.FloatField(max_length=10, null=True, verbose_name="风向")
+    ws = models.FloatField(max_length=10, null=True, verbose_name="风速")
+    cwd = models.FloatField(max_length=10, null=True, verbose_name="最大风向")
+    cws = models.FloatField(max_length=10, null=True, verbose_name="最大风速")
+    at = models.FloatField(max_length=4, null=True, verbose_name="气温")
+    dpt = models.FloatField(max_length=10, null=True, verbose_name="露点温度")
+    bp = models.FloatField(max_length=10, null=True, verbose_name="气压")
+    wetnow = models.FloatField(max_length=10, null=True, verbose_name="当前湿度")
+    wet1 = models.FloatField(max_length=10, null=True, verbose_name="湿度1")
+    wet2 = models.FloatField(max_length=10, null=True, verbose_name="湿度2")
+    cloudlc = models.FloatField(max_length=10, null=True, verbose_name="云总量")
+    clouds = models.FloatField(max_length=10, null=True, verbose_name="云状")
+    cloudms = models.FloatField(max_length=10, null=True, verbose_name="")
+    cloudhs = models.FloatField(max_length=10, null=True, verbose_name="云高")
+    wt = models.FloatField(max_length=4, null=True, verbose_name="水温")
+    wvs = models.FloatField(max_length=4, null=True, verbose_name="浪向")
+    wv = models.FloatField(max_length=4, null=True, verbose_name="浪高")
+    surge1d = models.FloatField(max_length=4, null=True, verbose_name="第一组涌向")
+    surge1c = models.FloatField(max_length=4, null=True, verbose_name="第一组涌周期")
+    surge1h = models.FloatField(max_length=4, null=True, verbose_name="第一组涌高")
+    surge2d = models.FloatField(max_length=4, null=True, verbose_name="第二组涌向")
+    surge2c = models.FloatField(max_length=4, null=True, verbose_name="第二组涌周期")
+    surge2h = models.FloatField(max_length=4, null=True, verbose_name="第二组涌向")
+
+    class Meta:
+        verbose_name = u"志愿船的水文气象要素（临时表）"
+        verbose_name_plural = verbose_name
 
 class MeteorologicalData(models.Model):
     '''
-        气象要素
+        气象要素历史表
     '''
     mid=models.AutoField(primary_key=True)
-    rain=models.FloatField(max_length=10,null=True)
-    vis=models.FloatField(max_length=10,null=True)
-    cloudc=models.FloatField(max_length=10,null=True)
-    wd=models.FloatField(max_length=10,null=True)
-    ws=models.FloatField(max_length=10,null=True)
-    cwd=models.FloatField(max_length=10,null=True)
-    cws=models.FloatField(max_length=10,null=True)
-    at=models.FloatField(max_length=4,null=True)
-    dpt=models.FloatField(max_length=10,null=True)
-    bp=models.FloatField(max_length=10,null=True)
-    wetnow=models.FloatField(max_length=10,null=True)
-    wet1=models.FloatField(max_length=10,null=True)
-    wet2=models.FloatField(max_length=10,null=True)
-    cloudc=models.IntegerField(max_length=10,null=True)
-    clouds=models.FloatField(max_length=10,null=True)
-    cloudms=models.FloatField(max_length=10,null=True)
-    cloudhs=models.FloatField(max_length=10,null=True)
+    bid = models.ForeignKey(BBXInfo, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(default=datetime.now, verbose_name="时间戳")
+    rain=models.FloatField(max_length=10,null=True,verbose_name="降水")
+    vis=models.FloatField(max_length=10,null=True,verbose_name="能见度")
+    cloudc=models.FloatField(max_length=10,null=True,verbose_name="云量")
+    wd=models.FloatField(max_length=10,null=True,verbose_name="风向")
+    ws=models.FloatField(max_length=10,null=True,verbose_name="风速")
+    cwd=models.FloatField(max_length=10,null=True,verbose_name="最大风向")
+    cws=models.FloatField(max_length=10,null=True,verbose_name="最大风速")
+    at=models.FloatField(max_length=4,null=True,verbose_name="气温")
+    dpt=models.FloatField(max_length=10,null=True,verbose_name="露点温度")
+    bp=models.FloatField(max_length=10,null=True,verbose_name="气压")
+    wetnow=models.FloatField(max_length=10,null=True,verbose_name="当前湿度")
+    wet1=models.FloatField(max_length=10,null=True,verbose_name="湿度1")
+    wet2=models.FloatField(max_length=10,null=True,verbose_name="湿度2")
+    cloudlc=models.FloatField(max_length=10,null=True,verbose_name="云总量")
+    clouds=models.FloatField(max_length=10,null=True,verbose_name="云状")
+    cloudms=models.FloatField(max_length=10,null=True,verbose_name="")
+    cloudhs=models.FloatField(max_length=10,null=True,verbose_name="云高")
+    class Meta:
+        verbose_name=u"气象要素"
+        verbose_name_plural=verbose_name
 
 class HydrologyData(models.Model):
     '''
-        水文要素
+        水文要素历史表
     '''
     hid=models.AutoField(primary_key=True)
-    wt=models.FloatField(max_length=4,null=True)
-    wvs=models.FloatField(max_length=4,null=True)
-    wv=models.FloatField(max_length=4,null=True)
-    surge1d=models.FloatField(max_length=4,null=True)
-    surge1c=models.FloatField(max_length=4,null=True)
-    surge1h=models.FloatField(max_length=4,null=True)
-    surge2d=models.FloatField(max_length=4,null=True)
-    surge2c=models.FloatField(max_length=4,null=True)
-    surge2h=models.FloatField(max_length=4,null=True)
+    bid = models.ForeignKey(BBXInfo, on_delete=models.CASCADE)
+    wt=models.FloatField(max_length=4,null=True,verbose_name="水温")
+    wvs=models.FloatField(max_length=4,null=True,verbose_name="浪向")
+    wv=models.FloatField(max_length=4,null=True,verbose_name="浪高")
+    surge1d=models.FloatField(max_length=4,null=True,verbose_name="第一组涌向")
+    surge1c=models.FloatField(max_length=4,null=True,verbose_name="第一组涌周期")
+    surge1h=models.FloatField(max_length=4,null=True,verbose_name="第一组涌高")
+    surge2d=models.FloatField(max_length=4,null=True,verbose_name="第二组涌向")
+    surge2c=models.FloatField(max_length=4,null=True,verbose_name="第二组涌周期")
+    surge2h=models.FloatField(max_length=4,null=True,verbose_name="第二组涌向")
+    class Meta:
+        verbose_name=u"水文要素历史表"
+        verbose_name_plural=verbose_name
