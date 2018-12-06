@@ -19,9 +19,7 @@ export default {
         { id: 'e', name: '东海分局' },
         { id: 's', name: '南海分局' }],
 
-    },
-      
-
+    }
   },
   components: {
     AreaState
