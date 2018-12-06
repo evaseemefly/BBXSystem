@@ -19,6 +19,7 @@ class BBXInfo(models.Model):
         ('l','大型')
     )
     bid=models.AutoField(primary_key=True)
+
     code=models.CharField(max_length=10,default='')
     area=models.CharField(choices=CHOICE_AREA,verbose_name="所属海区",max_length=2)
     desc=models.CharField(max_length=200,verbose_name="描述信息")
