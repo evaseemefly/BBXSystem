@@ -12,3 +12,11 @@ export const loadBBXStateList = par => {
     params: par
   });
 };
+
+// 加载指定海区的船舶列表
+export const loadBBXList = par => {
+  let bbxlistUrl = `${host}/bbx/list`;
+  return axios.get(bbxlistUrl, {
+    params: par
+  });
+};

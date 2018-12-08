@@ -112,7 +112,14 @@ export default {
       loadBBXStateList(area).then(res => {
         console.log(res);
       })
+    },
+    // 加载指定海区的全部船舶列表
+    loadBaseBBXlist: function (area) {
+
     }
+  },
+  mounted: function () {
+    //页面加载时根据area获取指定海区的全部船舶
   }
 }
 </script>
