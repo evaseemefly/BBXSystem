@@ -1,18 +1,41 @@
 <template>
   <div id="mycontent">
     <div id="basemap"></div>
+    <div id="timeline"></div>
   </div>
 </template>
 
 <script>
+// const baseUrl = process.env.BASE_URL;
 // 地图组件
 import 'leaflet';
+import L from 'leaflet';
+// import 'leaflet-plugin-trackplayback'
 import shp from 'shpjs';
+// import '../../components/js/map/trackplay/control.trackplayback.js'
+// import `${baseUrl}/components/js/vis.min.js`;
+// require('/components/js/vis.min.js')
+// import "/vis.min.js";
+// import '../../components/js/map/trackback/LeafletPlayback.js'
+import '../../components/js/map/trackback/LeafletPlayback.js';
+import vis from 'vis';
+// import 'vis/dist/vis.js'
+// import '../../components/js/map/trackback/vis.js'
+// import '../../components/js/map/trackback/vis.min.js';
+// import jQuery from 'jquery';
+// import 'jquery';
 import '../../components/css/map/leaflet.css';
+// import '../../components/css/map/trackplay/control.playback.css'
+
+// 前后端交互api
+import { loadBBXNowList, loadBBXGPS } from '../../api/api.js'
 export default {
   data () {
     return {
-      mymap: null
+      mymap: null,
+      trackplay: null,
+      trackplaycontrol: null,
+      baseUrl: process.env.BASE_URL
     }
 
   },
@@ -21,11 +44,12 @@ export default {
     initMap: function () {
       var myself = this
       if (myself.mymap == null) {
-        myself.mymap = L.map('basemap').setView([30.09, 127.75], 5)
+        myself.mymap = L.map('basemap').setView([44.61131534, -123.4726739], 5)
         // var mymap = L.map('basemap').setView([51.505, -0.09], 13)
         // mapLink = "../static/mapfiles/";
 
         var mapfilesPath = '../../../mapfiles/{z}/{x}/{y}.jpg'
+        // var mapfilesPath = 'static/img/mapfiles/{z}/{x}/{y}.jpg'
         L.tileLayer(mapfilesPath, {
           attribution: '',
           maxZoom: 8,
@@ -94,10 +118,165 @@ export default {
         this.$emit('update:basemap', myself.mymap)
       }
 
+    },
+    loadShip: function () {
+      var myself = this;
+      // var data = myself.loadTestJson()
+      loadBBXNowList().then(res => {
+        var tracks = [];
+        for (let temp of res.data) {
+          tracks.push({
+            lat: temp.lat,
+            lng: temp.lng,
+            time: 1502529980,
+            dir: temp.heading,
+            info: []
+          });
+        }
+
+        const trackplayback = L.trackplayback(tracks, myself.mymap, {
+          targetOptions: {
+            useImg: true,
+            imgUrl: '../../../ship.png'
+          }
+        });
+        myself.trackplay = trackplayback;
+        const trackplaybackControl = L.trackplaybackcontrol(trackplayback);
+        myself.trackplaycontrol = trackplaybackControl;
+        trackplaybackControl.addTo(myself.mymap);
+        myself.trackplay.start();
+      });
+      // const trackplayback = L.trackplayback(data, myself.mymap);
+    },
+    play: function () {
+      // this.trackplay.play();
+      // this.trackplaycontrol.play();
+    },
+    loadGPS: function () {
+      var myself = this;
+      loadBBXGPS().then(res => {
+        console.log(res);
+        var myself = this;
+        // Setup leaflet map
+        // var map = new L.Map('map');
+
+        // var basemapLayer = new L.TileLayer('http://{s}.tiles.mapbox.com/v3/github.map-xgq2svrz/{z}/{x}/{y}.png');
+
+        // Center map and default zoom level
+        // myself.map.setView([44.61131534, -123.4726739], 6);
+
+        // Adds the background layer to the map
+        // map.addLayer(basemapLayer);
+
+        // =====================================================
+        // =============== Playback ============================
+        // =====================================================
+
+        // Playback options
+        var playbackOptions = {
+          playControl: true,
+          dateControl: true,
+          sliderControl: true
+        };
+
+        // Initialize playback
+        var playback = new L.Playback(myself.mymap, res.data, null, playbackOptions);
+      })
+    },
+    loadGPS1: function () {
+      var myself = this;
+      loadBBXGPS().then(res => {
+        console.log(res);
+        var startTime = new Date(res.data.properties.time[0]);
+        // var endTime = new Date(demoTracks[0].properties.time[demoTracks[0].properties.time.length - 1]);
+        var endTime = new Date(res.data.properties.time[res.data.properties.time.length - 1]);
+
+        // Create a DataSet with data
+        var timelineData = new vis.DataSet([{ start: startTime, end: endTime, content: 'Demo GPS Tracks' }]);
+        // Set timeline options
+        var timelineOptions = {
+          "width": "100%",
+          "height": "120px",
+          "style": "box",
+          "axisOnTop": true,
+          "showCustomTime": true
+        };
+        // Setup timeline
+        var timeline = new vis.Timeline(document.getElementById('timeline'), timelineData, timelineOptions);
+
+        // Playback options
+        var playbackOptions = {
+
+          playControl: true,
+          dateControl: true,
+
+          // layer and marker options
+          layer: {
+            pointToLayer: function (featureData, latlng) {
+              var result = {};
+
+              if (featureData && featureData.properties && featureData.properties.path_options) {
+                result = featureData.properties.path_options;
+              }
+
+              if (!result.radius) {
+                result.radius = 5;
+              }
+
+              return new L.CircleMarker(latlng, result);
+            }
+          },
+
+          marker: {
+            getPopup: function (featureData) {
+              var result = '';
+
+              if (featureData && featureData.properties && featureData.properties.title) {
+                result = featureData.properties.title;
+              }
+
+              return result;
+            }
+          }
+
+        };
+        // timeline.setCustomTime(new Date(ms));
+
+        // A callback so timeline is set after changing playback time
+        function onPlaybackTimeChange (ms) {
+          timeline.setCustomTime(new Date(ms));
+        };
+        // Initialize playback
+        var playback = new L.Playback(myself.mymap, null, onPlaybackTimeChange, playbackOptions);
+
+
+        playback.setData(res.data);
+        // playback.addData(blueMountain);
+      })
+    },
+    // 加载船舶的测试数据（暂时弃用）
+    loadTestJson: function () {
+      const xhr = new XMLHttpRequest();
+      var data = null;
+      // xhr.open('GET', '../../data/test.json', false);
+      // var jsonUrl = '../../../test.json';
+
+      // var jsonUrl = '<%= BASE_URL %>/test.json';
+      // var jsonUrl = '../../data/test.json';
+      // $.getJSON(jsonUrl, function (res) {
+      //   data = res;
+      // });
+      // xhr.open('GET', './test.json', false);
+      // xhr.send(null);
+      // const data = JSON.parse(xhr.responseText);
+      // return data;
     }
   },
   mounted: function () {
     this.initMap();
+    // this.loadShip();
+    this.loadGPS();
+    this.play();
   }
 }
 </script>

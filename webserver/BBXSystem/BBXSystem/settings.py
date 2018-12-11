@@ -28,7 +28,15 @@ SECRET_KEY = 'z93b-muj=o=5r7!d5+re@*v4qebe4gwf!9kx(p+5uf=ya0rzy4'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# 加入跨域访问允许的端口
+ALLOWED_HOSTS = [
+    'localhost:8015',
+    '127.0.0.1:8015',
+
+    '127.0.0.1',
+    '127.0.0.1:8080',
+    'localhost:8080'
+]
 
 
 # Application definition
@@ -42,6 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #跨域的app
+    'corsheaders',
     'bbx',
     'bbxgis',
     # 'gis',
@@ -49,6 +59,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # 添加cors
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -59,7 +71,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'BBXSystem.urls'
-
+#跨域增加忽略
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
