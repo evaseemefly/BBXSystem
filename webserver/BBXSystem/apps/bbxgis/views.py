@@ -39,8 +39,9 @@ class BBXSpaceInfoView(APIView):
 class GPSDataView(APIView):
     def get(self,request):
         geo_temp=Geometry([[-123.4726739,44.61131534],[-123.47325805,44.61110968]])
-        pro_temp=Property([1369786338000,1369786340000,1369786342000])
-        gps_temp=GPSData(geo_temp,pro_temp)
+        pro_temp=Property([1369786338000,1369786340000])
+        bbox_temp=[[-123.55229844, 44.53998806],[-123.55229844, 44.61162111]]
+        gps_temp=GPSData(geo_temp,pro_temp,bbox_temp)
 
         json_data=GPSDataSerializer(gps_temp)
         print(json_data.data)

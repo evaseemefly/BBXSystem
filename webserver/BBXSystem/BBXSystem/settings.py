@@ -47,7 +47,7 @@ INSTALLED_APPS = [
 
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.gis',
+    # 'django.contrib.gis',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #跨域的app
@@ -103,38 +103,39 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #
-    #     # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    #     'NAME': 'bbxsystem',
-    #     # w540
-    #     # 'USER':'root',
-    #     # 'PASSWORD':'123456',
-    #
-    #     # p52s
-    #     # 'USER':'root',
-    #     # 'PASSWORD':'123456',
-    #     # 'HOST':'127.0.0.1',
-    #
-    #     # mac
-    #     'USER': 'root',
-    #     'PASSWORD': '12345678'
-    #     # 'HOST':'127.0.0.1',
-    #     # 'OPTIONS':{'init_command':'SET storage_engine=INNODB;'}
-    # },
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.mysql',
-        'BACKEND':'django.contrib.gis.db.backends.mysql',
+        'ENGINE': 'django.db.backends.mysql',
+
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        # 'NAME': 'bbxsystem',
         'NAME': 'bbxsystemgis',
+        # w540
+        # 'USER':'root',
+        # 'PASSWORD':'123456',
+
+        # p52s
+        # 'USER':'root',
+        # 'PASSWORD':'123456',
+        # 'HOST':'127.0.0.1',
 
         # mac
         'USER': 'root',
         'PASSWORD': '12345678'
         # 'HOST':'127.0.0.1',
         # 'OPTIONS':{'init_command':'SET storage_engine=INNODB;'}
-    }
+    },
+    # 'default': {
+    #     'ENGINE': 'django.contrib.gis.db.backends.mysql',
+    #     'BACKEND':'django.contrib.gis.db.backends.mysql',
+    #     # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    #     'NAME': 'bbxsystemgis',
+    #
+    #     # mac
+    #     'USER': 'root',
+    #     'PASSWORD': '12345678'
+    #     # 'HOST':'127.0.0.1',
+    #     # 'OPTIONS':{'init_command':'SET storage_engine=INNODB;'}
+    # }
 }
 
 

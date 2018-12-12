@@ -1,11 +1,12 @@
 
 class GPSData:
-    def __init__(self,geometry,properties):
+    def __init__(self,geometry,properties,bbox):
         # self.coordinates=coordinates
         # self.times=times
         self.type="Feature"
         self.geometry=geometry
         self.properties=properties
+        self.bbox=bbox
 
 class Geometry:
     def __init__(self,coordinates):

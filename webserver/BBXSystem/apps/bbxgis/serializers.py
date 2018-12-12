@@ -18,4 +18,5 @@ class GPSDataSerializer(serializers.Serializer):
     type=serializers.CharField()
     geometry=GeometrySerializer()
     properties=PropertySerializer()
+    bbox=serializers.ListField()
 
