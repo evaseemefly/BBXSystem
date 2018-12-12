@@ -20,3 +20,13 @@ class GPSDataSerializer(serializers.Serializer):
     properties=PropertySerializer()
     bbox=serializers.ListField()
 
+class BBXTrackSerializer(serializers.Serializer):
+    '''
+        船舶轨迹
+    '''
+    bsid=serializers.IntegerField()
+    code=serializers.CharField()
+    starttime=serializers.DateTimeField()
+    endtime=serializers.DateTimeField()
+    latlngs=serializers.ListField()
+    speeds=serializers.ListField()

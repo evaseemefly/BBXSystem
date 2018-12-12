@@ -17,12 +17,10 @@ import datetime
 # 引入models
 from .models import BBXGeoInfo
 
-from .middle_models import Geometry,GPSData,Property
-
-from .serializers import GPSDataSerializer
+from .middle_models import Geometry,GPSData,Property,BBXTrack
 
 # 序列化器
-from .serializers import BBXGeoInfoSerializer
+from .serializers import BBXGeoInfoSerializer,GPSDataSerializer,BBXTrackSerializer
 # Create your views here.
 
 class BBXSpaceInfoView(APIView):
@@ -36,7 +34,19 @@ class BBXSpaceInfoView(APIView):
         # return JsonResponse(json_geo)
         return Response(json_geo.data)
 
+class BBXTrackView(APIView):
+    def get(self,request):
+        # 创建一组测试数据
+        latlngs=[[-123.4726739,44.61131534],[-123.47325805,44.61110968],[-123.47325805,44.61110968],[-123.47325805,44.61110968]]
+        speeds=[5.2,5.2,5.2,5.2]
+        bbx_track= BBXTrack(123,'BBXA','2018-12-11 10:00','2018-12-11 10:00',latlngs,speeds)
+        json_data=BBXTrackSerializer([bbx_track],many=True).data
+        return Response(json_data)
+
 class GPSDataView(APIView):
+    '''
+        暂时不使用了
+    '''
     def get(self,request):
         geo_temp=Geometry([[-123.4726739,44.61131534],[-123.47325805,44.61110968]])
         pro_temp=Property([1369786338000,1369786340000])
