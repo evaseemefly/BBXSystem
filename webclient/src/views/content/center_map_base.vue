@@ -2,6 +2,36 @@
   <div id="mycontent">
     <div id="basemap"></div>
     <div id="timeline"></div>
+    <div
+      id="track_btn"
+      class="btn-group"
+      role="group"
+    >
+      <button
+        type="button"
+        class="btn btn-success"
+        @click="trackMarkerStart"
+      ><span
+          class="glyphicon glyphicon-play"
+          aria-hidden="true"
+        >开始</span> </button>
+      <button
+        type="button"
+        class="btn btn-warning"
+        @click="trackMarkerPause"
+      ><span
+          class="glyphicon glyphicon-pause"
+          aria-hidden="true"
+        >暂停</span></button>
+      <button
+        type="button"
+        class="btn btn-danger"
+        @click="trackMarkerEnd"
+      ><span
+          class="glyphicon glyphicon glyphicon-stop"
+          aria-hidden="true"
+        >终止</span></button>
+    </div>
   </div>
 </template>
 
@@ -38,25 +68,46 @@ import 'leaflet-defaulticon-compatibility'
 import '../../components/js/map/moveingmarker/MovingMarker.js'
 // import 'leaflet.css';
 // import '../../components/css/map/trackplay/control.playback.css'
-
+import { BBXTrackInfo } from '../../models/bbx.js'
 // 前后端交互api
 import { loadBBXNowList, loadBBXGPS, loadBBXTrack } from '../../api/api.js'
+// import func from './vue-temp/vue-editor-bridge.js';
 export default {
   data () {
     return {
       mymap: null,
       trackplay: null,
       trackplaycontrol: null,
-      baseUrl: process.env.BASE_URL
+      baseUrl: process.env.BASE_URL,
+      trackMarkers: []
     }
 
   },
   methods: {
+    //开始，暂停，终止事件
+    trackMarkerStart: function () {
+      console.log("开始")
+      this.trackMarkers.forEach(obj => {
+        obj.start();
+      })
+    },
+    trackMarkerPause: function () {
+      console.log("暂停")
+      this.trackMarkers.forEach(obj => {
+        obj.pause();
+      })
+    },
+    trackMarkerEnd: function () {
+      console.log("终止")
+      this.trackMarkers.forEach(obj => {
+        obj.stop();
+      })
+    },
     // 初始化地图
     initMap: function () {
       var myself = this
       if (myself.mymap == null) {
-        myself.mymap = L.map('basemap').setView([44.61131534, -123.4726739], 5)
+        myself.mymap = L.map('basemap').setView([44.61131534, -123.4726739], 7)
         // var mymap = L.map('basemap').setView([51.505, -0.09], 13)
         // mapLink = "../static/mapfiles/";
 
@@ -183,8 +234,8 @@ export default {
       L.marker([44.63, -123.47]).addTo(myself.mymap);
       // L.marker([44.61131534, -123.4726739]).addTo(myself.mymap);
     },
-    // 加载移动marker
-    loadMovingMarker: function () {
+    // 测试：加载移动marker
+    loadMovingMarkerTest: function () {
       var myself = this;
       var latlngs = [[44.63, -123.47], [46.63, -123.47], [46.63, -119.47]];
       var times = [2000, 2000];
@@ -198,10 +249,59 @@ export default {
         times).addTo(myself.mymap);
       myMovingMarker.start();
     },
+
+    loadMovingMarker: function (trackInfo) {
+      var myself = this;
+      //1- 添加折线
+      var polyline = L.polyline(trackInfo.latlngs, { color: 'red' }).addTo(myself.mymap);
+      // 缩放地图到折线所在区域
+      // myself.mymap.fitBounds(polyline.getBounds());
+      var times = [5000, 5000, 5000];
+      //2- 点移动起来
+      var myMovingMarker = L.Marker.movingMarker(trackInfo.latlngs,
+        times).addTo(myself.mymap);
+
+      // 添加至数组中
+      this.trackMarkers.push(myMovingMarker);
+      //3- 添加事件
+      myMovingMarker.once('click', function () {
+        console.log(this);
+        myMovingMarker.start();
+        myMovingMarker.on('click', function () {
+          if (myMovingMarker.isRunning()) {
+            myMovingMarker.pause()
+          } else {
+            myMovingMarker.start()
+          }
+        })
+      })
+      myMovingMarker.start();
+      return myMovingMarker;
+    },
     // 获取后台的trak数据
     loadBBXsTrack: function () {
       loadBBXTrack().then(res => {
+        var myself = this;
         console.log(res)
+        // 获取后端传过来的数据的长度
+
+        // 将解析，并创建times数组
+        var lenList = res.data[0].speeds.length;
+        var times = [];
+        var timeTemp = 2000;
+        for (var i = 0; i <= lenList; i++) {
+          times.push(timeTemp)
+        }
+        var tracks = []
+        //
+        for (let temp of res.data) {
+          var trackTemp = new BBXTrackInfo(temp.bsid, temp.code, temp.starttime, temp.endtime, temp.latlngs, temp.speeds);
+          tracks.push(trackTemp);
+
+          myself.trackMarkers.push(myself.loadMovingMarker(trackTemp));
+        }
+        console.log(myself.trackMarkers);
+
       });
     },
     // 弃用
@@ -335,7 +435,7 @@ export default {
     // 1-初始化地图引擎
     this.initMap();
     // this.loadMarker();
-    this.loadMovingMarker();
+    // this.loadMovingMarker();
     // 2-获取后台返回的船舶轨迹信息
     this.loadBBXsTrack();
     // this.loadShip();
@@ -356,5 +456,13 @@ export default {
 }
 #basemap {
   height: 600px;
+  width: 100%;
+  position: absolute;
+}
+#track_btn {
+  position: absolute;
+  left: 80px;
+  bottom: 65px;
+  z-index: 1000;
 }
 </style>

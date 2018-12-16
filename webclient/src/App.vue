@@ -1,9 +1,9 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>|
-      <router-link to="/map">map</router-link>
+      <router-link to="/">首页</router-link> |
+      <router-link to="/about">船舶状态</router-link>|
+      <router-link to="/map">船舶显示</router-link>
     </div>
     <router-view />
   </div>
