@@ -91,12 +91,14 @@ export default {
         obj.start();
       })
     },
+    // 暂停
     trackMarkerPause: function () {
       console.log("暂停")
       this.trackMarkers.forEach(obj => {
         obj.pause();
       })
     },
+    //终止
     trackMarkerEnd: function () {
       console.log("终止")
       this.trackMarkers.forEach(obj => {
