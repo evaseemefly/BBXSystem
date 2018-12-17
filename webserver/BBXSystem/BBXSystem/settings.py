@@ -10,11 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-import os
+import os,sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+# 将当前路径加入到系统索引中
+sys.path.insert(0,BASE_DIR)
+# 将所有的app统一放在apps文件夹中
+sys.path.insert(0,os.path.join(BASE_DIR,'apps'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -25,7 +28,15 @@ SECRET_KEY = 'z93b-muj=o=5r7!d5+re@*v4qebe4gwf!9kx(p+5uf=ya0rzy4'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# 加入跨域访问允许的端口
+ALLOWED_HOSTS = [
+    'localhost:8015',
+    '127.0.0.1:8015',
+
+    '127.0.0.1',
+    '127.0.0.1:8080',
+    'localhost:8080'
+]
 
 
 # Application definition
@@ -33,14 +44,23 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    # 'django.contrib.gis',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bbx'
+    #跨域的app
+    'corsheaders',
+    'bbx',
+    'bbxgis',
+    # 'gis',
+    # 'django.contrib.gis'
 ]
 
 MIDDLEWARE = [
+    # 添加cors
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -51,10 +71,13 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'BBXSystem.urls'
-
+#跨域增加忽略
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+
         'DIRS': [os.path.join(BASE_DIR, 'templates')]
         ,
         'APP_DIRS': True,
@@ -82,8 +105,10 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
+
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'NAME': 'bbxsystem',
+        # 'NAME': 'bbxsystem',
+        'NAME': 'bbxsystemgis',
         # w540
         # 'USER':'root',
         # 'PASSWORD':'123456',
@@ -98,7 +123,19 @@ DATABASES = {
         'PASSWORD': '12345678'
         # 'HOST':'127.0.0.1',
         # 'OPTIONS':{'init_command':'SET storage_engine=INNODB;'}
-    }
+    },
+    # 'default': {
+    #     'ENGINE': 'django.contrib.gis.db.backends.mysql',
+    #     'BACKEND':'django.contrib.gis.db.backends.mysql',
+    #     # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    #     'NAME': 'bbxsystemgis',
+    #
+    #     # mac
+    #     'USER': 'root',
+    #     'PASSWORD': '12345678'
+    #     # 'HOST':'127.0.0.1',
+    #     # 'OPTIONS':{'init_command':'SET storage_engine=INNODB;'}
+    # }
 }
 
 
