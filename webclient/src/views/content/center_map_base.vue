@@ -2,6 +2,37 @@
   <div id="mycontent">
     <div id="basemap"></div>
     <div id="timeline"></div>
+    <modalMain ref='modalChild'></modalMain>
+    <div
+      id="track_btn"
+      class="btn-group"
+      role="group"
+    >
+      <button
+        type="button"
+        class="btn btn-success"
+        @click="trackMarkerStart"
+      ><span
+          class="glyphicon glyphicon-play"
+          aria-hidden="true"
+        >开始</span> </button>
+      <button
+        type="button"
+        class="btn btn-warning"
+        @click="trackMarkerPause"
+      ><span
+          class="glyphicon glyphicon-pause"
+          aria-hidden="true"
+        >暂停</span></button>
+      <button
+        type="button"
+        class="btn btn-danger"
+        @click="trackMarkerEnd"
+      ><span
+          class="glyphicon glyphicon glyphicon-stop"
+          aria-hidden="true"
+        >终止</span></button>
+    </div>
   </div>
 </template>
 
@@ -39,24 +70,54 @@ import '../../components/js/map/moveingmarker/MovingMarker.js'
 // import 'leaflet.css';
 // import '../../components/css/map/trackplay/control.playback.css'
 
+// 子组件
+import modalMain from '../member/modal/modal_main.vue'
+
+import { BBXTrackInfo } from '../../models/bbx.js'
 // 前后端交互api
 import { loadBBXNowList, loadBBXGPS, loadBBXTrack } from '../../api/api.js'
+// import func from './vue-temp/vue-editor-bridge.js';
 export default {
   data () {
     return {
       mymap: null,
       trackplay: null,
       trackplaycontrol: null,
-      baseUrl: process.env.BASE_URL
+      baseUrl: process.env.BASE_URL,
+      trackMarkers: []
     }
 
   },
+  components: {
+    modalMain
+  },
   methods: {
+    //开始，暂停，终止事件
+    trackMarkerStart: function () {
+      console.log("开始")
+      this.trackMarkers.forEach(obj => {
+        obj.start();
+      })
+    },
+    // 暂停
+    trackMarkerPause: function () {
+      console.log("暂停")
+      this.trackMarkers.forEach(obj => {
+        obj.pause();
+      })
+    },
+    //终止
+    trackMarkerEnd: function () {
+      console.log("终止")
+      this.trackMarkers.forEach(obj => {
+        obj.stop();
+      })
+    },
     // 初始化地图
     initMap: function () {
       var myself = this
       if (myself.mymap == null) {
-        myself.mymap = L.map('basemap').setView([44.61131534, -123.4726739], 5)
+        myself.mymap = L.map('basemap').setView([44.61131534, -123.4726739], 7)
         // var mymap = L.map('basemap').setView([51.505, -0.09], 13)
         // mapLink = "../static/mapfiles/";
 
@@ -67,66 +128,6 @@ export default {
           maxZoom: 8,
           minZoom: 2
         }).addTo(myself.mymap)
-        // var status = 0
-        // var popup = L.popup()
-
-        // var rectangleMeasure = {
-        //   startPoint: null,
-        //   endPoint: null,
-        //   rectangle: null,
-        //   tips: null,
-        //   layer: L.layerGroup(),
-        //   color: '#0D82D7',
-        //   addRectangle: function () {
-        //     rectangleMeasure.destory()
-        //     var bounds = []
-        //     bounds.push(rectangleMeasure.startPoint)
-        //     bounds.push(rectangleMeasure.endPoint)
-        //     rectangleMeasure.rectangle = L.rectangle(bounds, {
-        //       color: rectangleMeasure.color,
-        //       weight: 1
-        //     })
-        //     rectangleMeasure.rectangle.addTo(rectangleMeasure.layer)
-
-        //     var northWestPoint = rectangleMeasure.rectangle
-        //       .getBounds()
-        //       .getNorthWest(),
-        //       southEastPoint = rectangleMeasure.rectangle
-        //         .getBounds()
-        //         .getSouthEast()
-        //     rectangleMeasure.layer.addTo(map)
-        //   },
-        //   mousedown: function (e) {
-        //     rectangleMeasure.rectangle = null
-        //     rectangleMeasure.tips = null
-        //     map.dragging.disable()
-        //     rectangleMeasure.startPoint = e.latlng
-        //     map.on('mousemove', rectangleMeasure.mousemove)
-        //   },
-        //   mousemove: function (e) {
-        //     rectangleMeasure.endPoint = e.latlng
-        //     rectangleMeasure.addRectangle()
-        //     map
-        //       .off('mousedown ', rectangleMeasure.mousedown)
-        //       .on('mouseup', rectangleMeasure.mouseup)
-        //   },
-        //   mouseup: function (e) {
-        //     map.dragging.enable()
-        //     map
-        //       .off('mousemove', rectangleMeasure.mousemove)
-        //       .off('mouseup', rectangleMeasure.mouseup)
-        //       .off('mousedown', rectangleMeasure.mousedown)
-        //   },
-        //   destory: function () {
-        //     if (rectangleMeasure.rectangle) {
-        //       rectangleMeasure.layer.removeLayer(rectangleMeasure.rectangle)
-        //     }
-        //     if (rectangleMeasure.tips) {
-        //       rectangleMeasure.layer.removeLayer(rectangleMeasure.tips)
-        //     }
-        //   }
-        // }
-
         this.$emit('update:basemap', myself.mymap)
       }
 
@@ -183,8 +184,8 @@ export default {
       L.marker([44.63, -123.47]).addTo(myself.mymap);
       // L.marker([44.61131534, -123.4726739]).addTo(myself.mymap);
     },
-    // 加载移动marker
-    loadMovingMarker: function () {
+    // 测试：加载移动marker
+    loadMovingMarkerTest: function () {
       var myself = this;
       var latlngs = [[44.63, -123.47], [46.63, -123.47], [46.63, -119.47]];
       var times = [2000, 2000];
@@ -198,10 +199,75 @@ export default {
         times).addTo(myself.mymap);
       myMovingMarker.start();
     },
+
+    loadMovingMarker: function (trackInfo) {
+      var myself = this;
+      //1- 添加折线
+      var polyline = L.polyline(trackInfo.latlngs, { color: 'red' }).addTo(myself.mymap);
+      // 缩放地图到折线所在区域
+      // myself.mymap.fitBounds(polyline.getBounds());
+      var times = [5000, 5000, 5000];
+      //2- 点移动起来
+      var myMovingMarker = L.Marker.movingMarker(trackInfo.latlngs,
+        times).addTo(myself.mymap);
+
+      // 添加至数组中
+      // this.trackMarkers.push(myMovingMarker);
+      //3- 添加事件
+      // 业务逻辑-1：点击暂停，再次点击再移动（暂时不需要）
+      // myMovingMarker.once('click', function () {
+      //   console.log(this);
+      //   myMovingMarker.start();
+      //   myself.showModalFrame();
+      //   myMovingMarker.on('click', function () {
+      //     if (myMovingMarker.isRunning()) {
+      //       myMovingMarker.pause()
+      //     } else {
+      //       myMovingMarker.start()
+      //     }
+      //   })
+      // })
+      // 业务逻辑-2：点击获取该marker的id，并获取该marker的信息，加载指定船舶的数据
+      myMovingMarker.once('click', function () {
+        console.log(this);
+        // myMovingMarker.start();
+        myself.showModalFrame();
+        myMovingMarker.on('click', function () {
+          myself.showModalFrame();
+        })
+      })
+      myMovingMarker.start();
+      return myMovingMarker;
+    },
+    // 调用加载子组件modal框
+    showModalFrame: function () {
+      // 调用modal子组件的showModal方法，显示modal窗口，并加载echarts数据
+      this.$refs.modalChild.showModal();
+    },
     // 获取后台的trak数据
     loadBBXsTrack: function () {
       loadBBXTrack().then(res => {
+        var myself = this;
         console.log(res)
+        // 获取后端传过来的数据的长度
+
+        // 将解析，并创建times数组
+        var lenList = res.data[0].speeds.length;
+        var times = [];
+        var timeTemp = 2000;
+        for (var i = 0; i <= lenList; i++) {
+          times.push(timeTemp)
+        }
+        var tracks = []
+        //
+        for (let temp of res.data) {
+          var trackTemp = new BBXTrackInfo(temp.bsid, temp.code, temp.starttime, temp.endtime, temp.latlngs, temp.speeds);
+          tracks.push(trackTemp);
+
+          myself.trackMarkers.push(myself.loadMovingMarker(trackTemp));
+        }
+        console.log(myself.trackMarkers);
+
       });
     },
     // 弃用
@@ -335,7 +401,7 @@ export default {
     // 1-初始化地图引擎
     this.initMap();
     // this.loadMarker();
-    this.loadMovingMarker();
+    // this.loadMovingMarker();
     // 2-获取后台返回的船舶轨迹信息
     this.loadBBXsTrack();
     // this.loadShip();
@@ -356,5 +422,13 @@ export default {
 }
 #basemap {
   height: 600px;
+  width: 100%;
+  position: absolute;
+}
+#track_btn {
+  position: absolute;
+  left: 80px;
+  bottom: 65px;
+  z-index: 1000;
 }
 </style>

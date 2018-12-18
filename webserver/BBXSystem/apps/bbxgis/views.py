@@ -43,10 +43,17 @@ class BBXTrackView(APIView):
     '''
     def get(self,request):
         # 创建一组测试数据
-        latlngs=[[-123.4726739,44.61131534],[-123.47325805,44.61110968],[-123.47325805,44.61110968],[-123.47325805,44.61110968]]
+        latlngs=[[44.63, -123.47], [46.63, -123.47], [46.63, -119.47]]
+        latlngs_2=[[45.63, -122.47], [43.63, -121.47], [44.63, -119.27]]
+        latlngs_3 = [[43.63, -121.47], [43.93, -122.17], [44.43, -119.27]]
         speeds=[5.2,5.2,5.2,5.2]
+        speeds_1 = [5.2, 5.2, 5.2, 5.2]
+        speeds_3 = [5.2, 5.2, 5.2, 5.2]
         bbx_track= BBXTrack(123,'BBXA','2018-12-11 10:00','2018-12-11 10:00',latlngs,speeds)
-        json_data=BBXTrackSerializer([bbx_track],many=True).data
+        bbx_track_2 = BBXTrack(123, 'BBXB', '2018-12-11 10:00', '2018-12-11 10:00', latlngs_2, speeds_1)
+        bbx_track_3 = BBXTrack(123, 'BBXC', '2018-12-11 10:00', '2018-12-11 10:00', latlngs_3, speeds_3)
+        json_data=BBXTrackSerializer([bbx_track,bbx_track_2,bbx_track_3],many=True).data
+        # json_data = BBXTrackSerializer([bbx_track], many=True).data
         return Response(json_data)
 
 class GPSDataView(APIView):

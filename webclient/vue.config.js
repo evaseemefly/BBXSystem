@@ -31,6 +31,12 @@ module.exports = {
       })
     ]
   },
+  devServer: {
+    overlay: {
+      warnings: false,
+      errors: true
+    }
+  },
   // css相关配置
   css: {
     // 是否使用css分离插件 ExtractTextPlugin
@@ -42,4 +48,11 @@ module.exports = {
     // 启用 CSS modules for all css / pre-processor files.
     modules: false
   }
+  // devServer: {
+  //   overlay: {
+  //     warnings: false,
+  //     errors: true
+  //   },
+  //   lintOnSave: false
+  // }
 };
