@@ -9,6 +9,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "echarts": "^4.2.0-rc.2",
     "leaflet-plugin-trackplayback": "^1.0.5",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",

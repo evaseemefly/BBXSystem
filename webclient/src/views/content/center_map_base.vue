@@ -2,6 +2,7 @@
   <div id="mycontent">
     <div id="basemap"></div>
     <div id="timeline"></div>
+    <modalMain ref='modalChild'></modalMain>
     <div
       id="track_btn"
       class="btn-group"
@@ -68,6 +69,10 @@ import 'leaflet-defaulticon-compatibility'
 import '../../components/js/map/moveingmarker/MovingMarker.js'
 // import 'leaflet.css';
 // import '../../components/css/map/trackplay/control.playback.css'
+
+// 子组件
+import modalMain from '../member/modal/modal_main.vue'
+
 import { BBXTrackInfo } from '../../models/bbx.js'
 // 前后端交互api
 import { loadBBXNowList, loadBBXGPS, loadBBXTrack } from '../../api/api.js'
@@ -82,6 +87,9 @@ export default {
       trackMarkers: []
     }
 
+  },
+  components: {
+    modalMain
   },
   methods: {
     //开始，暂停，终止事件
@@ -120,66 +128,6 @@ export default {
           maxZoom: 8,
           minZoom: 2
         }).addTo(myself.mymap)
-        // var status = 0
-        // var popup = L.popup()
-
-        // var rectangleMeasure = {
-        //   startPoint: null,
-        //   endPoint: null,
-        //   rectangle: null,
-        //   tips: null,
-        //   layer: L.layerGroup(),
-        //   color: '#0D82D7',
-        //   addRectangle: function () {
-        //     rectangleMeasure.destory()
-        //     var bounds = []
-        //     bounds.push(rectangleMeasure.startPoint)
-        //     bounds.push(rectangleMeasure.endPoint)
-        //     rectangleMeasure.rectangle = L.rectangle(bounds, {
-        //       color: rectangleMeasure.color,
-        //       weight: 1
-        //     })
-        //     rectangleMeasure.rectangle.addTo(rectangleMeasure.layer)
-
-        //     var northWestPoint = rectangleMeasure.rectangle
-        //       .getBounds()
-        //       .getNorthWest(),
-        //       southEastPoint = rectangleMeasure.rectangle
-        //         .getBounds()
-        //         .getSouthEast()
-        //     rectangleMeasure.layer.addTo(map)
-        //   },
-        //   mousedown: function (e) {
-        //     rectangleMeasure.rectangle = null
-        //     rectangleMeasure.tips = null
-        //     map.dragging.disable()
-        //     rectangleMeasure.startPoint = e.latlng
-        //     map.on('mousemove', rectangleMeasure.mousemove)
-        //   },
-        //   mousemove: function (e) {
-        //     rectangleMeasure.endPoint = e.latlng
-        //     rectangleMeasure.addRectangle()
-        //     map
-        //       .off('mousedown ', rectangleMeasure.mousedown)
-        //       .on('mouseup', rectangleMeasure.mouseup)
-        //   },
-        //   mouseup: function (e) {
-        //     map.dragging.enable()
-        //     map
-        //       .off('mousemove', rectangleMeasure.mousemove)
-        //       .off('mouseup', rectangleMeasure.mouseup)
-        //       .off('mousedown', rectangleMeasure.mousedown)
-        //   },
-        //   destory: function () {
-        //     if (rectangleMeasure.rectangle) {
-        //       rectangleMeasure.layer.removeLayer(rectangleMeasure.rectangle)
-        //     }
-        //     if (rectangleMeasure.tips) {
-        //       rectangleMeasure.layer.removeLayer(rectangleMeasure.tips)
-        //     }
-        //   }
-        // }
-
         this.$emit('update:basemap', myself.mymap)
       }
 
@@ -264,21 +212,37 @@ export default {
         times).addTo(myself.mymap);
 
       // 添加至数组中
-      this.trackMarkers.push(myMovingMarker);
+      // this.trackMarkers.push(myMovingMarker);
       //3- 添加事件
+      // 业务逻辑-1：点击暂停，再次点击再移动（暂时不需要）
+      // myMovingMarker.once('click', function () {
+      //   console.log(this);
+      //   myMovingMarker.start();
+      //   myself.showModalFrame();
+      //   myMovingMarker.on('click', function () {
+      //     if (myMovingMarker.isRunning()) {
+      //       myMovingMarker.pause()
+      //     } else {
+      //       myMovingMarker.start()
+      //     }
+      //   })
+      // })
+      // 业务逻辑-2：点击获取该marker的id，并获取该marker的信息，加载指定船舶的数据
       myMovingMarker.once('click', function () {
         console.log(this);
-        myMovingMarker.start();
+        // myMovingMarker.start();
+        myself.showModalFrame();
         myMovingMarker.on('click', function () {
-          if (myMovingMarker.isRunning()) {
-            myMovingMarker.pause()
-          } else {
-            myMovingMarker.start()
-          }
+          myself.showModalFrame();
         })
       })
       myMovingMarker.start();
       return myMovingMarker;
+    },
+    // 调用加载子组件modal框
+    showModalFrame: function () {
+      // 调用modal子组件的showModal方法，显示modal窗口，并加载echarts数据
+      this.$refs.modalChild.showModal();
     },
     // 获取后台的trak数据
     loadBBXsTrack: function () {
