@@ -35,6 +35,12 @@ class BBXSpaceInfoView(APIView):
         return Response(json_geo.data)
 
 class BBXTrackView(APIView):
+    '''
+        船舶轨迹视图
+        fun：
+            1-根据传入的时间，获取当前时间的基准时间，并获取起止时间（72h前，now）
+            2-
+    '''
     def get(self,request):
         # 创建一组测试数据
         latlngs=[[-123.4726739,44.61131534],[-123.47325805,44.61110968],[-123.47325805,44.61110968],[-123.47325805,44.61110968]]
