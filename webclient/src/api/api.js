@@ -34,6 +34,12 @@ export const loadBBXTrack = par => {
   return axios.get(bbxTrackUrl, { params: par })
 }
 
+//加载指定船舶的指定时间的指定要素的观测值
+export const loadObservationData=par=>{
+  let dataUrl=`${host}/bbx/detail`
+  return axios.get(dataUrl,{params:par})
+}
+
 // 加载指定海区的船舶列表
 export const loadBBXList = par => {
   let bbxlistUrl = `${host}/bbx/list`
