@@ -114,13 +114,13 @@ DATABASES = {
         # 'PASSWORD':'123456',
 
         # p52s
-        'USER':'root',
-        'PASSWORD':'123456',
+        # 'USER':'root',
+        # 'PASSWORD':'123456',
         # 'HOST':'127.0.0.1',
 
         # mac
-        # 'USER': 'root',
-        # 'PASSWORD': '12345678'
+        'USER': 'root',
+        'PASSWORD': '12345678'
         # 'HOST':'127.0.0.1',
         # 'OPTIONS':{'init_command':'SET storage_engine=INNODB;'}
     },

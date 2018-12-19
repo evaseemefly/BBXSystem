@@ -7,6 +7,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.js";
 // import jQuery from 'jquery'
 Vue.config.productionTip = false;
+// 引入echarts
+window.echarts = require("echarts");
 
 window.jquery = window.$ = jquery;
 new Vue({

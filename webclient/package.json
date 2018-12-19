@@ -9,7 +9,6 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
-    "echarts": "^4.2.0-rc.2",
     "leaflet-plugin-trackplayback": "^1.0.5",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
@@ -26,6 +25,7 @@
     "babel-eslint": "^10.0.1",
     "bootstrap": "^3.4.0",
     "chai": "^4.1.2",
+    "echarts": "^4.2.0-rc.2",
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.0.0-0",
     "image-webpack-loader": "^4.6.0",
