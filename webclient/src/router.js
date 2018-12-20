@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
-import Home from "./views/Home.vue";
+// import Home from "./views/Home.vue";
+import Home from "./views/home/index_map_bbx.vue";
 import MyHome from "./views/home/index.vue";
 import Map from "./views/content/center_map_base.vue";
 import State from "./views/content/center_state.vue";
@@ -14,7 +15,7 @@ export default new Router({
     {
       path: "",
       name: "default",
-      component: Map
+      component: Home
     },
     {
       path: "/home",
