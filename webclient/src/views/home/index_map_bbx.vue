@@ -2,10 +2,10 @@
   <div>
     <topMenu></topMenu>
     <div class="content">
-      <div class="col-md-9">
+      <div class="col_full col-md-9">
         <centerMap></centerMap>
       </div>
-      <div class="col-md-3">
+      <div class="col_full col-md-3">
         <rightCharts></rightCharts>
       </div>
     </div>
@@ -27,5 +27,15 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.content {
+  width: 100%;
+  top: 50px;
+  bottom: 0px;
+  position: absolute;
+  margin: 0 auto;
+}
+.col_full {
+  height: 100%;
+}
 </style>

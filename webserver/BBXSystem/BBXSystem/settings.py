@@ -108,7 +108,8 @@ DATABASES = {
 
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         # 'NAME': 'bbxsystem',
-        'NAME': 'bbxsystemgis',
+        # 'NAME': 'bbxsystemgis',
+        'NAME': 'bbxsys',
         # w540
         # 'USER':'root',
         # 'PASSWORD':'123456',

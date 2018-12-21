@@ -9,6 +9,7 @@ import "bootstrap/dist/js/bootstrap.js";
 Vue.config.productionTip = false;
 // 引入echarts
 window.echarts = require("echarts");
+import "echarts/";
 
 window.jquery = window.$ = jquery;
 new Vue({

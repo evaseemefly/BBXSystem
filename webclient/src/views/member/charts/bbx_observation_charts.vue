@@ -6,7 +6,7 @@
 </template>
 
 <script>
-var echarts = require('echarts')
+// var echarts = require('echarts')
 export default {
   data () {
     return {
@@ -174,12 +174,13 @@ export default {
 
       // 为echarts对象加载数据 
       myChart.setOption(option);
-    }
+    },
+
   }
 }
 </script>
 
-<style>
+<style scoped>
 #main {
   height: 500px;
   width: 900px;

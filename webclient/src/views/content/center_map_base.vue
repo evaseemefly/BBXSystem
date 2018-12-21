@@ -411,17 +411,19 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 #mycontent {
-  position: absolute;
-  top: 188px;
-  height: 600px;
-  bottom: 0px;
+  /* position: absolute; */
+  /* top: 188px; */
+  /* height: 600px; */
+
+  /* bottom: 0px; */
+  height: 100%;
   width: 100%;
   overflow: hidden;
 }
 #basemap {
-  height: 600px;
+  height: 100%;
   width: 100%;
   position: absolute;
 }
