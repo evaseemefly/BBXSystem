@@ -15,24 +15,84 @@ from rest_framework import status
 import json
 
 from datetime import datetime,timedelta
+import time
 import pytz
 
 # model
 from .models import BBXInfo,BBXSpaceTempInfo
+# 中间模型
+from .middle_models import BBXDetailMidInfo
 from bbxgis.models import *
 from bbxgis.serializers import *
 
-
 # 序列化器
-from .serializers import BBXInfoSerializer,BBXSpaceTempInfoSerializer
+from .serializers import BBXInfoSerializer,BBXDetailInfoSerializer
+
+# 父类视图层
+from .views_base import BBXBaseView
+
+# 海区元祖
+area_tup=(
+    'n',
+    'e',
+    's'
+)
 
 class BBXInfoView(APIView):
+    '''
+
+    '''
     def get(self,request):
         bbxlist=BBXInfo.objects.all()
         json_data=BBXInfoSerializer(bbxlist,many=True)
         # return Response(serialize('json',bbxlist))
         return Response(json_data.data)
         # pass
+
+class BBXAllListView(APIView):
+    '''
+        获取三个海区的船舶列表
+    '''
+    def get(self,request):
+        bbxAllList=[]
+        # 分别根据三海区循环获取对应的船舶
+        for i in range(len(area_tup)):
+            print(area_tup[i])
+
+            bbxAllList.append(BBXDetailMidInfo(area_tup[i],self.getAreaAllBBXList(area_tup[i])))
+
+        json_data=BBXDetailInfoSerializer(bbxAllList,many=True).data
+        return Response(json_data)
+        pass
+
+    def getAreaAllBBXList(self,area):
+        '''
+            获取指定海区的全部船舶列表
+        :param area:
+        :return:
+        '''
+        bbx_list=BBXInfo.objects.filter(area=area)
+        return bbx_list
+
+
+class BBXStateListView(APIView,BBXBaseView):
+    def get(self,request):
+        test_date = '2018-09-20'
+        test_date = datetime.strptime(test_date, '%Y-%m-%d')
+        list= self.getBBXStateListbyArea('n',test_date)
+        pass
+
+
+class BBXAllStateListView(APIView):
+    '''
+        获取三个海区的船舶最新状态的列表
+    '''
+    def get(self,request):
+        pass
+
+
+
+
 
 def getBaseState(request,area=None,nowDate=''):
     if area is None and nowDate is None:
