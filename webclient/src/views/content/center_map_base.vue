@@ -252,19 +252,24 @@ export default {
         // 获取后端传过来的数据的长度
 
         // 将解析，并创建times数组
-        var lenList = res.data[0].speeds.length;
-        var times = [];
-        var timeTemp = 2000;
-        for (var i = 0; i <= lenList; i++) {
-          times.push(timeTemp)
-        }
+        // var lenList = res.data[0].speeds.length;
+        // var times = [];
+        // var timeTemp = 2000;
+        var start = "";
+        var end = "";
+        // for (var i = 0; i <= lenList; i++) {
+        //   times.push(timeTemp)
+        // }
         var tracks = []
         //
         for (let temp of res.data) {
-          var trackTemp = new BBXTrackInfo(temp.bsid, temp.code, temp.starttime, temp.endtime, temp.latlngs, temp.speeds);
-          tracks.push(trackTemp);
+          if (temp.latlngs.length != 0) {
+            var trackTemp = new BBXTrackInfo(temp.bid, temp.code, start, end, temp.latlngs, null);
+            tracks.push(trackTemp);
 
-          myself.trackMarkers.push(myself.loadMovingMarker(trackTemp));
+            myself.trackMarkers.push(myself.loadMovingMarker(trackTemp));
+          }
+
         }
         console.log(myself.trackMarkers);
 

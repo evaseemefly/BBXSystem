@@ -27,3 +27,20 @@ class StateDetailMidInfo:
         self.state=state
         self.count=count
 
+class AreaStatisticMidInfo:
+    def __init__(self,area,static):
+        self.area=area
+        self.static=static
+
+class StatisticMidInfo:
+    def __init__(self,state,count,list):
+        self.state=state
+        self.count=count
+        self.list=list
+
+class BBXTrackMidInfo:
+    def __init__(self,code,bid,latlngs):
+        self.code=code
+        self.bid=bid
+        self.latlngs=latlngs
+

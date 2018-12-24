@@ -23,10 +23,13 @@ def getDataRang(target_date,hours):
     :return:
     '''
     end_date=target_date
-    if hours>0:
-        start_date=end_date+timedelta(hours=-hours)
-    else:
-        start_date=end_date
+    start_date = end_date + timedelta(hours=-hours)
+    if hours<0:
+        end_date=start_date
+    # if hours>0:
+    #     start_date=end_date+timedelta(hours=-hours)
+    # else:
+    #     start_date=end_date
     return start_date,end_date
 
 def getMonthDateList(target_date):

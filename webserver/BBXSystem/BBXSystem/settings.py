@@ -177,3 +177,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# 一些自定义的变量
+# 船舶轨迹显示的时间长度
+BBX_TRACK_INTERVAL=24
