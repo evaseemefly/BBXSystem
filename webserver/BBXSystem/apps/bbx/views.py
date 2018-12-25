@@ -196,7 +196,7 @@ class BBXAllStateListView(APIView):
 
 
 
-def getBaseState(request,area=None,nowDate=''):
+def getBaseState(request,area='',nowDate=''):
     if area is None and nowDate is None:
         return HttpRequest('parameters is not enough')
     try:
@@ -205,7 +205,7 @@ def getBaseState(request,area=None,nowDate=''):
         d = datetime.now()
     # 好像是时区问题所以必须加8小时才行
     d = d.astimezone(pytz.UTC)+timedelta(hours=8)
-    bbxinfolist = BBXInfo.objects.all()
+    bbxinfolist = BBXInfo.objects.all().filter(area=area)
     timelimit =d.__str__()
     lst =[]
     print(timelimit.__str__(),nowDate)
@@ -229,7 +229,10 @@ def getBaseState(request,area=None,nowDate=''):
         state = x['state']
         if state != 'invalid':
             nowdateDelta = d-state
-            if nowdateDelta.seconds>ok_seconds:
+            #光用秒减的话int可能会溢出导致判断失败,所以加个days判断
+            if nowdateDelta.days>=1:
+                state='invalid'
+            elif nowdateDelta.seconds>ok_seconds:
                 if nowdateDelta.seconds>late_seconds:
                     state='noarrival'
                 else:
