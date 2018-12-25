@@ -1,5 +1,7 @@
 from django.conf.urls import url, include
+from django.urls import path
 from .views import BBXInfoView,BBXAllListView,BBXStateListView,AreaStatisticView,BBXGPSTrackView,RealtimeListView
+from . import views
 
 app_name='[gis]'
 urlpatterns = [
@@ -10,5 +12,7 @@ urlpatterns = [
     url(r'^bbxstatelist/$',BBXStateListView.as_view()),
     url(r'^areastatelist/$',AreaStatisticView.as_view()),
     url(r'^track/$',BBXGPSTrackView.as_view()),
-    url(r'^facotrlist/$',RealtimeListView.as_view())
+    url(r'^facotrlist/$',RealtimeListView.as_view()),
+    path('GetBaseState/<str:area>/<str:nowDate>',views.getBaseState),
+    path('GetBaseState/<str:area>/',views.getBaseState)
 ]
