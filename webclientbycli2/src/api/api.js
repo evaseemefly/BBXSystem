@@ -36,3 +36,7 @@ export const loadBBXList = par => {
     params: par
   })
 }
+export const loadBBXState = (area, time) => {
+  let bbxStateUrl = `${host}/bbx/GetBaseState/${area}/${time}`
+  return axios.get(bbxStateUrl)
+}
