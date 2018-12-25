@@ -30,13 +30,16 @@
         >
           <ul class="nav navbar-nav">
             <li class="active">
-              <a href="#">船舶地图<span class="sr-only">(current)</span></a>
+              <!-- <a href="#">船舶地图<span class="sr-only">(current)</span></a> -->
+              <router-link to="/map">船舶地图</router-link>
             </li>
             <li>
-              <a href="#">状态显示</a>
+              <!-- <a href="#">状态显示</a> -->
+              <router-link to="/state">船舶状态</router-link>
             </li>
             <li>
-              <a href="#">数据查询</a>
+              <!-- <a href="#">数据查询</a> -->
+              <router-link to="/search">船舶状态</router-link>
             </li>
           </ul>
         </div>

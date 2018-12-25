@@ -117,7 +117,7 @@ export default {
     initMap: function () {
       var myself = this
       if (myself.mymap == null) {
-        myself.mymap = L.map('basemap').setView([44.61131534, -123.4726739], 7)
+        myself.mymap = L.map('basemap').setView([30.09, 127.75], 4)
         // var mymap = L.map('basemap').setView([51.505, -0.09], 13)
         // mapLink = "../static/mapfiles/";
 

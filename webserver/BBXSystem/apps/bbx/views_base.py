@@ -18,9 +18,9 @@ from datetime import datetime,timedelta
 import pytz
 
 # model
-from .models import BBXInfo,BBXSpaceTempInfo
+from .models import *
 # 中间模型
-from .middle_models import BBXDetailMidInfo,BBXStateDetailMidInfo,StateDetailMidInfo,BBXTrackMidInfo
+from .middle_models import BBXDetailMidInfo,BBXStateDetailMidInfo,StateDetailMidInfo,BBXTrackMidInfo,RealtimeMidInfo
 from bbxgis.models import *
 from bbxgis.serializers import *
 
@@ -146,6 +146,35 @@ class BBXBaseView(BaseView):
             list=BBXSpaceTempInfo.objects.filter(bid_id=bid,nowdate__lte=end,nowdate__gte=start)
         count=len(list)
         return count
+
+    def getTargetFactorList(self,bid,start,end,factor):
+        '''
+            获取指定船舶的指定要素观测值
+        :param bid:
+        :param start:
+        :param end:
+        :param factor:
+        :return:
+        '''
+        list= RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp',factor)
+        list_convert=[RealtimeMidInfo(temp['timestamp'],temp[factor]) for temp in list]
+        return list_convert
+        # return RealtimeData.objects.filter(bid_id=bid,timestamp__lte=end,timestamp__gte=start).values('timestamp',factor)
+
+    def getAllBBXlistByNow(self,targetDate):
+        '''
+            获取全部海区的当前24小时以内有数据的船舶列表（并去重）
+        :param targetDate:
+        :return:
+        '''
+        start,end=self._getStateDatetimes('noarrival',targetDate)
+        list=BBXSpaceTempInfo.objects\
+            .filter(nowdate__gte=start,nowdate__lte=end)\
+            .values('bid','code')\
+            .distinct()\
+            .order_by('bid')
+
+        return list
 
 
     def getAreaALLBBXBaseList(self,area):

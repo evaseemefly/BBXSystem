@@ -29,6 +29,12 @@ export const loadBBXNowList = par => {
   let bbxnowUrl = `${host}/gis/bbxspace`;
   return axios.get(bbxnowUrl);
 };
+
+// 获取当前时间24小时范围内的全部船舶列表
+export const loadBBXlistByNow = par => {
+  let bbxTrackUrl = `${host}/bbx/areaalllist`;
+  return axios.get(bbxTrackUrl, { params: par });
+};
 export const loadBBXTrack = par => {
   let bbxTrackUrl = `${host}/bbx/track`;
   return axios.get(bbxTrackUrl, { params: par });
@@ -44,6 +50,14 @@ export const loadObservationData = par => {
 export const loadBBXList = par => {
   let bbxlistUrl = `${host}/bbx/list`;
   return axios.get(bbxlistUrl, {
+    params: par
+  });
+};
+
+// 获取指定bbx的指定时间的指定要素的观测列表
+export const loadRealtime = par => {
+  let realtimeUrl = `${host}/bbx/facotrlist`;
+  return axios.get(realtimeUrl, {
     params: par
   });
 };

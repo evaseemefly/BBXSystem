@@ -50,21 +50,35 @@ class BBXInfoView(APIView):
         return Response(json_data.data)
         # pass
 
-class BBXAllListView(APIView):
+class BBXAllListView(APIView,BBXBaseView):
     '''
         获取三个海区的船舶列表
+        注意此处重新做了修改，
+            1- 获取三个海区的全部船舶
+            2-获取当前时间的24之内的有传输的船舶（去重）
     '''
     def get(self,request):
+        operationIndex=request.GET.get('operation','')
+        targetDate=request.GET.get('nowdate','')
+        if targetDate!='':
+            targetDate = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         bbxAllList=[]
-        # 分别根据三海区循环获取对应的船舶
-        for i in range(len(area_tup)):
-            print(area_tup[i])
+        if operationIndex!='now':
+            # 分别根据三海区循环获取对应的船舶
+            for i in range(len(area_tup)):
+                print(area_tup[i])
 
-            bbxAllList.append(BBXDetailMidInfo(area_tup[i],self.getAreaAllBBXList(area_tup[i])))
+                bbxAllList.append(BBXDetailMidInfo(area_tup[i],self.getAreaAllBBXList(area_tup[i])))
 
-        json_data=BBXDetailInfoSerializer(bbxAllList,many=True).data
+            json_data=BBXDetailInfoSerializer(bbxAllList,many=True).data
+        elif operationIndex=='now':
+            # 获取当前时刻的船舶列表
+            list=self.getAllBBXlistByNow(targetDate)
+            bbxAllList.append(BBXDetailMidInfo('a',list))
+            # 注意此处由于是数组，所以需要加上many参数
+            json_data=BBXSimpDetailInfoSerializer(bbxAllList,many=True).data
+
         return Response(json_data)
-        pass
 
     def getAreaAllBBXList(self,area):
         '''
@@ -85,6 +99,21 @@ class BBXStateListView(APIView,BBXBaseView):
         test_date = datetime.strptime(test_date, '%Y-%m-%d')
         list= self.getBBXStateListbyArea('n',test_date)
         json_data=BBXStateDetailMidSerializer(list,many=True).data
+        return Response(json_data)
+
+class RealtimeListView(APIView,BBXBaseView):
+    '''
+        获取指定要素的观测值序列
+    '''
+    def get(self,request):
+        factor=request.GET.get('factor','')
+        bid=int(request.GET.get('bid',-1))
+        end_date= '2018-12-08 00:00'
+        start_date='2018-12-07 00:00'
+        start_date=datetime.strptime(start_date,'%Y-%m-%d %H:%M')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d %H:%M')
+        list= self.getTargetFactorList(bid,start_date,end_date,factor)
+        json_data=RealtimeSimpSerializer(list,many=True).data
         return Response(json_data)
 
 class AreaStatisticView(APIView,BBXBaseView):

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import  BBXInfo
+from .models import  BBXInfo,RealtimeData
 
 class BBXInfoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,6 +12,21 @@ class BBXDetailInfoSerializer(serializers.Serializer):
     '''
     area=serializers.CharField()
     bbxlist=BBXInfoSerializer(many=True)
+
+class BBXSimpInfoSerializer(serializers.Serializer):
+    '''
+        精简版的船舶
+        只包含code bid
+    '''
+    bid=serializers.IntegerField()
+    code=serializers.CharField()
+
+class BBXSimpDetailInfoSerializer(serializers.Serializer):
+    '''
+        海区及船舶集合
+    '''
+    area=serializers.CharField()
+    bbxlist=BBXSimpInfoSerializer(many=True)
 
 class StateDetailMidSerializer(serializers.Serializer):
     state=serializers.CharField()
@@ -37,3 +52,9 @@ class BBXTrackMidInfoSerializer(serializers.Serializer):
     bid=serializers.IntegerField()
     latlngs=serializers.ListField()
 
+class RealtimeSimpSerializer(serializers.Serializer):
+    timestamp=serializers.DateTimeField()
+    val=serializers.FloatField()
+    # class Meta:
+    #     model=RealtimeData
+    #     fields=('__all__')

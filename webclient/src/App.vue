@@ -1,14 +1,24 @@
 <template>
   <div id="app">
-    <div id="nav">
+    <!-- <div id="nav">
       <router-link to="/">首页</router-link> |
       <router-link to="/about">船舶状态</router-link>|
       <router-link to="/map">船舶显示</router-link>
       <router-link to="/state">状态显示</router-link>
-    </div>
+    </div> -->
+    <topMenu></topMenu>
     <router-view />
   </div>
 </template>
+<script>
+import topMenu from './views/head/top_main_menu.vue';
+export default {
+  components: {
+    topMenu
+  }
+}
+</script>
+
 
 <style lang="scss">
 #app {
