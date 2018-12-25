@@ -1,6 +1,6 @@
 <template>
-  <div class='area'>
-    <span class='area_title'>{{area.name}}</span>
+  <div class="area">
+    <span class="area_title">{{area.name}}</span>
     <!-- <table>
       <tr
         v-for="(rowindex,index) in bbxlistRowsNum"
@@ -16,74 +16,73 @@
           <span>{{rowindex}}-{{columnsindex}}</span>
         </td>
       </tr>
-    </table> -->
+    </table>-->
     <!-- 方式2，不使用table，使用div -->
     <div
-      class='cell'
+      class="cell"
       v-for="(item, index) in bbxlist"
       :key="index"
       :class="item.state"
-    >
-      {{item.name}}
-    </div>
+    >{{item.name}}</div>
   </div>
 </template>
 
 <script>
 // 加载各类model
-import { BBXStateInfo } from '../../models/bbx.js'
+import { BBXStateInfo } from "../../models/bbx.js";
 
 // 前后端交互api
-import { loadBBXStateList } from '../../api/api.js'
+import { loadBBXStateList, loadBBXState } from "../../api/api.js";
+
 export default {
-  data () {
+  data() {
     return {
       // 该海区的船舶列表
       // 当前为测试数据
       bbxlist: [
-        {
-          code: "BBX_1",
-          name: "BBX_1",
-          state: "ok"
-        },
-        {
-          code: "BBX_2",
-          name: "BBX_2",
-          state: "invalid"
-        },
-        {
-          code: "BBX_3",
-          name: "BBX_3",
-          state: "ok"
-        },
-        {
-          code: "BBX_4",
-          name: "BBX_4",
-          state: "noarrival"
-        },
-        {
-          code: "BBX_5",
-          name: "BBX_5",
-          state: "late"
-        },
-        {
-          code: "BBX_6",
-          name: "BBX_6",
-          state: "ok"
-        },
-        {
-          code: "BBX_7",
-          name: "BBX_7",
-          state: "noarrival"
-        },
-        {
-          code: "BBX_8",
-          name: "BBX_8",
-          state: "ok"
-        }
+        // {
+        //   code: "BBX_1",
+        //   name: "BBX_1",
+        //   state: "ok"
+        // },
+        // {
+        //   code: "BBX_2",
+        //   name: "BBX_2",
+        //   state: "invalid"
+        // },
+        // {
+        //   code: "BBX_3",
+        //   name: "BBX_3",
+        //   state: "ok"
+        // },
+        // {
+        //   code: "BBX_4",
+        //   name: "BBX_4",
+        //   state: "noarrival"
+        // },
+        // {
+        //   code: "BBX_5",
+        //   name: "BBX_5",
+        //   state: "late"
+        // },
+        // {
+        //   code: "BBX_6",
+        //   name: "BBX_6",
+        //   state: "ok"
+        // },
+        // {
+        //   code: "BBX_7",
+        //   name: "BBX_7",
+        //   state: "noarrival"
+        // },
+        // {
+        //   code: "BBX_8",
+        //   name: "BBX_8",
+        //   state: "ok"
+        // }
       ],
       columnsCount: 5
-    }
+    };
   },
   props: {
     // 由父组件传入的海区对象
@@ -92,33 +91,34 @@ export default {
       required: true
     }
   },
+  // props: ["area"],
   computed: {
     //获取船舶集合的总行数（长度/行长度）
-    bbxlistRowsNum: function () {
-      return Math.round(this.bbxlist.length / this.columnsCount)
+    bbxlistRowsNum: function() {
+      return Math.round(this.bbxlist.length / this.columnsCount);
     },
     // 获取船舶的列数
-    bbxlistColumnsNum: function () {
+    bbxlistColumnsNum: function() {
       var num = this.columnsCount;
       if (this.bbxlist.length < num) {
-        num = this.bbxlist.length
+        num = this.bbxlist.length;
       }
       return num;
     }
   },
   methods: {
     // 根据海区编号获取该海区所用的全部志愿船舶的状态集合
-    loadBBXlist: function (area) {
-      loadBBXStateList(area).then(res => {
+    loadBBXlist: function(area) {
+      loadBBXStateList(this.props.area).then(res => {
         console.log(res);
-      })
+      });
     },
     // 加载指定海区的全部船舶列表
     loadBaseBBXlist: function(area) {
       let timeParam = "2018-12-22 22:22";
       var that = this;
       var area = this.area.id;
-      loadBBXState(area, timeParam)
+      loadBBXState(area, "")
         .then(res => {
           that.bbxlist = res.data;
           that.columnsCount = res.data.length;
@@ -132,7 +132,7 @@ export default {
     //页面加载时根据area获取指定海区的全部船舶
     this.loadBaseBBXlist();
   }
-}
+};
 </script>
 
 <style>
