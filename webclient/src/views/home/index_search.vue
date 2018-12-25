@@ -37,5 +37,7 @@ export default {
   top: 50px;
   bottom: 0px;
   width: 100%;
+  background-color: rgba(13, 18, 40, 0.831);
+  /* color:rgb(189, 196, 56) */
 }
 </style>

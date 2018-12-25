@@ -1,6 +1,6 @@
 <template>
   <div>
-    <topMenu></topMenu>
+    <!-- <topMenu></topMenu> -->
     <div class="content">
       <div class="col_full col-md-9">
         <centerMap></centerMap>
@@ -34,6 +34,7 @@ export default {
   bottom: 0px;
   position: absolute;
   margin: 0 auto;
+  background-color: rgba(13, 18, 40, 0.831);
 }
 .col_full {
   height: 100%;

@@ -5,9 +5,9 @@
       class="panel-body"
       style="padding-bottom:0px;"
     >
-      <div class="panel panel-primary">
+      <div class="panel ">
         <div class="panel-heading">查询条件</div>
-        <div class="panel-body table-parent-panel">
+        <div class="panel-body table-parent-panel searchbar">
           <form
             id="formSearch"
             class="form-horizontal"
@@ -148,5 +148,18 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.searchbar {
+  box-shadow: 0 2px 10px rgb(229, 238, 238);
+}
+.panel {
+  border: 0px;
+}
+.panel-heading {
+  background-color: rgb(33, 108, 81);
+  color: aliceblue;
+  font-size: 2em;
+  font-weight: bold;
+  text-shadow: 2px 2px 10px #000;
+}
 </style>

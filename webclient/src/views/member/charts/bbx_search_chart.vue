@@ -63,15 +63,15 @@ export default {
             itemStyle: {
               normal: {
                 //设置折点的颜色
-                color: '#4169E1',
+                color: 'rgb(189, 196, 56)',
                 //注意lineStyle需要卸载normal里面
                 //自定义折线颜色
                 lineStyle: {
-                  color: '#00FF00'
+                  color: ''
                 },
                 //自定义折线下区域的颜色
                 areaStyle: {
-                  color: '#B0E0E6'
+                  color: 'rgb(56, 196, 147)'
                 },
 
                 label: {
@@ -145,5 +145,6 @@ export default {
 #main {
   width: 95%;
   height: 800px;
+  /* box-shadow: 0 0 3px rgb(229, 238, 238); */
 }
 </style>

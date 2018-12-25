@@ -104,5 +104,6 @@ export default {
 <style scoped>
 .right_charts {
   height: 100%;
+  /* color: rgba(57, 50, 104, 0.694); */
 }
 </style>
