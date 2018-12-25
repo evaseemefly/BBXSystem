@@ -114,12 +114,23 @@ export default {
       })
     },
     // 加载指定海区的全部船舶列表
-    loadBaseBBXlist: function (area) {
-
+    loadBaseBBXlist: function(area) {
+      let timeParam = "2018-12-22 22:22";
+      var that = this;
+      var area = this.area.id;
+      loadBBXState(area, timeParam)
+        .then(res => {
+          that.bbxlist = res.data;
+          that.columnsCount = res.data.length;
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
   },
-  mounted: function () {
+  mounted: function() {
     //页面加载时根据area获取指定海区的全部船舶
+    this.loadBaseBBXlist();
   }
 }
 </script>
