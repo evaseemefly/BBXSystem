@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import { loadRealtime } from '../../../api/api.js';
 // var echarts = require('echarts')
 export default {
   data () {
@@ -105,9 +106,13 @@ export default {
       myChart.setOption(option);
       // myChartContent.setOption(option);
     },
-    initCharts: function () {
+    initCharts: function (params) {
       // 基于准备好的dom，初始化echarts图表
+      var myself = this;
       var myChart = echarts.init(document.getElementById('main'));
+      // this.values = [];
+      // this.columns = [];
+      // console.log(params);
       //				var myChartContent=echarts.init(document.getElementById('bar_content'));
       //		var myBar = echarts.init(document.getElementById('mybar'));
       var option = {
@@ -119,7 +124,7 @@ export default {
         },
         xAxis: [{
           type: 'category',
-          data: ["2018-2-1 15:00", "2018-2-1 16:00", "2018-2-1 17:00", "2018-2-1 18:00", "2018-2-1 19:00", "2018-2-1 20:00", "2018-2-1 21:00", "2018-2-1 22:00", "2018-2-1 23:00", "2018-2-2 00:00", "2018-2-2 01:00", "2018-2-2 02:00"],
+          data: myself.columns,
           //使用以下方式实现显示全部x坐标上的点
           "axisLabel": {
             //interval: 0,
@@ -136,7 +141,10 @@ export default {
             //					interval: 0,
             textStyle: {
               color: '#FFFFFF'
-            }
+            },
+            // formatter: function (value, index) {
+            //   return value.toFixed(2);
+            // }
           },
         }],
         series: [{
@@ -163,7 +171,7 @@ export default {
             }
 
           }, //向下填充区域
-          "data": [0.37, 0.34, 0.32, 0.30, 0.29, 0.28, 0.27, 0.26, 0.25, 0.24, 0.23, 0.22],
+          "data": myself.values,
           label: {
             normal: {
               show: true

@@ -36,7 +36,12 @@ import { loadAllAreaStatistic } from '../../../api/api.js'
 export default {
   data () {
     return {
-      statistics: []
+      statistics: [],
+      areaDict: {
+        'n': '北海',
+        'e': '东海',
+        's': '南海'
+      }
     }
   },
   components: {
@@ -61,7 +66,7 @@ export default {
             var val = temp_static.count;
             stateTemp[key] = val;
           }
-          var statisticTemp = new AreaStatisticsInfo(area_str + '_area', 'area_str', area_str + '海船舶到报情况', stateTemp);
+          var statisticTemp = new AreaStatisticsInfo(area_str + '_area', 'area_str', myself.areaDict[area_str] + '船舶到报情况', stateTemp);
           myself.statistics.push(statisticTemp);
         }
       })

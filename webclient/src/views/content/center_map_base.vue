@@ -84,7 +84,8 @@ export default {
       trackplay: null,
       trackplaycontrol: null,
       baseUrl: process.env.BASE_URL,
-      trackMarkers: []
+      trackMarkers: [],
+      bbxs: []
     }
 
   },
@@ -229,26 +230,35 @@ export default {
       // })
       // 业务逻辑-2：点击获取该marker的id，并获取该marker的信息，加载指定船舶的数据
       myMovingMarker.once('click', function () {
-        console.log(this);
+        var that = this;
+        // var bbxInfo = myself.bbxs.filter(obj => {
+        //   obj.id === that._animId;
+        // });
+
+        var bbxInfo = myself.bbxs.find(obj => {
+          return obj.id === that._leaflet_id;
+        });
+
+        // console.log(this);
         // myMovingMarker.start();
-        myself.showModalFrame();
+        myself.showModalFrame(bbxInfo);
         myMovingMarker.on('click', function () {
-          myself.showModalFrame();
+          myself.showModalFrame(bbxInfo);
         })
       })
       myMovingMarker.start();
       return myMovingMarker;
     },
     // 调用加载子组件modal框
-    showModalFrame: function () {
+    showModalFrame: function (params) {
       // 调用modal子组件的showModal方法，显示modal窗口，并加载echarts数据
-      this.$refs.modalChild.showModal();
+      this.$refs.modalChild.showModal(params);
     },
     // 获取后台的trak数据
     loadBBXsTrack: function () {
       loadBBXTrack().then(res => {
         var myself = this;
-        console.log(res)
+        // console.log(res)
         // 获取后端传过来的数据的长度
 
         // 将解析，并创建times数组
@@ -266,8 +276,14 @@ export default {
           if (temp.latlngs.length != 0) {
             var trackTemp = new BBXTrackInfo(temp.bid, temp.code, start, end, temp.latlngs, null);
             tracks.push(trackTemp);
-
-            myself.trackMarkers.push(myself.loadMovingMarker(trackTemp));
+            var track = myself.loadMovingMarker(trackTemp)
+            myself.trackMarkers.push(track);
+            // 注意此处需要重新向bbxs中推送这个track对象的id（_leaflet_id)!!
+            myself.bbxs.push({
+              bid: temp.bid,
+              code: temp.code,
+              id: track._leaflet_id
+            })
           }
 
         }

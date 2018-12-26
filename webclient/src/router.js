@@ -4,7 +4,8 @@ import Router from "vue-router";
 import Map from "./views/home/index_map_bbx.vue";
 import MyHome from "./views/home/index.vue";
 // import Map from "./views/content/center_map_base.vue";
-import State from "./views/content/center_state.vue";
+// import State from "./views/content/center_state.vue";
+import State from "./views/home/index_state.vue";
 
 import MainHome from "./App.vue";
 

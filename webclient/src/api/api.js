@@ -66,3 +66,8 @@ export const loadAllAreaStatistic = par => {
   let bbxlistUrl = `${host}/bbx/areastatelist`;
   return axios.get(bbxlistUrl, { params: par });
 };
+
+export const loadBBXState = (area, time) => {
+  let bbxStateUrl = `${host}/bbx/GetBaseState/${area}/${time}`;
+  return axios.get(bbxStateUrl);
+};

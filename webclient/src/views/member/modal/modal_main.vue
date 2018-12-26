@@ -18,7 +18,7 @@
             data-dismiss="modal"
             aria-label="Close"
           ><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">船舶编号</h4>
+          <h4 class="modal-title">船舶编号{{bbxCode}}</h4>
         </div>
         <div class="modal-body">
           <div>
@@ -71,7 +71,7 @@
 import bbxObservation from '../../member/charts/bbx_observation_charts.vue'
 
 //前后端api
-import { loadObservationData } from '../../../api/api.js'
+import { loadRealtime } from '../../../api/api.js'
 export default {
   //modal框主体部分
   data () {
@@ -112,23 +112,27 @@ export default {
       ],
       indexMenu: 0,
       targetDate: '2018-12-18 00:00',
-      childVals: ['sss', 'ssss'],
-      childColumns: ['123', '123'],
-      childTitle: '测试测试'
+      childVals: [],
+      childColumns: [],
+      childTitle: '测试测试',
+      bbxCode: '',
+      bid: 0
     }
   },
   components: {
     bbxObservation
   },
   methods: {
-    showModal: function () {
-      console.log('显示modal窗');
+    showModal: function (par) {
+      // console.log(par);
+      this.bbxCode = par.code;
+      this.bid = par.bid;
       $("#mymodal").modal();
     },
-    initCharts: function () {
+    initCharts: function (params) {
       // 父组件调用子组件的初始化方法
       this.$refs.bbxObs.initCharts();
-      console.log('调用成功');
+      // console.log('调用成功');
     },
     // 切换导航栏
     active: function (index) {
@@ -137,18 +141,26 @@ export default {
     },
 
     // 加载指定code以及指定datetime的观测值
-    loadDetailData: function (code, date) {
+    loadDetailData: function (code, bid, factor, date) {
+      var myself = this;
       let params = {
         code: code,
-        targetdate: date
-      }
-      // 暂时注释掉真正读取的操作
-      // 父组件将由后台返回的vals与columns赋值为要传递给子组件的data中
-      this.childVals = [0.37, 0.34, 0.32, 0.30, 0.29, 0.28, 0.27, 0.26, 0.25, 0.24, 0.23, 0.22];
-      this.childColumns = ["2018-2-1 15:00", "2018-2-1 16:00", "2018-2-1 17:00", "2018-2-1 18:00", "2018-2-1 19:00", "2018-2-1 20:00", "2018-2-1 21:00", "2018-2-1 22:00", "2018-2-1 23:00", "2018-2-2 00:00", "2018-2-2 01:00", "2018-2-2 02:00"];
-
-      // 初始化echarts
-      this.initCharts();
+        targetdate: date,
+        factor: factor,
+        bid: bid
+      };
+      this.childVals = [];
+      this.childColumns = [];
+      loadRealtime(params).then(res => {
+        // 暂时注释掉真正读取的操作
+        // 父组件将由后台返回的vals与columns赋值为要传递给子组件的data中
+        res.data.forEach(obj => {
+          myself.childVals.push(obj.val);
+          myself.childColumns.push(obj.timestamp);
+        });
+        // 初始化echarts
+        this.initCharts(params);
+      });
 
       // loadObservationData(params).then(res=>{
       //     //模拟数据请求操作
@@ -164,10 +176,12 @@ export default {
     // 监听menu index，当发生变化时，向后台请求并获取指定类型
     indexMenu: function (newVal, oldVal) {
       // 获取当前选中的菜单中对应的code
-      var nowCode = this.menulist[newVal].code;
-      console.log(nowCode);
+      var factor = this.menulist[newVal].code;
+      // console.log(nowCode);
+      var code = this.bbxCode;
+      var bid = this.bid;
       // 
-      this.loadDetailData(nowCode, this.targetDate)
+      this.loadDetailData(code, bid, factor, this.targetDate);
     }
   }
 
