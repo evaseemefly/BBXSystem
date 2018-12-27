@@ -1,21 +1,30 @@
 import Vue from "vue";
 import Router from "vue-router";
 // import Home from "./views/Home.vue";
-import Home from "./views/home/index_map_bbx.vue";
+import Map from "./views/home/index_map_bbx.vue";
 import MyHome from "./views/home/index.vue";
-import Map from "./views/content/center_map_base.vue";
-import State from "./views/content/center_state.vue";
+// import Map from "./views/content/center_map_base.vue";
+// import State from "./views/content/center_state.vue";
+import State from "./views/home/index_state.vue";
 
+import MainHome from "./App.vue";
+
+import Search from "./views/home/index_search.vue";
 Vue.use(Router);
 
 export default new Router({
   mode: "history",
   base: process.env.BASE_URL,
   routes: [
+    // {
+    //   path: "",
+    //   name: "default",
+    //   component: Home
+    // },
     {
       path: "",
       name: "default",
-      component: Home
+      component: MainHome
     },
     {
       path: "/home",
@@ -31,6 +40,11 @@ export default new Router({
       path: "/state",
       name: "state",
       component: State
+    },
+    {
+      path: "/search",
+      name: "search",
+      component: Search
     },
     {
       path: "/about",
