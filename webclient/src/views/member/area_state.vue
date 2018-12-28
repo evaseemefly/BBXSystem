@@ -1,6 +1,8 @@
 <template>
   <div class="area">
-    <span class="area_title">{{area.name}}</span>
+    <div>
+      <span class="area_title">{{area.name}}</span>
+    </div>
     <!-- <table>
       <tr
         v-for="(rowindex,index) in bbxlistRowsNum"
@@ -23,6 +25,7 @@
       v-for="(item, index) in bbxlist"
       :key="index"
       :class="item.state"
+      :title="item.lastestTime"
     >{{item.name}}</div>
   </div>
 </template>
@@ -35,12 +38,11 @@ import { BBXStateInfo } from "../../models/bbx.js";
 import { loadBBXStateList, loadBBXState } from "../../api/api.js";
 
 export default {
-  data () {
+  data() {
     return {
       // 该海区的船舶列表
       // 当前为测试数据
-      bbxlist: [
-      ],
+      bbxlist: [],
       columnsCount: 5
     };
   },
@@ -54,11 +56,11 @@ export default {
   // props: ["area"],
   computed: {
     //获取船舶集合的总行数（长度/行长度）
-    bbxlistRowsNum: function () {
+    bbxlistRowsNum: function() {
       return Math.round(this.bbxlist.length / this.columnsCount);
     },
     // 获取船舶的列数
-    bbxlistColumnsNum: function () {
+    bbxlistColumnsNum: function() {
       var num = this.columnsCount;
       if (this.bbxlist.length < num) {
         num = this.bbxlist.length;
@@ -68,13 +70,13 @@ export default {
   },
   methods: {
     // 根据海区编号获取该海区所用的全部志愿船舶的状态集合
-    loadBBXlist: function (area) {
+    loadBBXlist: function(area) {
       loadBBXStateList(this.props.area).then(res => {
         console.log(res);
       });
     },
     // 加载指定海区的全部船舶列表
-    loadBaseBBXlist: function (area) {
+    loadBaseBBXlist: function(area) {
       let timeParam = "2018-12-22 22:22";
       var that = this;
       var area = this.area.id;
@@ -88,7 +90,7 @@ export default {
         });
     }
   },
-  mounted: function () {
+  mounted: function() {
     //页面加载时根据area获取指定海区的全部船舶
     this.loadBaseBBXlist();
   }
@@ -102,9 +104,10 @@ export default {
   padding-bottom: 5px;
   padding-left: 5px;
   padding-right: 5px;
-
+  padding-bottom: 10px;
   margin-top: 5px;
 }
+
 .area .area_title {
   display: block;
   color: #fff;
@@ -113,6 +116,11 @@ export default {
   border-radius: 5px;
   /* margin-top: 20px; */
   margin-bottom: 20px;
+  font-family: "微软雅黑";
+}
+.area_title {
+  display: inline-block;
+  margin-top: 0.5em;
 }
 .cell {
   display: inline-block;
@@ -128,7 +136,14 @@ export default {
   margin-left: 5px;
   margin-right: 5px;
   margin-top: 5px;
+  transition: 0.5s;
 }
+.cell:hover {
+  cursor: pointer;
+  box-shadow: 0px 0px 5px white;
+  text-shadow: 1px 1px 2px black;
+}
+
 .ok {
   background: #23b37e;
 }
