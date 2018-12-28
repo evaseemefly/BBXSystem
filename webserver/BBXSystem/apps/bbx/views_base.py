@@ -160,7 +160,13 @@ class BBXBaseView(BaseView):
         end=end-timedelta(hours=8)
         list= RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp',factor)
 
-        list_convert=[RealtimeMidInfo(temp['timestamp'],temp[factor].__round__(2)) for temp in list]
+        list_convert=[RealtimeMidInfo(temp['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),temp[factor].__round__(2)) for temp in list]
+        #为了如果没得到任何结果，让屏幕显示点东西
+        if len(list_convert) == 0:
+            dict_first = {'timestamp':start.strftime('%Y-%m-%d %H:%M:%S'),'val':0}
+            dict_last={'timestamp':end.strftime('%Y-%m-%d %H:%M:%S'),'val':0}
+            list_convert.append(dict_first)
+            list_convert.append(dict_last)
         return list_convert
         # return RealtimeData.objects.filter(bid_id=bid,timestamp__lte=end,timestamp__gte=start).values('timestamp',factor)
 
