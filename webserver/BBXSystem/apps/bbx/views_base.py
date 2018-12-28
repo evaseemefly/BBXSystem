@@ -156,8 +156,11 @@ class BBXBaseView(BaseView):
         :param factor:
         :return:
         '''
+        start=start-timedelta(hours=8)
+        end=end-timedelta(hours=8)
         list= RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp',factor)
-        list_convert=[RealtimeMidInfo(temp['timestamp'],temp[factor]) for temp in list]
+
+        list_convert=[RealtimeMidInfo(temp['timestamp'],temp[factor].__round__(2)) for temp in list]
         return list_convert
         # return RealtimeData.objects.filter(bid_id=bid,timestamp__lte=end,timestamp__gte=start).values('timestamp',factor)
 
