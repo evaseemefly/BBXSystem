@@ -30,12 +30,13 @@ DEBUG = True
 
 # 加入跨域访问允许的端口
 ALLOWED_HOSTS = [
-    'localhost:8015',
-    '127.0.0.1:8015',
-
-    '127.0.0.1',
-    '127.0.0.1:8080',
-    'localhost:8080'
+'*'
+    # 'localhost:8015',
+    # '127.0.0.1:8015',
+    #
+    # '127.0.0.1',
+    # '127.0.0.1:8080',
+    # 'localhost:8080'
 ]
 
 
@@ -111,7 +112,14 @@ DATABASES = {
         # 'NAME': 'bbxsystemgis',
         # 'NAME': 'bbxsys',
         # 现在使用的最新的数据库名称
-        'NAME': 'bbx',
+        # 'NAME': 'bbx',
+
+        # 线上数据库
+        'NAME': 'BBX',
+        # centos
+        'USER': 'arfu',
+        'PASSWORD': '@Tongxin321'
+        
         # w540
         # 'USER':'root',
         # 'PASSWORD':'123456',
@@ -125,8 +133,8 @@ DATABASES = {
         # 'USER': 'root',
         # 'PASSWORD': '111111'
 #     # mac
-        'USER': 'root',
-        'PASSWORD': '12345678'
+#         'USER': 'root',
+#         'PASSWORD': '12345678'
 
 
         # 'HOST':'127.0.0.1',
