@@ -108,10 +108,14 @@ class RealtimeListView(APIView,BBXBaseView):
     def get(self,request):
         factor=request.GET.get('factor','')
         bid=int(request.GET.get('bid',-1))
-        end_date= '2018-12-08 00:00'
-        start_date='2018-12-07 00:00'
-        start_date=datetime.strptime(start_date,'%Y-%m-%d %H:%M')
-        end_date = datetime.strptime(end_date, '%Y-%m-%d %H:%M')
+        now = datetime.now()
+        #end_date= '2018-12-08 00:00'
+        #start_date='2018-12-07 00:00'
+        #改成当前一天的时间
+        start_date = datetime.strptime(now.strftime('%Y-%m-%d')+' 00:00','%Y-%m-%d %H:%M')
+        end_date = datetime.strptime(now.strftime('%Y-%m-%d')+' 23:59','%Y-%m-%d %H:%M')
+        #start_date=datetime.strptime(start_date,'%Y-%m-%d %H:%M')
+        #end_date = datetime.strptime(end_date, '%Y-%m-%d %H:%M')
         list= self.getTargetFactorList(bid,start_date,end_date,factor)
         json_data=RealtimeSimpSerializer(list,many=True).data
         return Response(json_data)
@@ -216,8 +220,10 @@ def getBaseState(request,area='',nowDate=''):
         dt=x.bbxspacetempinfo_set.filter(nowdate__lte=timelimit).aggregate(Max('nowdate'))
         if dt['nowdate__max'] is not None:
             dic['state'] = dt['nowdate__max']
+            dic['lastestTime'] = dt['nowdate__max'].strftime('%Y-%m-%d %H-%M-%S')
         else:
             dic['state']='invalid'
+            dic['lastestTime']='近期没有数据'
         lst.append(dic)
 
     ok_seconds = 1.5*60*60
