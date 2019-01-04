@@ -20,8 +20,34 @@
           ><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">船舶编号{{bbxCode}}</h4>
         </div>
-        <div class="modal-body">
+        <div class="modal-body my-content-primary">
           <div>
+            <form class="form-horizontal">
+              <div class="col-sm-12">
+                <div class="panel panel-default">
+                  <div class="panel-heading">船舶基础信息</div>
+                  <div class="panel-body table-responsive">
+                    <table class="table table-striped table-hover table-bordered">
+                      <thead>
+                        <th>呼号</th>
+                        <th>船舶名称</th>
+                        <th>所属海区</th>
+                        <th>吨位</th>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>BBX_A</td>
+                          <td>雪龙号</td>
+                          <td>东海</td>
+                          <td>5000</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </form>
+
             <ul
               id="mytabs"
               class="nav nav-tabs"
@@ -191,5 +217,8 @@ export default {
 <style scoped>
 #modal_content {
   width: 850px;
+}
+.my-content-primary {
+  background: #143b4d;
 }
 </style>
