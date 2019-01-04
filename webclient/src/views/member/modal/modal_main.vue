@@ -24,10 +24,10 @@
           <div>
             <form class="form-horizontal">
               <div class="col-sm-12">
-                <div class="panel panel-default">
+                <div class="panel panel-default boxshadow">
                   <div class="panel-heading">船舶基础信息</div>
-                  <div class="panel-body table-responsive">
-                    <table class="table table-striped table-hover table-bordered">
+                  <div class="panel-body table-responsive ">
+                    <table class=" table table-striped table-hover table-bordered">
                       <thead>
                         <th>呼号</th>
                         <th>船舶名称</th>
@@ -38,8 +38,8 @@
                         <tr>
                           <td>BBX_A</td>
                           <td>雪龙号</td>
-                          <td>东海</td>
-                          <td>5000</td>
+                          <td class="my-th-normal">东海</td>
+                          <td class="my-th-warm">5000</td>
                         </tr>
                       </tbody>
                     </table>
@@ -103,11 +103,11 @@ export default {
   data () {
     return {
       menulist: [
-        {
-          name: '降水',
-          code: 'rain',
-          url: ''
-        },
+        // {
+        //   name: '降水',
+        //   code: 'rain',
+        //   url: ''
+        // },
         {
           name: '能见度',
           code: 'vis',
@@ -130,7 +130,7 @@ export default {
           code: 'wt',
           url: ''
         }, {
-          name: '水温',
+          name: '浪高',
           code: 'wv',
           url: ''
         }
@@ -154,12 +154,16 @@ export default {
       this.bbxCode = par.code;
       this.bid = par.bid;
       $("#mymodal").modal();
+      // 每次加载modal框时需要销毁echarts子组件
+      this.$refs.bbxObs.destroyCharts();
     },
     initCharts: function (params) {
+
       // 父组件调用子组件的初始化方法
       this.$refs.bbxObs.initCharts();
       // console.log('调用成功');
     },
+
     // 切换导航栏
     active: function (index) {
       console.log(index);
@@ -196,7 +200,10 @@ export default {
       //         values:
       //     */
       // })
-    }
+    },
+    mounted () {
+
+    },
   },
   watch: {
     // 监听menu index，当发生变化时，向后台请求并获取指定类型
@@ -220,5 +227,20 @@ export default {
 }
 .my-content-primary {
   background: #143b4d;
+}
+.my-th-normal {
+  color: #4154de;
+}
+.my-th-warm {
+  color: rgba(255, 0, 0, 0.838);
+}
+/* 带一个阴影 */
+.boxshadow {
+  box-shadow: 2px 2px 10px grey;
+}
+/* 顶部字体加粗加大 */
+.panel-heading {
+  font-weight: bolder;
+  font-size: large;
 }
 </style>

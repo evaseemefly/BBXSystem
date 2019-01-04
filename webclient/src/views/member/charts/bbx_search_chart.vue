@@ -12,7 +12,10 @@ export default {
       title: '',
       columns: [],
       values: [],
-      mychart: null
+      mychart: null,
+      //y轴刻度的区间
+      min: 900,
+      max: 1500
     }
   },
   props: {
@@ -48,6 +51,8 @@ export default {
             //                  interval:0   
           }],
           yAxis: [{
+            // min: 600,
+            // max: 1300,
             type: 'value',
             "axisLabel": {
               //					interval: 0,
@@ -55,6 +60,7 @@ export default {
                 color: '#FFFFFF'
               }
             },
+
           }],
           series: [{
             "name": "波浪", //需要与legend中的data相同
