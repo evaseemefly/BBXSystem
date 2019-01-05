@@ -26,11 +26,14 @@ from .middle_models import *
 from bbxgis.models import *
 from bbxgis.serializers import *
 
+# 配置文件
+from BBXSystem import settings
+
 # 序列化器
 # from .serializers import BBXInfoSerializer,BBXDetailInfoSerializer,BBXStateDetailMidSerializer
 from .serializers import *
 # 父类视图层
-from .views_base import BBXBaseView,BBXTrackBaseView
+from .views_base import BBXBaseView,BBXTrackBaseView,BaseTimeView
 
 # 海区元祖
 area_tup=(
@@ -90,18 +93,18 @@ class BBXAllListView(APIView,BBXBaseView):
         return bbx_list
 
 
-class BBXStateListView(APIView,BBXBaseView):
+class BBXStateListView(APIView,BBXBaseView,BaseTimeView):
     '''
         获取指定海区的各船舶状态列表
     '''
     def get(self,request):
-        test_date = '2018-09-20'
-        test_date = datetime.strptime(test_date, '%Y-%m-%d')
-        list= self.getBBXStateListbyArea('n',test_date)
+        # test_date = '2018-09-20'
+        # test_date = datetime.strptime(test_date, '%Y-%m-%d')
+        list= self.getBBXStateListbyArea('n',self.nowDate)
         json_data=BBXStateDetailMidSerializer(list,many=True).data
         return Response(json_data)
 
-class RealtimeListView(APIView,BBXBaseView):
+class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
     '''
         获取指定要素的观测值序列
     '''
@@ -123,22 +126,24 @@ class RealtimeListView(APIView,BBXBaseView):
             now = datetime.now()
             start_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 00:00', '%Y-%m-%d %H:%M')
             end_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 23:59', '%Y-%m-%d %H:%M')
+
         list= self.getTargetFactorList(bid,start_date,end_date,factor)
         json_data=RealtimeSimpSerializer(list,many=True).data
         return Response(json_data)
 
-class AreaStatisticView(APIView,BBXBaseView):
+class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
     '''
         获取指定海区的传输状态汇总
             传输正常的船舶数量，迟到、未到、缺失
     '''
     def get(self,request):
         areas=['n','e','s']
-        targetDate='2018-12-08 00:00'
-        test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
+        # targetDate='2018-12-08 00:00'
+        now=self.nowDate
+        # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         list=[]
         for area in areas:
-            list.append(self.getBBXStateListbyArea(area,test_date))
+            list.append(self.getBBXStateListbyArea(area,now))
         #
         index=0
         list_area=[]
@@ -176,17 +181,19 @@ class AreaStatisticView(APIView,BBXBaseView):
 
         # self.getBBXStateListbyArea()
 
-class BBXGPSTrackView(APIView,BBXTrackBaseView):
+class BBXGPSTrackView(APIView,BBXTrackBaseView,BaseTimeView):
     '''
         获取指定的船舶轨迹
     '''
     def get(self,request):
         code="all"
-        targetDate = '2018-12-08 00:00'
-        test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
+        # targetDate = '2018-12-08 00:00'
+        # now = datetime.now()
+        now=self.nowDate
+        # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         # 先获取全部的船舶轨迹
         # 1-获取全部船舶的list
-        list_track= self.getAllBBXTrackList(test_date)
+        list_track= self.getAllBBXTrackList(now)
         json_data=BBXTrackMidInfoSerializer(list_track,many=True).data
         return Response(json_data)
 

@@ -30,12 +30,13 @@ DEBUG = True
 
 # 加入跨域访问允许的端口
 ALLOWED_HOSTS = [
-    'localhost:8015',
-    '127.0.0.1:8015',
-
-    '127.0.0.1',
-    '127.0.0.1:8080',
-    'localhost:8080'
+'*'
+    # 'localhost:8015',
+    # '127.0.0.1:8015',
+    #
+    # '127.0.0.1',
+    # '127.0.0.1:8080',
+    # 'localhost:8080'
 ]
 
 
@@ -109,7 +110,16 @@ DATABASES = {
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         # 'NAME': 'bbxsystem',
         # 'NAME': 'bbxsystemgis',
-        'NAME': 'bbxsys',
+        # 'NAME': 'bbxsys',
+        # 现在使用的最新的数据库名称
+        'NAME': 'bbx',
+
+        # 线上数据库
+        # 'NAME': 'BBX',
+        # # centos
+        # 'USER': 'arfu',
+        # 'PASSWORD': '@Tongxin321'
+        
         # w540
         # 'USER':'root',
         # 'PASSWORD':'123456',
@@ -120,8 +130,13 @@ DATABASES = {
         # 'HOST':'127.0.0.1',
 
         # mac
+        # 'USER': 'root',
+        # 'PASSWORD': '111111'
+#     # mac
         'USER': 'root',
-        'PASSWORD': '111111'
+        'PASSWORD': '12345678'
+
+
         # 'HOST':'127.0.0.1',
         # 'OPTIONS':{'init_command':'SET storage_engine=INNODB;'}
     },
@@ -131,9 +146,7 @@ DATABASES = {
     #     # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     #     'NAME': 'bbxsystemgis',
     #
-    #     # mac
-    #     'USER': 'root',
-    #     'PASSWORD': '12345678'
+
     #     # 'HOST':'127.0.0.1',
     #     # 'OPTIONS':{'init_command':'SET storage_engine=INNODB;'}
     # }
@@ -182,3 +195,5 @@ STATIC_URL = '/static/'
 # 一些自定义的变量
 # 船舶轨迹显示的时间长度
 BBX_TRACK_INTERVAL=24
+
+BBX_UTC_INTERVAL=8

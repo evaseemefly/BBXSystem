@@ -3,15 +3,40 @@
     <div id="basemap"></div>
     <div id="timeline"></div>
     <modalMain ref='modalChild'></modalMain>
-    <div id="track_btn" class="btn-group" role="group">
-      <button type="button" class="btn btn-success" @click="trackMarkerStart">
-        <span class="glyphicon glyphicon-play" aria-hidden="true">开始</span>
+    <div
+      id="track_btn"
+      class="btn-group"
+      role="group"
+    >
+      <button
+        type="button"
+        class="btn btn-success"
+        @click="trackMarkerStart"
+      >
+        <span
+          class="glyphicon glyphicon-play"
+          aria-hidden="true"
+        >开始</span>
       </button>
-      <button type="button" class="btn btn-warning" @click="trackMarkerPause">
-        <span class="glyphicon glyphicon-pause" aria-hidden="true">暂停</span>
+      <button
+        type="button"
+        class="btn btn-warning"
+        @click="trackMarkerPause"
+      >
+        <span
+          class="glyphicon glyphicon-pause"
+          aria-hidden="true"
+        >暂停</span>
       </button>
-      <button type="button" class="btn btn-danger" @click="trackMarkerEnd">
-        <span class="glyphicon glyphicon glyphicon-stop" aria-hidden="true">终止</span>
+      <button
+        type="button"
+        class="btn btn-danger"
+        @click="trackMarkerEnd"
+      >
+        <span
+          class="glyphicon glyphicon glyphicon-stop"
+          aria-hidden="true"
+        >终止</span>
       </button>
     </div>
   </div>
@@ -57,7 +82,7 @@ import { BBXTrackInfo } from "../../models/bbx.js";
 import { loadBBXNowList, loadBBXGPS, loadBBXTrack } from "../../api/api.js";
 // import func from './vue-temp/vue-editor-bridge.js';
 export default {
-  data() {
+  data () {
     return {
       mymap: null,
       trackplay: null,
@@ -72,28 +97,28 @@ export default {
   },
   methods: {
     //开始，暂停，终止事件
-    trackMarkerStart: function() {
+    trackMarkerStart: function () {
       console.log("开始");
       this.trackMarkers.forEach(obj => {
         obj.start();
       });
     },
     // 暂停
-    trackMarkerPause: function() {
+    trackMarkerPause: function () {
       console.log("暂停");
       this.trackMarkers.forEach(obj => {
         obj.pause();
       });
     },
     //终止
-    trackMarkerEnd: function() {
+    trackMarkerEnd: function () {
       console.log("终止");
       this.trackMarkers.forEach(obj => {
         obj.stop();
       });
     },
     // 初始化地图
-    initMap: function() {
+    initMap: function () {
       var myself = this;
       if (myself.mymap == null) {
         myself.mymap = L.map("basemap").setView([30.09, 127.75], 4);
@@ -111,7 +136,7 @@ export default {
       }
     },
     // 暂时不使用了
-    loadShip: function() {
+    loadShip: function () {
       var myself = this;
       // var data = myself.loadTestJson()
       loadBBXNowList().then(res => {
@@ -141,12 +166,12 @@ export default {
       // const trackplayback = L.trackplayback(data, myself.mymap);
     },
     // 不使用
-    play: function() {
+    play: function () {
       // this.trackplay.play();
       // this.trackplaycontrol.play();
     },
     // 加载marker
-    loadMarker: function() {
+    loadMarker: function () {
       var myself = this;
       // 使用非base64位图的方式
       var greenIcon = L.icon({
@@ -163,7 +188,7 @@ export default {
       // L.marker([44.61131534, -123.4726739]).addTo(myself.mymap);
     },
     // 测试：加载移动marker
-    loadMovingMarkerTest: function() {
+    loadMovingMarkerTest: function () {
       var myself = this;
       var latlngs = [[44.63, -123.47], [46.63, -123.47], [46.63, -119.47]];
       var times = [2000, 2000];
@@ -179,7 +204,7 @@ export default {
       myMovingMarker.start();
     },
 
-    loadMovingMarker: function(trackInfo) {
+    loadMovingMarker: function (trackInfo) {
       var myself = this;
       //1- 添加折线
       var polyline = L.polyline(trackInfo.latlngs, { color: "red" }).addTo(
@@ -211,7 +236,7 @@ export default {
       //   })
       // })
       // 业务逻辑-2：点击获取该marker的id，并获取该marker的信息，加载指定船舶的数据
-      myMovingMarker.once("click", function() {
+      myMovingMarker.once("click", function () {
         var that = this;
         // var bbxInfo = myself.bbxs.filter(obj => {
         //   obj.id === that._animId;
@@ -224,7 +249,7 @@ export default {
         // console.log(this);
         // myMovingMarker.start();
         myself.showModalFrame(bbxInfo);
-        myMovingMarker.on("click", function() {
+        myMovingMarker.on("click", function () {
           myself.showModalFrame(bbxInfo);
         });
       });
@@ -232,12 +257,12 @@ export default {
       return myMovingMarker;
     },
     // 调用加载子组件modal框
-    showModalFrame: function(params) {
+    showModalFrame: function (params) {
       // 调用modal子组件的showModal方法，显示modal窗口，并加载echarts数据
       this.$refs.modalChild.showModal(params);
     },
     // 获取后台的trak数据
-    loadBBXsTrack: function() {
+    loadBBXsTrack: function () {
       loadBBXTrack().then(res => {
         var myself = this;
         // console.log(res)
@@ -279,7 +304,7 @@ export default {
       });
     },
     // 弃用
-    loadGPS: function() {
+    loadGPS: function () {
       var myself = this;
       loadBBXGPS().then(res => {
         console.log(res);
@@ -321,7 +346,7 @@ export default {
       });
     },
     // 备份使用，无实际作用
-    loadGPS1: function() {
+    loadGPS1: function () {
       var myself = this;
       loadBBXGPS().then(res => {
         console.log(res);
@@ -357,7 +382,7 @@ export default {
 
           // layer and marker options
           layer: {
-            pointToLayer: function(featureData, latlng) {
+            pointToLayer: function (featureData, latlng) {
               var result = {};
 
               if (
@@ -377,7 +402,7 @@ export default {
           },
 
           marker: {
-            getPopup: function(featureData) {
+            getPopup: function (featureData) {
               var result = "";
 
               if (
@@ -395,7 +420,7 @@ export default {
         // timeline.setCustomTime(new Date(ms));
 
         // A callback so timeline is set after changing playback time
-        function onPlaybackTimeChange(ms) {
+        function onPlaybackTimeChange (ms) {
           timeline.setCustomTime(new Date(ms));
         }
         // Initialize playback
@@ -411,7 +436,7 @@ export default {
       });
     },
     // 加载船舶的测试数据（暂时弃用）
-    loadTestJson: function() {
+    loadTestJson: function () {
       // const xhr = new XMLHttpRequest();
       // var data = null;
       // xhr.open('GET', '../../data/test.json', false);
@@ -427,7 +452,7 @@ export default {
       // return data;
     }
   },
-  mounted: function() {
+  mounted: function () {
     // 1-初始化地图引擎
     this.initMap();
     // this.loadMarker();

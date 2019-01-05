@@ -29,13 +29,23 @@ from common.DateCommon import getDataRang
 # 船舶轨迹显示的最长时间（小时）
 from BBXSystem.settings import BBX_TRACK_INTERVAL
 
+# 配置文件
+from BBXSystem import settings
+
 # 序列化器
 from .serializers import BBXInfoSerializer,BBXDetailInfoSerializer
 
+# dateState_dict={
+#     "normal":1.5,
+#     "late":6,
+#     "noarrival":24,
+#     "invalid":-1
+# }
+
 dateState_dict={
-    "normal":1.5,
-    "late":6,
-    "noarrival":24,
+    "normal":12,
+    "late":24,
+    "noarrival":36,
     "invalid":-1
 }
 
@@ -76,6 +86,19 @@ class BaseView():
         '''
         return getDataRang(nowdate,interval)
 
+class BaseTimeView():
+    '''
+        专门处理和船舶相关的时间的
+    '''
+    @property
+    def nowDate(self):
+        now=datetime.now()
+        now=now-timedelta(hours=settings.BBX_UTC_INTERVAL)
+        return now
+
+    @property
+    def yesterDate(self):
+        return self.nowDate-timedelta(hours=settings.BBX_TRACK_INTERVAL)
 
 class BBXBaseView(BaseView):
     '''
@@ -156,8 +179,8 @@ class BBXBaseView(BaseView):
         :param factor:
         :return:
         '''
-        start=start-timedelta(hours=8)
-        end=end-timedelta(hours=8)
+        # start=start-timedelta(hours=8)
+        # end=end-timedelta(hours=8)
         list= RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp',factor)
 
         list_convert=[RealtimeMidInfo(temp['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),temp[factor].__round__(2)) for temp in list]
