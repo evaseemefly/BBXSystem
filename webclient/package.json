@@ -9,6 +9,8 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "dateformat": "^3.0.3",
+    "element-ui": "^2.4.11",
     "leaflet-plugin-trackplayback": "^1.0.5",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
