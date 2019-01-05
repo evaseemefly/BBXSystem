@@ -10,7 +10,14 @@ import State from "./views/home/index_state.vue";
 import MainHome from "./App.vue";
 
 import Search from "./views/home/index_search.vue";
+import SearchWithTime from '@/views/home/index_search_with_time';
+import iView from "iview";
+import "../node_modules/iview/dist/styles/iview.css";
 Vue.use(Router);
+Vue.use(iView, {
+  transfer: true,
+  size: 'large'
+});
 
 export default new Router({
   mode: "history",
@@ -54,6 +61,10 @@ export default new Router({
       // which is lazy-loaded when the route is visited.
       component: () =>
         import(/* webpackChunkName: "about" */ "./views/About.vue")
+    }, {
+      path: '/searchWithTime',
+      name: 'searchWithTime',
+      component: SearchWithTime
     }
   ]
 });

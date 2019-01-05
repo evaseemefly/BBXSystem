@@ -111,17 +111,22 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
     def get(self,request):
         factor=request.GET.get('factor','')
         bid=int(request.GET.get('bid',-1))
-        # 获取当前时间并减去时间间隔
+        dateRangeStr = request.GET.get('dateRange', '')
 
-        #end_date= '2018-12-08 00:00'
-        #start_date='2018-12-07 00:00'
-        #改成当前一天的时间
-        start_date=self.yesterDate
-        end_date=self.nowDate
-        # start_date = datetime.strptime(now.strftime('%Y-%m-%d')+' 00:00','%Y-%m-%d %H:%M')
-        # end_date = datetime.strptime(now.strftime('%Y-%m-%d')+' 23:59','%Y-%m-%d %H:%M')
-        # #start_date=datetime.strptime(start_date,'%Y-%m-%d %H:%M')
-        #end_date = datetime.strptime(end_date, '%Y-%m-%d %H:%M')
+        print(dateRangeStr)
+        start_date=''
+        end_date=''
+        try:
+            tmp_arr = dateRangeStr.split(' ')
+            start_date=tmp_arr[0]
+            end_date=tmp_arr[1]
+            start_date = datetime.strptime(start_date + ' 00:00', '%Y-%m-%d %H:%M')
+            end_date = datetime.strptime(end_date + ' 23:59', '%Y-%m-%d %H:%M')
+        except Exception  as e:
+            now = datetime.now()
+            start_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 00:00', '%Y-%m-%d %H:%M')
+            end_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 23:59', '%Y-%m-%d %H:%M')
+
         list= self.getTargetFactorList(bid,start_date,end_date,factor)
         json_data=RealtimeSimpSerializer(list,many=True).data
         return Response(json_data)
