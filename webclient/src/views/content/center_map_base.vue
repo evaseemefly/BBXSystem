@@ -309,7 +309,7 @@ export default {
         var bbxInfo = myself.bbxs.find(obj => {
           return obj.id === that._leaflet_id;
         });
-        bbxInfo.targetdate=myself.targetDate;
+        bbxInfo.targetdate = myself.targetDate;
         // console.log(this);
         // myMovingMarker.start();
         myself.showModalFrame(bbxInfo);
@@ -528,10 +528,10 @@ export default {
     // this.play();
   },
   watch: {
-    targetDate:function(newVal) {
+    targetDate: function (newVal) {
       // console.log(newVal+oldVal);
       // 通过事件总线通知别的兄弟组件更新targetdate的值
-      bus.$emit('on-targetDate',newVal);
+      bus.$emit('on-targetDate', newVal);
     }
   },
 };

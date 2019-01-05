@@ -112,8 +112,9 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
         factor=request.GET.get('factor','')
         bid=int(request.GET.get('bid',-1))
         dateRangeStr = request.GET.get('dateRange', '')
-
-        print(dateRangeStr)
+        targetdate=request.GET.get('targetdate','')
+        # now=self.targetDateStart(targetdate)
+        # print(dateRangeStr)
         start_date=''
         end_date=''
         try:
@@ -124,8 +125,10 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
             end_date = datetime.strptime(end_date + ' 23:59', '%Y-%m-%d %H:%M')
         except Exception  as e:
             now = datetime.now()
-            start_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 00:00', '%Y-%m-%d %H:%M')
-            end_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 23:59', '%Y-%m-%d %H:%M')
+            # start_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 00:00', '%Y-%m-%d %H:%M')
+            # end_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 23:59', '%Y-%m-%d %H:%M')
+            start_date = datetime.strptime(targetdate+ ' 00:00', '%Y-%m-%d %H:%M')
+            end_date = datetime.strptime(targetdate + ' 23:59', '%Y-%m-%d %H:%M')
 
         list= self.getTargetFactorList(bid,start_date,end_date,factor)
         json_data=RealtimeSimpSerializer(list,many=True).data

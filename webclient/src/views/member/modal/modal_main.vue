@@ -137,7 +137,7 @@ export default {
 
       ],
       indexMenu: 0,
-      targetDate: '2018-12-18 00:00',
+      targetDate: null,
       childVals: [],
       childColumns: [],
       childTitle: '测试测试',
@@ -153,6 +153,7 @@ export default {
       // console.log(par);
       this.bbxCode = par.code;
       this.bid = par.bid;
+      this.targetDate = par.targetdate;
       $("#mymodal").modal();
       // 每次加载modal框时需要销毁echarts子组件
       this.$refs.bbxObs.destroyCharts();
@@ -213,8 +214,9 @@ export default {
       // console.log(nowCode);
       var code = this.bbxCode;
       var bid = this.bid;
+      var targetdate = this.targetDate;
       // 
-      this.loadDetailData(code, bid, factor, this.targetDate);
+      this.loadDetailData(code, bid, factor, targetdate);
     }
   }
 

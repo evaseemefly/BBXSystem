@@ -96,6 +96,18 @@ class BaseTimeView():
         now=now-timedelta(hours=settings.BBX_UTC_INTERVAL)
         return now
 
+    def targetDateStart(self,targetdate):
+        '''
+            获取指定日期的起始时间00：00
+        :param targetdate:
+        :return:
+        '''
+        # 传入的targetdate可能是一个str
+        date_time = datetime.strptime(targetdate, '%Y-%m-%d')
+        # 注意由于传入的targetdate是一个'yyyy-mm-dd'格式的，所以需要加入当前天的最后时刻
+        date_time = date_time + timedelta(hours=00, minutes=00)
+        return date_time
+
     def targetDate(self,targetdate):
         '''
             根据传入的目标日期获取该日期的最后时刻（dt）
