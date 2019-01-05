@@ -54,7 +54,8 @@ import L from "leaflet";
 // import '../../components/js/map/trackback/LeafletPlayback.js';
 import "../../components/js/map/trackback/LeafletPlayback.js";
 import vis from "vis";
-
+// 引入bus
+import bus from '../../assets/eventBus.js';
 // import 'leaflet-plugin-trackplayback'
 // import shp from 'shpjs';
 // import '../../components/js/map/trackplay/control.trackplayback.js'
@@ -85,6 +86,7 @@ import { BBXTrackInfo } from "../../models/bbx.js";
 import datePicker from "../member/date/datepicker.vue";
 // 前后端交互api
 import { loadBBXNowList, loadBBXGPS, loadBBXTrack } from "../../api/api.js";
+
 // import func from './vue-temp/vue-editor-bridge.js';
 export default {
   data () {
@@ -307,7 +309,7 @@ export default {
         var bbxInfo = myself.bbxs.find(obj => {
           return obj.id === that._leaflet_id;
         });
-
+        bbxInfo.targetdate=myself.targetDate;
         // console.log(this);
         // myMovingMarker.start();
         myself.showModalFrame(bbxInfo);
@@ -524,7 +526,14 @@ export default {
     // this.loadShip();
     // this.loadGPS();
     // this.play();
-  }
+  },
+  watch: {
+    targetDate:function(newVal) {
+      // console.log(newVal+oldVal);
+      // 通过事件总线通知别的兄弟组件更新targetdate的值
+      bus.$emit('on-targetDate',newVal);
+    }
+  },
 };
 </script>
 

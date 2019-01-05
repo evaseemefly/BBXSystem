@@ -137,9 +137,10 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
             传输正常的船舶数量，迟到、未到、缺失
     '''
     def get(self,request):
+        now=request.GET.get('targetdate')
         areas=['n','e','s']
         # targetDate='2018-12-08 00:00'
-        now=self.nowDate
+        now=self.targetDate(now)
         # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         list=[]
         for area in areas:
