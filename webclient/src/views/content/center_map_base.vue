@@ -39,6 +39,9 @@
         >终止</span>
       </button>
     </div>
+    <div id="date_btn">
+      <datePicker @loadTracks="loadTracks"></datePicker>
+    </div>
   </div>
 </template>
 
@@ -51,7 +54,8 @@ import L from "leaflet";
 // import '../../components/js/map/trackback/LeafletPlayback.js';
 import "../../components/js/map/trackback/LeafletPlayback.js";
 import vis from "vis";
-
+// 引入bus
+import bus from '../../assets/eventBus.js';
 // import 'leaflet-plugin-trackplayback'
 // import shp from 'shpjs';
 // import '../../components/js/map/trackplay/control.trackplayback.js'
@@ -78,8 +82,11 @@ import "../../components/js/map/moveingmarker/MovingMarker.js";
 import modalMain from "../member/modal/modal_main.vue";
 
 import { BBXTrackInfo } from "../../models/bbx.js";
+// 时间组件
+import datePicker from "../member/date/datepicker.vue";
 // 前后端交互api
 import { loadBBXNowList, loadBBXGPS, loadBBXTrack } from "../../api/api.js";
+
 // import func from './vue-temp/vue-editor-bridge.js';
 export default {
   data () {
@@ -89,11 +96,16 @@ export default {
       trackplaycontrol: null,
       baseUrl: process.env.BASE_URL,
       trackMarkers: [],
-      bbxs: []
+      bbxs: [],
+      //polyline对象数组
+      polylines: [],
+      // 当前时间
+      targetDate: null
     };
   },
   components: {
-    modalMain
+    modalMain,
+    datePicker
   },
   methods: {
     //开始，暂停，终止事件
@@ -116,6 +128,61 @@ export default {
       this.trackMarkers.forEach(obj => {
         obj.stop();
       });
+    },
+    // 设置当前日期，传入date（格式为：yyyy-mm-dd）
+    initTargetDate: function (now) {
+      this.targetDate = now;
+    },
+    // 根据传入的日期获取该日期的轨迹列表，传入的date（格式为：yyyy-mm-dd）
+    loadTracks: function (now) {
+      // 每次调用前需要先清空data
+      this.clearMarkers();
+      this.initTargetDate(now);
+      var targetdate = {
+        targetdate: now
+      };
+      loadBBXTrack(targetdate).then(res => {
+        var myself = this;
+        var start = "";
+        var end = "";
+        var tracks = [];
+        //
+        for (let temp of res.data) {
+          if (temp.latlngs.length != 0) {
+            var trackTemp = new BBXTrackInfo(
+              temp.bid,
+              temp.code,
+              start,
+              end,
+              temp.latlngs,
+              null
+            );
+            tracks.push(trackTemp);
+            var track = myself.loadMovingMarker(trackTemp);
+            myself.trackMarkers.push(track);
+            // 注意此处需要重新向bbxs中推送这个track对象的id（_leaflet_id)!!
+            myself.bbxs.push({
+              bid: temp.bid,
+              code: temp.code,
+              id: track._leaflet_id
+            });
+          }
+        }
+      })
+    },
+    // 清除当前markers以及折线
+    clearMarkers: function () {
+      // 每次调用前需要先清空data
+      for (let temp of this.trackMarkers) {
+        this.mymap.removeLayer(temp);
+      }
+      for (let temp of this.polylines) {
+        this.mymap.removeLayer(temp);
+      }
+      this.trackMarkers = [];
+      this.bbxs = [];
+      this.polylines = [];
+      // console.log(this.mymap);
     },
     // 初始化地图
     initMap: function () {
@@ -165,11 +232,6 @@ export default {
       });
       // const trackplayback = L.trackplayback(data, myself.mymap);
     },
-    // 不使用
-    play: function () {
-      // this.trackplay.play();
-      // this.trackplaycontrol.play();
-    },
     // 加载marker
     loadMarker: function () {
       var myself = this;
@@ -204,12 +266,14 @@ export default {
       myMovingMarker.start();
     },
 
+    //根据track信息，在地图上加入marker，并绘制折线
     loadMovingMarker: function (trackInfo) {
       var myself = this;
       //1- 添加折线
       var polyline = L.polyline(trackInfo.latlngs, { color: "red" }).addTo(
         myself.mymap
       );
+      this.polylines.push(polyline);
       // 缩放地图到折线所在区域
       // myself.mymap.fitBounds(polyline.getBounds());
       var times = [5000, 5000, 5000];
@@ -245,7 +309,7 @@ export default {
         var bbxInfo = myself.bbxs.find(obj => {
           return obj.id === that._leaflet_id;
         });
-
+        bbxInfo.targetdate = myself.targetDate;
         // console.log(this);
         // myMovingMarker.start();
         myself.showModalFrame(bbxInfo);
@@ -462,7 +526,14 @@ export default {
     // this.loadShip();
     // this.loadGPS();
     // this.play();
-  }
+  },
+  watch: {
+    targetDate: function (newVal) {
+      // console.log(newVal+oldVal);
+      // 通过事件总线通知别的兄弟组件更新targetdate的值
+      bus.$emit('on-targetDate', newVal);
+    }
+  },
 };
 </script>
 
@@ -485,6 +556,12 @@ export default {
 #track_btn {
   position: absolute;
   left: 80px;
+  bottom: 65px;
+  z-index: 1000;
+}
+#date_btn {
+  position: absolute;
+  left: 300px;
   bottom: 65px;
   z-index: 1000;
 }

@@ -39,7 +39,11 @@
             </li>
             <li>
               <!-- <a href="#">数据查询</a> -->
-              <router-link to="/search">船舶状态</router-link>
+              <router-link to="/search">实时数据查询</router-link>
+            </li>
+            <li>
+              <!-- <a href="#">数据查询</a> -->
+              <router-link to="/searchWithTime">历史数据查询</router-link>
             </li>
           </ul>
         </div>

@@ -43,7 +43,7 @@ import { loadBBXStateList, loadBBXState } from "../../api/api.js";
 import $ from "jquery";
 
 export default {
-  data() {
+  data () {
     return {
       // 该海区的船舶列表
       // 当前为测试数据
@@ -61,11 +61,11 @@ export default {
   // props: ["area"],
   computed: {
     //获取船舶集合的总行数（长度/行长度）
-    bbxlistRowsNum: function() {
+    bbxlistRowsNum: function () {
       return Math.round(this.bbxlist.length / this.columnsCount);
     },
     // 获取船舶的列数
-    bbxlistColumnsNum: function() {
+    bbxlistColumnsNum: function () {
       var num = this.columnsCount;
       if (this.bbxlist.length < num) {
         num = this.bbxlist.length;
@@ -75,13 +75,13 @@ export default {
   },
   methods: {
     // 根据海区编号获取该海区所用的全部志愿船舶的状态集合
-    loadBBXlist: function(area) {
+    loadBBXlist: function (area) {
       loadBBXStateList(this.props.area).then(res => {
         console.log(res);
       });
     },
     // 加载指定海区的全部船舶列表
-    loadBaseBBXlist: function(area) {
+    loadBaseBBXlist: function (area) {
       let timeParam = "2018-12-22 22:22";
       var that = this;
       var area = this.area.id;
@@ -111,14 +111,14 @@ export default {
       tipsDialog.classList.remove("tips-shown");
     }
   },
-  mounted: function() {
+  mounted: function () {
     //页面加载时根据area获取指定海区的全部船舶
     this.loadBaseBBXlist();
   }
 };
 </script>
 
-<style>
+<style scoped>
 .area {
   background: #143b4d;
   border-radius: 5px;

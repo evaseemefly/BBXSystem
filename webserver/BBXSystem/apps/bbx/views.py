@@ -112,8 +112,9 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
         factor=request.GET.get('factor','')
         bid=int(request.GET.get('bid',-1))
         dateRangeStr = request.GET.get('dateRange', '')
-
-        print(dateRangeStr)
+        targetdate=request.GET.get('targetdate','')
+        # now=self.targetDateStart(targetdate)
+        # print(dateRangeStr)
         start_date=''
         end_date=''
         try:
@@ -124,8 +125,10 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
             end_date = datetime.strptime(end_date + ' 23:59', '%Y-%m-%d %H:%M')
         except Exception  as e:
             now = datetime.now()
-            start_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 00:00', '%Y-%m-%d %H:%M')
-            end_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 23:59', '%Y-%m-%d %H:%M')
+            # start_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 00:00', '%Y-%m-%d %H:%M')
+            # end_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 23:59', '%Y-%m-%d %H:%M')
+            start_date = datetime.strptime(targetdate+ ' 00:00', '%Y-%m-%d %H:%M')
+            end_date = datetime.strptime(targetdate + ' 23:59', '%Y-%m-%d %H:%M')
 
         list= self.getTargetFactorList(bid,start_date,end_date,factor)
         json_data=RealtimeSimpSerializer(list,many=True).data
@@ -137,9 +140,10 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
             传输正常的船舶数量，迟到、未到、缺失
     '''
     def get(self,request):
+        now=request.GET.get('targetdate')
         areas=['n','e','s']
         # targetDate='2018-12-08 00:00'
-        now=self.nowDate
+        now=self.targetDate(now)
         # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         list=[]
         for area in areas:
@@ -189,10 +193,13 @@ class BBXGPSTrackView(APIView,BBXTrackBaseView,BaseTimeView):
         code="all"
         # targetDate = '2018-12-08 00:00'
         # now = datetime.now()
-        now=self.nowDate
+        # 2019-01-05 修改了前台的接口，后端需要获取到前台传入的targetdate参数
+        now=request.GET.get('targetdate')
+        # now=self.nowDate
         # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         # 先获取全部的船舶轨迹
         # 1-获取全部船舶的list
+        now=self.targetDate(now)
         list_track= self.getAllBBXTrackList(now)
         json_data=BBXTrackMidInfoSerializer(list_track,many=True).data
         return Response(json_data)
