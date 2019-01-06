@@ -6,7 +6,7 @@
 import { loadRealtime } from "../../../api/api.js";
 // import {*} from '../../../api/api.js'
 export default {
-  data() {
+  data () {
     return {
       title: "",
       columns: [],
@@ -20,7 +20,7 @@ export default {
     dateRange: String
   },
   methods: {
-    initCharts: function() {
+    initCharts: function () {
       var myself = this;
       if (myself.mychart === null) {
         // 基于准备好的dom，初始化echarts图表
@@ -100,7 +100,7 @@ export default {
         this.disposeCharts();
       }
     },
-    loadReatimeData: function() {
+    loadReatimeData: function () {
       var myself = this;
       // 此处注意需要清空
       this.values = [];
@@ -112,12 +112,22 @@ export default {
       };
       loadRealtime(searchCondition).then(res => {
         res.data.forEach(obj => {
-          if (obj.val < 999) {
+          // by zw v1版
+          // if (obj.val < 999) {
+          //   //如果数据为缺省值那么就改成0
+          //   myself.values.push(obj.val);
+          //   myself.columns.push(obj.timestamp);
+          // } else {
+          //   myself.values.push(0);
+          //   myself.columns.push(obj.timestamp);
+          // }
+          // v2 版 by evaseemefly
+          if (obj.val != 9999 && obj.val != 999.9) {
             //如果数据为缺省值那么就改成0
             myself.values.push(obj.val);
             myself.columns.push(obj.timestamp);
           } else {
-            myself.values.push(0);
+            myself.values.push(null);
             myself.columns.push(obj.timestamp);
           }
         });
@@ -126,32 +136,32 @@ export default {
         // myself.values = res.data.val;
       });
     },
-    disposeCharts: function() {
+    disposeCharts: function () {
       if (this.mychart != null) {
         this.mychart.dispose();
       }
     }
   },
   watch: {
-    factor: function(newVal) {
+    factor: function (newVal) {
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     },
-    bid: function(newVal) {
+    bid: function (newVal) {
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     },
-    dateRange: function(newVal) {
+    dateRange: function (newVal) {
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     }
   },
-  mounted: function() {
+  mounted: function () {
     console.log(1);
   }
 };

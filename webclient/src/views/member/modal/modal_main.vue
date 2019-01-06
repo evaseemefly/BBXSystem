@@ -186,8 +186,14 @@ export default {
         // 暂时注释掉真正读取的操作
         // 父组件将由后台返回的vals与columns赋值为要传递给子组件的data中
         res.data.forEach(obj => {
-          myself.childVals.push(obj.val);
-          myself.childColumns.push(obj.timestamp);
+          if (obj.val != 9999 && obj.val != 999.9) {
+            myself.childVals.push(obj.val);
+            myself.childColumns.push(obj.timestamp);
+          }
+          else {
+            myself.childVals.push(null);
+            myself.childColumns.push(obj.timestamp);
+          }
         });
         // 初始化echarts
         this.initCharts(params);
