@@ -25,8 +25,11 @@
       v-for="(item, index) in bbxlist"
       :key="index"
       :class="item.state"
-      :title="item.lastestTime"
+      @mouseover="showTips(item,$event)"
+      @mouseout="hideTips(item,$event)"
     >{{item.name}}</div>
+    <!--弹出提示框-->
+    <div class="tips"></div>
   </div>
 </template>
 
@@ -36,6 +39,8 @@ import { BBXStateInfo } from "../../models/bbx.js";
 
 // 前后端交互api
 import { loadBBXStateList, loadBBXState } from "../../api/api.js";
+
+import $ from "jquery";
 
 export default {
   data() {
@@ -88,6 +93,22 @@ export default {
         .catch(err => {
           console.log(err);
         });
+    },
+    showTips: function(el, event) {
+      let tipsDialog = document.querySelector(".tips");
+      let target = event.target;
+      tipsDialog.innerHTML = `<div>最后更新时间:</div><div>${
+        el.lastestTime
+      }</div>`;
+      tipsDialog.classList.add("tips-shown");
+      $(tipsDialog).css({
+        left: target.offsetLeft + "px",
+        top: target.offsetTop - target.clientHeight * 2 - 5 + "px"
+      });
+    },
+    hideTips: () => {
+      let tipsDialog = document.querySelector(".tips");
+      tipsDialog.classList.remove("tips-shown");
     }
   },
   mounted: function() {
@@ -168,5 +189,22 @@ table td span {
   background: #23b37e;
   color: #fff;
   font-size: 14px;
+}
+
+.tips {
+  font-family: 微软雅黑;
+  position: absolute;
+  font-weight: bolder;
+  display: none;
+  height: 64px;
+  width: 170px;
+  background: yellow;
+  border-radius: 3px;
+  padding-top: 5px;
+  transition: 0.3s;
+}
+.tips-shown {
+  display: inline-block;
+  box-shadow: 2px 2px 3px black;
 }
 </style>

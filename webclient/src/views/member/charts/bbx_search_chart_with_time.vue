@@ -112,8 +112,14 @@ export default {
       };
       loadRealtime(searchCondition).then(res => {
         res.data.forEach(obj => {
-          myself.values.push(obj.val);
-          myself.columns.push(obj.timestamp);
+          if (obj.val < 999) {
+            //如果数据为缺省值那么就改成0
+            myself.values.push(obj.val);
+            myself.columns.push(obj.timestamp);
+          } else {
+            myself.values.push(0);
+            myself.columns.push(obj.timestamp);
+          }
         });
 
         myself.initCharts();
