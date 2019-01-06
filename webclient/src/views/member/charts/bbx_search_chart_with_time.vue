@@ -151,9 +151,7 @@ export default {
       }
     }
   },
-  mounted: function() {
-    console.log(1);
-  }
+  mounted: function() {}
 };
 </script>
 
