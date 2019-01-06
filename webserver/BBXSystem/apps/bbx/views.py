@@ -241,7 +241,7 @@ def getBaseState(request,area='',nowDate=''):
         dt=x.bbxspacetempinfo_set.filter(nowdate__lte=timelimit).aggregate(Max('nowdate'))
         if dt['nowdate__max'] is not None:
             dic['state'] = dt['nowdate__max']
-            dic['lastestTime'] = dt['nowdate__max'].strftime('%Y-%m-%d %H-%M-%S')
+            dic['lastestTime'] = dt['nowdate__max'].strftime('%Y-%m-%d %H:%M:%S')
         else:
             dic['state']='invalid'
             dic['lastestTime']='近期没有数据'
