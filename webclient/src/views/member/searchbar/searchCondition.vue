@@ -29,7 +29,8 @@
                   placeholder="选择日期"
                   style="width: 200px"
                   v-model="dateRange"
-                  @on-change="initFatherParams()"
+                  :options="datePickerOption"
+                  @on-change="datePickerChosenChanged($event)"
                 ></Date-picker>
               </div>
 
@@ -77,6 +78,16 @@ export default {
           value: "at"
         }
       ],
+      datePickerOption: {
+        disabledDate(date, date2) {
+          // let now = new Date();
+          // let nowstr = `${now.getFullYear()}-${now.getMonth() +
+          //   1}-${now.getDate()} 23:59:59`;
+          // let limit = new Date(nowstr);
+          // console.log(limit, limit.valueOf(), date.valueOf() > limit.valueOf());
+          return date && date.valueOf() < Date.now() - 31 * 24 * 60 * 60 * 1000;
+        }
+      },
       dateRange: "",
       optionsBBX: [],
       selectedFactor: null,
@@ -89,6 +100,7 @@ export default {
     },
     initFatherParams: function() {
       var myself = this;
+
       this.$emit(
         "initParams",
         myself.selectedFactor,
@@ -112,6 +124,21 @@ export default {
           });
         }
       });
+    },
+    datePickerChosenChanged: function(event) {
+      if (this.dateRange) {
+        let time1 = this.dateRange[0];
+        let time2 = this.dateRange[1];
+        if (time1 instanceof Date && time2 instanceof Date) {
+          if (time2 - time1 > 604800000) {
+            this.$Message.info("所选时间区间不能超过1周,请重新选择");
+            this.dateRange = ["", ""];
+            return;
+          }
+        }
+      }
+
+      this.initFatherParams();
     }
   },
   mounted: function() {
@@ -126,9 +153,6 @@ export default {
       this.initFatherParams();
     },
     selectedBBX: function() {
-      this.initFatherParams();
-    },
-    dateRange: function() {
       this.initFatherParams();
     }
   }
