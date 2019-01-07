@@ -73,3 +73,9 @@ export const loadBBXState = (area, time) => {
   let bbxStateUrl = `${host}/bbx/GetBaseState/${area}/${time}`;
   return axios.get(bbxStateUrl);
 };
+
+// 根据bid获取船舶的详情信息
+export const loadBBXDetail = par => {
+  let bbxDetailUrl = `${host}/bbx/detail`;
+  return axios.get(bbxDetailUrl, { params: par });
+};

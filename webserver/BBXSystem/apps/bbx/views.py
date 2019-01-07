@@ -53,6 +53,17 @@ class BBXInfoView(APIView):
         return Response(json_data.data)
         # pass
 
+class BBXDetailInfoView(APIView):
+    '''
+        船舶基础信息详情信息
+    '''
+    def get(self,request):
+        bid=request.GET.get('bid','')
+        bbx=BBXInfo.objects.filter(bid=bid)[0]
+        json_data=BBXInfoSerializer(bbx).data
+        return Response(json_data)
+
+
 class BBXAllListView(APIView,BBXBaseView):
     '''
         获取三个海区的船舶列表
@@ -112,7 +123,10 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
         factor=request.GET.get('factor','')
         bid=int(request.GET.get('bid',-1))
         dateRangeStr = request.GET.get('dateRange', '')
-        targetdate=request.GET.get('targetdate','')
+        # 此处加一个判断，若未传入target，则将当前的时间赋给targetdate
+        targetdate = request.GET.get('targetdate', None)
+        targetdate=targetdate if targetdate is not None else datetime.now().strftime('%Y-%m-%d')
+
         # now=self.targetDateStart(targetdate)
         # print(dateRangeStr)
         start_date=''
