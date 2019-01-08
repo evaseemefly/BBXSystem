@@ -45,7 +45,7 @@ export default {
         'e': '东海',
         's': '南海'
       },
-      targetdate:null
+      targetdate: null
     }
   },
   components: {
@@ -56,9 +56,11 @@ export default {
     // 读取指定海区的统计结果
     loadAreaDetail: function (now) {
       var myself = this;
-      var params={
-        targetdate:now
+      var params = {
+        targetdate: now
       };
+      // 注意每次加载需要清空当前的statics
+      this.statistics = [];
       // 与后端实际交互暂时先不写
       loadAllAreaStatistic(params).then(res => {
         for (let temp of res.data) {
@@ -108,12 +110,15 @@ export default {
     }
   },
   mounted: function () {
-    var myself=this;
-    bus.$on("on-targetDate",function(msg){     
-      myself.targetdate=msg;    
-      myself.loadAreaDetail(msg);  
-    });   
+    var myself = this;
+    bus.$on("on-targetDate", function (msg) {
+      myself.targetdate = msg;
+      myself.loadAreaDetail(msg);
+    });
   },
+  beforeDestroy: function () {
+    bus.$off("on-targetDate");
+  }
   // watch: {
   //   targetDate:function(newVal) {
 

@@ -181,7 +181,7 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
                            if temp.stateDetailList[0].count== 0
                            and temp.stateDetailList[1].count==0
                            and temp.stateDetailList[2].count!=0]
-            statistic_list.append(StatisticMidInfo('norarrival', len(list_norarrival), list_norarrival))
+            statistic_list.append(StatisticMidInfo('noarrival', len(list_norarrival), list_norarrival))
 
             list_invalid = [temp.code for temp in areabbxlist
                            if temp.stateDetailList[0].count== 0
