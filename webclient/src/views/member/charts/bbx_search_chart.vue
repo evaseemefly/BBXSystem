@@ -23,13 +23,21 @@ export default {
     bid: Number
   },
   methods: {
-    initCharts: function () {
+    initCharts: function (factor) {
       var myself = this;
       if (myself.mychart === null) {
         // 基于准备好的dom，初始化echarts图表
         this.myChart = echarts.init(document.getElementById('main'));
         //				var myChartContent=echarts.init(document.getElementById('bar_content'));
         //		var myBar = echarts.init(document.getElementById('mybar'));
+
+        /*
+          此处需要加入一个工厂方法，
+          根据传入的factor
+          若facotr为 ws wd时，option中的series与普通的略有不同
+
+
+        */
         var option = {
           tooltip: {
             show: true
@@ -92,8 +100,16 @@ export default {
                 show: true
               }
             }
-          },]
+          }]
         };
+        if (factor === 'ws' || factor === 'wd') {
+          option.series['symbol'] = 'triangle';
+          option.series['symbolSize'] = [20, 10];
+          option.series['symbol'] = 'image:../../../../../assets/common/arrows.png'
+        }
+
+
+
 
         // 为echarts对象加载数据 
         this.myChart.setOption(option);

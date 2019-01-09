@@ -17,7 +17,8 @@ import json
 from datetime import datetime,timedelta
 import time
 import pytz
-
+#为特定请求方法添加装饰器
+from django.utils.decorators import method_decorator
 # model
 from .models import BBXInfo,BBXSpaceTempInfo
 # 中间模型
@@ -26,6 +27,8 @@ from .middle_models import *
 from bbxgis.models import *
 from bbxgis.serializers import *
 
+# 引入自定义装饰器
+from .decorator_view import  *
 # 配置文件
 from BBXSystem import settings
 
@@ -199,10 +202,14 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
 
         # self.getBBXStateListbyArea()
 
+
+
 class BBXGPSTrackView(APIView,BBXTrackBaseView,BaseTimeView):
     '''
         获取指定的船舶轨迹
     '''
+
+    @method_decorator(date_required)
     def get(self,request):
         code="all"
         # targetDate = '2018-12-08 00:00'

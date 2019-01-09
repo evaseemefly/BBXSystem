@@ -204,9 +204,18 @@ class BBXBaseView(BaseView):
         '''
         # start=start-timedelta(hours=8)
         # end=end-timedelta(hours=8)
-        list= RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp',factor)
 
-        list_convert=[RealtimeMidInfo(temp['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),temp[factor].__round__(2)) for temp in list]
+        # 对于风速与风向，要同时获取
+        if factor=='ws' or factor=='wd':
+            list=RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp','ws','wd')
+            list_convert = [
+                RealtimeMidInfo(temp['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),
+                                {'ws':temp['ws'].__round__(2),
+                                 'wd':temp['wd']})
+                            for temp in list]
+        else:
+            list = RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp',factor)
+            list_convert=[RealtimeMidInfo(temp['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),temp[factor].__round__(2)) for temp in list]
         #为了如果没得到任何结果，让屏幕显示点东西
         if len(list_convert) == 0:
             dict_first = {'timestamp':start.strftime('%Y-%m-%d %H:%M:%S'),'val':0}
