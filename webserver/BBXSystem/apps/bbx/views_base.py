@@ -207,9 +207,9 @@ class BBXBaseView(BaseView):
 
         # 对于风速与风向，要同时获取
         if factor=='ws' or factor=='wd':
-            list=RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp','ws','wd')
-            list_convert = [
-                RealtimeMidInfo(temp['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),
+            list=RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp','wd','ws')
+            # list=list[:3]
+            list_convert = [RealtimeMidInfo(temp['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),
                                 {'ws':temp['ws'].__round__(2),
                                  'wd':temp['wd']})
                             for temp in list]
@@ -218,8 +218,10 @@ class BBXBaseView(BaseView):
             list_convert=[RealtimeMidInfo(temp['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),temp[factor].__round__(2)) for temp in list]
         #为了如果没得到任何结果，让屏幕显示点东西
         if len(list_convert) == 0:
-            dict_first = {'timestamp':start.strftime('%Y-%m-%d %H:%M:%S'),'val':0}
-            dict_last={'timestamp':end.strftime('%Y-%m-%d %H:%M:%S'),'val':0}
+            # 对于风向风速为val填充{}，其他默认填充0
+            defaultAppend= lambda :{} if (factor=='wd' or factor=='ws') else 0
+            dict_first = {'timestamp':start.strftime('%Y-%m-%d %H:%M:%S'),'val':defaultAppend()}
+            dict_last={'timestamp':end.strftime('%Y-%m-%d %H:%M:%S'),'val':defaultAppend()}
             list_convert.append(dict_first)
             list_convert.append(dict_last)
         return list_convert

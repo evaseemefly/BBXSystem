@@ -55,6 +55,12 @@ class BBXTrackMidInfoSerializer(serializers.Serializer):
 class RealtimeSimpSerializer(serializers.Serializer):
     timestamp=serializers.DateTimeField()
     val=serializers.FloatField()
+    # val = serializers.DictField()
+
+class RealtimeWdWsSerializer(serializers.Serializer):
+    timestamp = serializers.DateTimeField()
+    # val=serializers.FloatField()
+    val = serializers.DictField()
     # class Meta:
     #     model=RealtimeData
     #     fields=('__all__')

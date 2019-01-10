@@ -148,7 +148,8 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
             end_date = datetime.strptime(targetdate + ' 23:59', '%Y-%m-%d %H:%M')
 
         list= self.getTargetFactorList(bid,start_date,end_date,factor)
-        json_data=RealtimeSimpSerializer(list,many=True).data
+        json_data= RealtimeWdWsSerializer(list,many=True).data if (factor=='wd' or factor=='ws') else RealtimeSimpSerializer(list,many=True).data
+        # json_data=RealtimeSimpSerializer(list,many=True).data
         return Response(json_data)
 
 class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
