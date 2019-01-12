@@ -1,33 +1,32 @@
 <template>
-  <div id="main">
-  </div>
+  <div id="main"></div>
 </template>
 
 <script>
-import { loadRealtime } from '../../../api/api.js';
+import { loadRealtime } from "../../../api/api.js";
 // import {*} from '../../../api/api.js'
 export default {
-  data () {
+  data() {
     return {
-      title: '',
+      title: "",
       columns: [],
       values: [],
       mychart: null,
       //y轴刻度的区间
       min: 900,
       max: 1500
-    }
+    };
   },
   props: {
     factor: String,
     bid: Number
   },
   methods: {
-    initCharts: function () {
+    initCharts: function() {
       var myself = this;
       if (myself.mychart === null) {
         // 基于准备好的dom，初始化echarts图表
-        this.myChart = echarts.init(document.getElementById('main'));
+        this.myChart = echarts.init(document.getElementById("main"));
         //				var myChartContent=echarts.init(document.getElementById('bar_content'));
         //		var myBar = echarts.init(document.getElementById('mybar'));
         var option = {
@@ -35,73 +34,77 @@ export default {
             show: true
           },
           legend: {
-            data: ['波浪']
+            data: ["波浪"]
           },
-          xAxis: [{
-            type: 'category',
-            data: myself.columns,
-            //使用以下方式实现显示全部x坐标上的点
-            "axisLabel": {
-              //interval: 0,
-              textStyle: {
-                color: '#FFFFFF'
-              }
-            },
-
-            //                  interval:0   
-          }],
-          yAxis: [{
-            // min: 600,
-            // max: 1300,
-            type: 'value',
-            "axisLabel": {
-              //					interval: 0,
-              textStyle: {
-                color: '#FFFFFF'
-              }
-            },
-
-          }],
-          series: [{
-            "name": "波浪", //需要与legend中的data相同
-            "type": "line",
-            smooth: true, //不是折线，是曲线
-            itemStyle: {
-              normal: {
-                //设置折点的颜色
-                color: 'rgb(189, 196, 56)',
-                //注意lineStyle需要卸载normal里面
-                //自定义折线颜色
-                lineStyle: {
-                  color: ''
-                },
-                //自定义折线下区域的颜色
-                areaStyle: {
-                  color: 'rgb(56, 196, 147)'
-                },
-
-                label: {
-                  show: true //显示每个点的值
+          xAxis: [
+            {
+              type: "category",
+              data: myself.columns,
+              //使用以下方式实现显示全部x坐标上的点
+              axisLabel: {
+                //interval: 0,
+                textStyle: {
+                  color: "#FFFFFF"
                 }
               }
 
-            }, //向下填充区域
-            "data": myself.values,
-            label: {
-              normal: {
-                show: true
+              //                  interval:0
+            }
+          ],
+          yAxis: [
+            {
+              // min: 600,
+              // max: 1300,
+              type: "value",
+              axisLabel: {
+                //					interval: 0,
+                textStyle: {
+                  color: "#FFFFFF"
+                }
               }
             }
-          },]
+          ],
+          series: [
+            {
+              name: "波浪", //需要与legend中的data相同
+              type: "line",
+              smooth: true, //不是折线，是曲线
+              itemStyle: {
+                normal: {
+                  //设置折点的颜色
+                  color: "rgb(189, 196, 56)",
+                  //注意lineStyle需要卸载normal里面
+                  //自定义折线颜色
+                  lineStyle: {
+                    color: ""
+                  },
+                  //自定义折线下区域的颜色
+                  areaStyle: {
+                    color: "rgb(56, 196, 147)"
+                  },
+
+                  label: {
+                    show: true //显示每个点的值
+                  }
+                }
+              }, //向下填充区域
+              data: myself.values,
+              label: {
+                normal: {
+                  show: true
+                }
+              }
+            }
+          ]
         };
 
-        // 为echarts对象加载数据 
+        // 为echarts对象加载数据
         this.myChart.setOption(option);
       } else {
         this.disposeCharts();
       }
     },
-    loadReatimeData: function () {
+    loadReatimeData: function() {
       var myself = this;
       // 此处注意需要清空
       this.values = [];
@@ -115,36 +118,34 @@ export default {
         res.data.forEach(obj => {
           myself.values.push(obj.val);
           myself.columns.push(obj.timestamp);
-        })
+        });
 
         myself.initCharts();
         // myself.values = res.data.val;
       });
     },
-    disposeCharts: function () {
+    disposeCharts: function() {
       if (this.mychart != null) {
         this.mychart.dispose();
       }
     }
   },
   watch: {
-    factor: function (newVal) {
+    factor: function(newVal) {
       // 需要判断是否bid与factor两个均不为null
-      if (this.factor != null & this.bid != null) {
+      if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     },
-    bid: function (newVal) {
+    bid: function(newVal) {
       // 需要判断是否bid与factor两个均不为null
-      if (this.factor != null & this.bid != null) {
+      if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     }
   },
-  mounted: function () {
-
-  }
-}
+  mounted: function() {}
+};
 </script>
 
 <style scoped>

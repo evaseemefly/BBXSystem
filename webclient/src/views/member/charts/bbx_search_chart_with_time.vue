@@ -21,6 +21,9 @@ export default {
   },
   methods: {
     initCharts: function() {
+      let height = $(window).height() - 255;
+      $("#main").css({ height: height + "px" });
+
       var myself = this;
       if (myself.mychart === null) {
         // 基于准备好的dom，初始化echarts图表
@@ -96,9 +99,11 @@ export default {
 
         // 为echarts对象加载数据
         this.myChart.setOption(option);
+        console.log(this.myChart);
       } else {
         this.disposeCharts();
       }
+      console.log(this.myChart);
     },
     loadReatimeData: function() {
       var myself = this;
@@ -158,7 +163,7 @@ export default {
 <style scoped>
 #main {
   width: 95%;
-  height: 800px;
+  min-height: 100%;
   /* box-shadow: 0 0 3px rgb(229, 238, 238); */
 }
 </style>
