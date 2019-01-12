@@ -142,11 +142,11 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
             end_date = datetime.strptime(end_date + ' 23:59', '%Y-%m-%d %H:%M')
         except Exception  as e:
             now = datetime.now()
-            # start_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 00:00', '%Y-%m-%d %H:%M')
-            # end_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 23:59', '%Y-%m-%d %H:%M')
-            start_date = datetime.strptime(targetdate+ ' 00:00', '%Y-%m-%d %H:%M')
-            end_date = datetime.strptime(targetdate + ' 23:59', '%Y-%m-%d %H:%M')
-
+            start_date = now-timedelta(hours=24)
+            end_date = now
+        #说好的要减8 hours
+        start_date=start_date - timedelta(hours=8)
+        end_date = end_date - timedelta(hours=8)
         list= self.getTargetFactorList(bid,start_date,end_date,factor)
         json_data= RealtimeWdWsSerializer(list,many=True).data if (factor=='wd' or factor=='ws') else RealtimeSimpSerializer(list,many=True).data
         # json_data=RealtimeSimpSerializer(list,many=True).data
