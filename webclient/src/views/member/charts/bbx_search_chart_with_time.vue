@@ -6,7 +6,7 @@
 import { loadRealtime } from "../../../api/api.js";
 // import {*} from '../../../api/api.js'
 export default {
-  data () {
+  data() {
     return {
       title: "",
       columns: [],
@@ -20,7 +20,7 @@ export default {
     dateRange: String
   },
   methods: {
-    initCharts: function () {
+    initCharts: function() {
       let height = $(window).height() - 255;
       $("#main").css({ height: height + "px" });
 
@@ -99,13 +99,11 @@ export default {
 
         // 为echarts对象加载数据
         this.myChart.setOption(option);
-        console.log(this.myChart);
       } else {
         this.disposeCharts();
       }
-      console.log(this.myChart);
     },
-    loadReatimeData: function () {
+    loadReatimeData: function() {
       var myself = this;
       // 此处注意需要清空
       this.values = [];
@@ -141,26 +139,26 @@ export default {
         // myself.values = res.data.val;
       });
     },
-    disposeCharts: function () {
+    disposeCharts: function() {
       if (this.mychart != null) {
         this.mychart.dispose();
       }
     }
   },
   watch: {
-    factor: function (newVal) {
+    factor: function(newVal) {
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     },
-    bid: function (newVal) {
+    bid: function(newVal) {
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     },
-    dateRange: function (newVal) {
+    dateRange: function(newVal) {
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
