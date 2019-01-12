@@ -112,7 +112,7 @@ DATABASES = {
         # 'NAME': 'bbxsystemgis',
         # 'NAME': 'bbxsys',
         # 现在使用的最新的数据库名称
-        'NAME': 'bbx',
+        'NAME': 'bbxsys',
 
         # 线上数据库
         # 'NAME': 'BBX',
@@ -134,7 +134,7 @@ DATABASES = {
         # 'PASSWORD': '111111'
 #     # mac
         'USER': 'root',
-        'PASSWORD': '12345678'
+        'PASSWORD': '111111'
 
 
         # 'HOST':'127.0.0.1',

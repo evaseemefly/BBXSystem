@@ -7,7 +7,7 @@ import { loadRealtime } from "../../../api/api.js";
 import { areaDict } from '../../../components/js/common/area.js';
 // import {*} from '../../../api/api.js'
 export default {
-  data () {
+  data() {
     return {
       title: "",
       columns: [],
@@ -21,7 +21,10 @@ export default {
     dateRange: String
   },
   methods: {
-    initCharts: function () {
+    initCharts: function() {
+      let height = $(window).height() - 255;
+      $("#main").css({ height: height + "px" });
+
       var myself = this;
       if (myself.mychart === null) {
         // 基于准备好的dom，初始化echarts图表
@@ -101,7 +104,7 @@ export default {
         this.disposeCharts();
       }
     },
-    loadReatimeData: function () {
+    loadReatimeData: function() {
       var myself = this;
       // 此处注意需要清空
       this.values = [];
@@ -137,26 +140,26 @@ export default {
         // myself.values = res.data.val;
       });
     },
-    disposeCharts: function () {
+    disposeCharts: function() {
       if (this.mychart != null) {
         this.mychart.dispose();
       }
     }
   },
   watch: {
-    factor: function (newVal) {
+    factor: function(newVal) {
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     },
-    bid: function (newVal) {
+    bid: function(newVal) {
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     },
-    dateRange: function (newVal) {
+    dateRange: function(newVal) {
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
@@ -169,7 +172,7 @@ export default {
 <style scoped>
 #main {
   width: 95%;
-  height: 800px;
+  min-height: 100%;
   /* box-shadow: 0 0 3px rgb(229, 238, 238); */
 }
 </style>
