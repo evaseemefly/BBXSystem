@@ -3,6 +3,7 @@ from datetime import datetime,timedelta
 from functools import wraps
 from django.core.exceptions import ObjectDoesNotExist
 from pytz import timezone
+from django.utils.timezone import utc
 from django.http import HttpResponseRedirect
 # 为视图使用的自定义装饰器
 
@@ -22,14 +23,16 @@ def date_required(func):
         try:
             targetdate = request.GET.get('targetdate', None)
             kind= request.GET.get('kind','now')
-            targetdate = targetdate if kind=='history' else datetime.now()
+            utcnow=datetime.utcnow().replace(tzinfo=utc)
+            # targetdate = targetdate if kind=='history' else datetime.now()
+            targetdate = targetdate if kind == 'history' else utcnow
             if kind=='now':
                 # now str转成 yyyy-mm-dd HH:mm
                 # targetdate.strftime('%Y-%m-%d %H:%M')
                 pass
             elif kind=='history':
                 # history str时转成 yyyy-mm-dd
-                targetdate=datetime.strptime(targetdate,'%Y-%m-%d')
+                targetdate=datetime.strptime(targetdate,'%Y-%m-%d').replace(tzinfo=utc)
 
             # 转换为世界时
             # targetdate=DateCommon.local2Utc(targetdate)

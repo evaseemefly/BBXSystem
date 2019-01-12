@@ -15,6 +15,9 @@ from django.db.models import Max
 from rest_framework import status
 import json
 
+from pytz import timezone
+from django.utils.timezone import utc
+
 # from datetime import datetime,timedelta
 # import datetime
 from datetime import datetime
