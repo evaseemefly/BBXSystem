@@ -45,7 +45,8 @@ export default {
         'e': '东海',
         's': '南海'
       },
-      targetdate: null
+      targetdate: null,
+      kind: null
     }
   },
   components: {
@@ -57,7 +58,8 @@ export default {
     loadAreaDetail: function (now) {
       var myself = this;
       var params = {
-        targetdate: now
+        targetdate: now,
+        kind: myself.kind
       };
       // 注意每次加载需要清空当前的statics
       this.statistics = [];
@@ -79,41 +81,14 @@ export default {
           myself.statistics.push(statisticTemp);
         }
       })
-      // 生成的 正常、迟到、未到、缺失的该海区的model
-      // var stateTemp = new StatesInfo(10, 2, 2, 1);
-      // var stateTemp = {
-      //   normal: 10,
-      //   late: 2,
-      //   noarrival: 3,
-      //   invalid: 1
-      // };
-      // var statisticTempE = new AreaStatisticsInfo('e_area', 'e', '东海船舶到报情况', stateTemp);
-
-      // var stateTemp = {
-      //   normal: 12,
-      //   late: 4,
-      //   noarrival: 3,
-      //   invalid: 1
-      // };
-      // var statisticTempN = new AreaStatisticsInfo('n_area', 'n', '北海船舶到报情况', stateTemp);
-
-      // var stateTemp = {
-      //   normal: 11,
-      //   late: 5,
-      //   noarrival: 1,
-      //   invalid: 4
-      // };
-      // var statisticTempS = new AreaStatisticsInfo('s_area', 's', '南海船舶到报情况', stateTemp);
-      // this.statistics.push(statisticTempN);
-      // this.statistics.push(statisticTempE);
-      // this.statistics.push(statisticTempS);
     }
   },
   mounted: function () {
     var myself = this;
     bus.$on("on-targetDate", function (msg) {
-      myself.targetdate = msg;
-      myself.loadAreaDetail(msg);
+      myself.targetdate = msg['targetdate'];
+      myself.kind = msg['kind'];
+      myself.loadAreaDetail(myself.targetdate);
     });
   },
   beforeDestroy: function () {

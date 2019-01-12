@@ -2,8 +2,14 @@ from django.http import HttpRequest,HttpResponse,JsonResponse,Http404
 from datetime import datetime,timedelta
 from functools import wraps
 from django.core.exceptions import ObjectDoesNotExist
+from pytz import timezone
 from django.http import HttpResponseRedirect
 # 为视图使用的自定义装饰器
+
+# 自己的一些组件
+from common import DateCommon
+
+sct_tz=timezone('Asia/Shanghai')
 
 def date_required(func):
     '''
@@ -15,8 +21,19 @@ def date_required(func):
     def returned_wrapper(request, *args, **kwargs):
         try:
             targetdate = request.GET.get('targetdate', None)
-            targetdate = targetdate if targetdate is not None else datetime.now().strftime('%Y-%m-%d')
-            isNow=request.GET.get('isNow',True)
+            kind= request.GET.get('kind','now')
+            targetdate = targetdate if kind=='history' else datetime.now()
+            if kind=='now':
+                # now str转成 yyyy-mm-dd HH:mm
+                # targetdate.strftime('%Y-%m-%d %H:%M')
+                pass
+            elif kind=='history':
+                # history str时转成 yyyy-mm-dd
+                targetdate=datetime.strptime(targetdate,'%Y-%m-%d')
+
+            # 转换为世界时
+            targetdate=DateCommon.local2Utc(targetdate)
+            # isNow=request.GET.get('isNow',True)
             request.GET=request.GET.copy()
             request.GET['targetdate']=targetdate
             return func(request, *args, **kwargs)
@@ -43,11 +60,34 @@ def date_required(func):
     #     return returned_wrapper
     # return decorator
 
+def data_loaclUtc(func):
+    '''
+        将本地时间转换为世界时
+    :param func:
+    :return:
+    '''
+    @wraps(func)
+    def returned_wrapper(request, *args, **kwargs):
+        try:
+            targetdate = request.GET.get('targetdate', None)
+            # 转为世界时
+            utcDate=DateCommon.local2Utc(targetdate)
+            request.GET = request.GET.copy()
+            request.GET['targetdate'] = utcDate
+            return func(request, *args, **kwargs)
+        except ObjectDoesNotExist:
+            raise Http404()
+            # if redirect:
+            #     return HttpResponseRedirect(redirect)
+            # else:
+            #     raise Http404()
 
+    return returned_wrapper
 
 def history_requeired(func):
     '''
         实时历史数据装饰器
+        请求中若未包含kind，则默认赋值给now（获取当前）
     :param func:
     :return:
     '''
@@ -66,9 +106,3 @@ def history_requeired(func):
             #     raise Http404()
 
     return returned_wrapper
-#
-# def date_required(view):
-#
-#     def decorator(request,*args,**kwargs):
-#         targetdate = request.GET.get('targetdate',None)
-#         targetdate = targetdate if targetdate is not None else datetime.now().strftime('%Y-%m-%d')

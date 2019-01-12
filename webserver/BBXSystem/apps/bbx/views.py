@@ -11,11 +11,14 @@ from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import APIView
 from django.db.models import Max
+# from datetime import datetime
 from rest_framework import status
 import json
 
-from datetime import datetime,timedelta
-import time
+# from datetime import datetime,timedelta
+# import datetime
+from datetime import datetime
+# import time
 import pytz
 #为特定请求方法添加装饰器
 from django.utils.decorators import method_decorator
@@ -152,16 +155,26 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
         # json_data=RealtimeSimpSerializer(list,many=True).data
         return Response(json_data)
 
+
 class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
     '''
         获取指定海区的传输状态汇总
             传输正常的船舶数量，迟到、未到、缺失
+        p1：有可能传入的时当前时间，获取往前推24小时的统计情况
+        p2：传入的指定日期，获取改日的统计情况
     '''
+
+    # @method_decorator(data_loaclUtc)
+    @method_decorator(history_requeired)
+    @method_decorator(date_required)
     def get(self,request):
         now=request.GET.get('targetdate')
+        # now= datetime.now()
         areas=['n','e','s']
         # targetDate='2018-12-08 00:00'
-        now=self.targetDate(now)
+        if request.GET.get('kind')=='history':
+            now=self.getDayLastTime(now)
+
         # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         list=[]
         for area in areas:
@@ -212,6 +225,7 @@ class BBXGPSTrackView(APIView,BBXTrackBaseView,BaseTimeView):
 
     @method_decorator(history_requeired)
     @method_decorator(date_required)
+    # @method_decorator(date_required)
     def get(self,request):
         code="all"
         # targetDate = '2018-12-08 00:00'
@@ -221,7 +235,7 @@ class BBXGPSTrackView(APIView,BBXTrackBaseView,BaseTimeView):
         if request.GET.get('kind')=='now':
             now=self.nowDate
         else :
-            now = self.targetDate(now)
+            now = self.getDayLastTime(now)
         # now=self.nowDate
         # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         # 先获取全部的船舶轨迹

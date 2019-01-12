@@ -324,7 +324,7 @@ export default {
       // 调用modal子组件的showModal方法，显示modal窗口，并加载echarts数据
       this.$refs.modalChild.showModal(params);
     },
-    // 获取后台的trak数据
+    // 获取后台的trak数据 （弃用，使用loadTracks）
     loadBBXsTrack: function () {
       loadBBXTrack().then(res => {
         var myself = this;
@@ -533,9 +533,15 @@ export default {
   },
   watch: {
     targetDate: function (newVal) {
+      var myself = this;
       // console.log(newVal+oldVal);
+      // 此处修改还需要传入kind
+      var params = {
+        targetdate: newVal,
+        kind: myself.kind
+      }
       // 通过事件总线通知别的兄弟组件更新targetdate的值
-      bus.$emit('on-targetDate', newVal);
+      bus.$emit('on-targetDate', params);
     },
     kind: function (newVal) {
       if (newVal === 'now') {
