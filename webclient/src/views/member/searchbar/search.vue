@@ -75,26 +75,27 @@ import { loadBBXlistByNow } from '../../../api/api.js';
 export default {
   data () {
     return {
-      optionsFactor: [{
-        text: '降雨',
-        value: 'rain'
-      },
-      {
-        text: '能见度',
-        value: 'vis'
-      },
-      {
-        text: '风向',
-        value: 'wd'
-      },
-      {
-        text: '风速',
-        value: 'ws'
-      },
-      {
-        text: '气温',
-        value: 'at'
-      }],
+      optionsFactor: [
+        //   {
+        //   text: '降雨',
+        //   value: 'rain'
+        // },
+        {
+          text: '能见度',
+          value: 'vis'
+        },
+        {
+          text: '风向',
+          value: 'wd'
+        },
+        {
+          text: '风速',
+          value: 'ws'
+        },
+        {
+          text: '气温',
+          value: 'at'
+        }],
       optionsBBX: [],
       selectedFactor: null,
       selectedBBX: null,

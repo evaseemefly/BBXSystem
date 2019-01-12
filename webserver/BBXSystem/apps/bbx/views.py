@@ -17,7 +17,8 @@ import json
 from datetime import datetime,timedelta
 import time
 import pytz
-
+#为特定请求方法添加装饰器
+from django.utils.decorators import method_decorator
 # model
 from .models import BBXInfo,BBXSpaceTempInfo
 # 中间模型
@@ -26,6 +27,8 @@ from .middle_models import *
 from bbxgis.models import *
 from bbxgis.serializers import *
 
+# 引入自定义装饰器
+from .decorator_view import  *
 # 配置文件
 from BBXSystem import settings
 
@@ -52,6 +55,17 @@ class BBXInfoView(APIView):
         # return Response(serialize('json',bbxlist))
         return Response(json_data.data)
         # pass
+
+class BBXDetailInfoView(APIView):
+    '''
+        船舶基础信息详情信息
+    '''
+    def get(self,request):
+        bid=request.GET.get('bid','')
+        bbx=BBXInfo.objects.filter(bid=bid)[0]
+        json_data=BBXInfoSerializer(bbx).data
+        return Response(json_data)
+
 
 class BBXAllListView(APIView,BBXBaseView):
     '''
@@ -112,7 +126,10 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
         factor=request.GET.get('factor','')
         bid=int(request.GET.get('bid',-1))
         dateRangeStr = request.GET.get('dateRange', '')
-        targetdate=request.GET.get('targetdate','')
+        # 此处加一个判断，若未传入target，则将当前的时间赋给targetdate
+        targetdate = request.GET.get('targetdate', None)
+        targetdate=targetdate if targetdate is not None else datetime.now().strftime('%Y-%m-%d')
+
         # now=self.targetDateStart(targetdate)
         # print(dateRangeStr)
         start_date=''
@@ -131,7 +148,8 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
         start_date=start_date - timedelta(hours=8)
         end_date = end_date - timedelta(hours=8)
         list= self.getTargetFactorList(bid,start_date,end_date,factor)
-        json_data=RealtimeSimpSerializer(list,many=True).data
+        json_data= RealtimeWdWsSerializer(list,many=True).data if (factor=='wd' or factor=='ws') else RealtimeSimpSerializer(list,many=True).data
+        # json_data=RealtimeSimpSerializer(list,many=True).data
         return Response(json_data)
 
 class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
@@ -167,7 +185,7 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
                            if temp.stateDetailList[0].count== 0
                            and temp.stateDetailList[1].count==0
                            and temp.stateDetailList[2].count!=0]
-            statistic_list.append(StatisticMidInfo('norarrival', len(list_norarrival), list_norarrival))
+            statistic_list.append(StatisticMidInfo('noarrival', len(list_norarrival), list_norarrival))
 
             list_invalid = [temp.code for temp in areabbxlist
                            if temp.stateDetailList[0].count== 0
@@ -185,21 +203,29 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
 
         # self.getBBXStateListbyArea()
 
+
+
 class BBXGPSTrackView(APIView,BBXTrackBaseView,BaseTimeView):
     '''
         获取指定的船舶轨迹
     '''
+
+    @method_decorator(history_requeired)
+    @method_decorator(date_required)
     def get(self,request):
         code="all"
         # targetDate = '2018-12-08 00:00'
         # now = datetime.now()
         # 2019-01-05 修改了前台的接口，后端需要获取到前台传入的targetdate参数
         now=request.GET.get('targetdate')
+        if request.GET.get('kind')=='now':
+            now=self.nowDate
+        else :
+            now = self.targetDate(now)
         # now=self.nowDate
         # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         # 先获取全部的船舶轨迹
         # 1-获取全部船舶的list
-        now=self.targetDate(now)
         list_track= self.getAllBBXTrackList(now)
         json_data=BBXTrackMidInfoSerializer(list_track,many=True).data
         return Response(json_data)

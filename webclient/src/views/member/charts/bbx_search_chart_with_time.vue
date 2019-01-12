@@ -4,6 +4,7 @@
 
 <script>
 import { loadRealtime } from "../../../api/api.js";
+import { areaDict } from '../../../components/js/common/area.js';
 // import {*} from '../../../api/api.js'
 export default {
   data() {
@@ -164,7 +165,7 @@ export default {
       }
     }
   },
-  mounted: function() {}
+  mounted: function () { }
 };
 </script>
 

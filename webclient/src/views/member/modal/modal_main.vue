@@ -22,7 +22,7 @@
         </div>
         <div class="modal-body my-content-primary">
           <div>
-            <form class="form-horizontal">
+            <!-- <form class="form-horizontal">
               <div class="col-sm-12">
                 <div class="panel panel-default boxshadow">
                   <div class="panel-heading">船舶基础信息</div>
@@ -46,8 +46,8 @@
                   </div>
                 </div>
               </div>
-            </form>
-
+            </form> -->
+            <bbxDetailTable :bid="bid"></bbxDetailTable>
             <ul
               id="mytabs"
               class="nav nav-tabs"
@@ -95,7 +95,7 @@
 
 <script>
 import bbxObservation from '../../member/charts/bbx_observation_charts.vue'
-
+import bbxDetailTable from '../common/bbx_detail_table.vue';
 //前后端api
 import { loadRealtime } from '../../../api/api.js'
 export default {
@@ -146,7 +146,8 @@ export default {
     }
   },
   components: {
-    bbxObservation
+    bbxObservation,
+    bbxDetailTable
   },
   methods: {
     showModal: function (par) {
@@ -198,15 +199,6 @@ export default {
         // 初始化echarts
         this.initCharts(params);
       });
-
-      // loadObservationData(params).then(res=>{
-      //     //模拟数据请求操作
-      //     /*
-      //       res.data中返回的主要包含两样：
-      //         columns:
-      //         values:
-      //     */
-      // })
     },
     mounted () {
 
