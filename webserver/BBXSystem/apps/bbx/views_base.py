@@ -44,8 +44,8 @@ from .serializers import BBXInfoSerializer,BBXDetailInfoSerializer
 
 dateState_dict={
     "normal":12,
-    "late":24,
-    "noarrival":36,
+    "late":18,
+    "noarrival":24,
     "invalid":-1
 }
 

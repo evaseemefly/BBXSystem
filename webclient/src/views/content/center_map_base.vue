@@ -107,24 +107,54 @@ export default {
   methods: {
     //开始，暂停，终止事件
     trackMarkerStart: function () {
-      console.log("开始");
-      this.trackMarkers.forEach(obj => {
-        obj.start();
-      });
+      // console.log("开始");
+      var myself = this;
+      var index = 0;
+      for (let obj of myself.trackMarkers) {
+        if (obj._latlngs.length > 1) {
+          obj.start();
+        }
+
+        // index += 1;
+        // console.log(index);
+        // console.log(obj._leaflet_id);
+        // console.log(obj._latlng);
+      }
+      // this.trackMarkers.forEach(obj => {
+      //   obj.start();
+      //   index += 1;
+      //   console.log(index);
+      //   console.log(obj._leaflet_id);
+      //   console.log(obj._latlng);
+      // });
     },
     // 暂停
     trackMarkerPause: function () {
-      console.log("暂停");
-      this.trackMarkers.forEach(obj => {
-        obj.pause();
-      });
+      // console.log("暂停");
+      var myself = this;
+      for (let obj of myself.trackMarkers) {
+        if (obj._latlngs.length > 1) {
+          obj.pause();
+        }
+
+      }
+      // this.trackMarkers.forEach(obj => {
+      //   obj.pause();
+      // });
     },
     //终止
     trackMarkerEnd: function () {
-      console.log("终止");
-      this.trackMarkers.forEach(obj => {
-        obj.stop();
-      });
+      // console.log("终止");
+      var myself = this;
+      for (let obj of myself.trackMarkers) {
+        if (obj._latlngs.length > 1) {
+          obj.stop();
+        }
+
+      }
+      // this.trackMarkers.forEach(obj => {
+      //   obj.stop();
+      // });
     },
     // 设置当前日期，传入date（格式为：yyyy-mm-dd）
     initTargetDate: function (now) {
@@ -146,7 +176,9 @@ export default {
         var end = "";
         var tracks = [];
         //
+        var index = 0;
         for (let temp of res.data) {
+          index += 1;
           if (temp.latlngs.length != 0) {
             var trackTemp = new BBXTrackInfo(
               temp.bid,
@@ -167,6 +199,7 @@ export default {
             });
           }
         }
+        // console.log('获取tarck完成');
       })
     },
     // 清除当前markers以及折线
@@ -316,7 +349,7 @@ export default {
           myself.showModalFrame(bbxInfo);
         });
       });
-      myMovingMarker.start();
+      // myMovingMarker.start();
       return myMovingMarker;
     },
     // 调用加载子组件modal框
@@ -550,7 +583,7 @@ export default {
         this.targetDate = dateFormat(new Date(), 'yyyy-mm-dd');
         // 2-获取后台返回的船舶轨迹信息
         // this.loadBBXsTrack();
-        // this.loadTracks(dateFormat(new Date(), 'yyyy-mm-dd'));
+        this.loadTracks(this.targetDate);
       }
     }
   },
