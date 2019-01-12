@@ -116,8 +116,16 @@ export default {
       loadRealtime(searchCondition).then(res => {
         // console.log(res)
         res.data.forEach(obj => {
-          myself.values.push(obj.val);
-          myself.columns.push(obj.timestamp);
+          // myself.values.push(obj.val);
+          // myself.columns.push(obj.timestamp);
+          if (obj.val != 9999 && obj.val != 999.9) {
+            //如果数据为缺省值那么就改成0
+            myself.values.push(obj.val);
+            myself.columns.push(obj.timestamp);
+          } else {
+            myself.values.push(null);
+            myself.columns.push(obj.timestamp);
+          }
         });
 
         myself.initCharts();

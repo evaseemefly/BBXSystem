@@ -29,6 +29,9 @@
 </template>
 
 <script>
+// 引入bus
+import bus from '../../../assets/eventBus.js';
+
 import { AreaStatisticsInfo, StatesInfo } from '../../../models/bbx.js'
 import totalPie from '../pie/total_pie.vue';
 import genPie from '../pie/general_pie.vue';
@@ -41,7 +44,8 @@ export default {
         'n': '北海',
         'e': '东海',
         's': '南海'
-      }
+      },
+      targetdate:null
     }
   },
   components: {
@@ -50,10 +54,13 @@ export default {
   },
   methods: {
     // 读取指定海区的统计结果
-    loadAreaDetail: function (area) {
+    loadAreaDetail: function (now) {
       var myself = this;
+      var params={
+        targetdate:now
+      };
       // 与后端实际交互暂时先不写
-      loadAllAreaStatistic().then(res => {
+      loadAllAreaStatistic(params).then(res => {
         for (let temp of res.data) {
           // 获取到area 的str 标识符
           var area_str = temp.area;
@@ -101,11 +108,21 @@ export default {
     }
   },
   mounted: function () {
-    this.loadAreaDetail();
-  }
+    var myself=this;
+    bus.$on("on-targetDate",function(msg){     
+      myself.targetdate=msg;    
+      myself.loadAreaDetail(msg);  
+    });   
+  },
+  // watch: {
+  //   targetDate:function(newVal) {
+
+  //     this.loadAreaDetail(newVal);
+  //     console.log(newVal);
+  //   }
+  // }
 }
 </script>
-
 <style scoped>
 .right_charts {
   height: 100%;
