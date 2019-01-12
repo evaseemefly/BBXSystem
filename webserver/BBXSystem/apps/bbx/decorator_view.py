@@ -32,7 +32,7 @@ def date_required(func):
                 targetdate=datetime.strptime(targetdate,'%Y-%m-%d')
 
             # 转换为世界时
-            targetdate=DateCommon.local2Utc(targetdate)
+            # targetdate=DateCommon.local2Utc(targetdate)
             # isNow=request.GET.get('isNow',True)
             request.GET=request.GET.copy()
             request.GET['targetdate']=targetdate

@@ -77,7 +77,7 @@ var strategyAppendRealtimeData = function (factor, list) {
 
 // import {*} from '../../../api/api.js'
 export default {
-  data() {
+  data () {
     return {
       title: "",
       columns: [],
@@ -176,7 +176,7 @@ export default {
               }
             }
 
-          }]
+          ]
         };
         if (factor === 'ws' || factor === 'wd') {
           // option.series['symbol'] = 'triangle';
@@ -296,20 +296,20 @@ export default {
     }
   },
   watch: {
-    factor: function(newVal) {
+    factor: function (newVal) {
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     },
-    bid: function(newVal) {
+    bid: function (newVal) {
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     }
   },
-  mounted: function() {}
+  mounted: function () { }
 };
 </script>
 

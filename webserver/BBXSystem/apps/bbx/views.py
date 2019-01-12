@@ -174,7 +174,6 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
         # targetDate='2018-12-08 00:00'
         if request.GET.get('kind')=='history':
             now=self.getDayLastTime(now)
-
         # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         list=[]
         for area in areas:
@@ -233,7 +232,8 @@ class BBXGPSTrackView(APIView,BBXTrackBaseView,BaseTimeView):
         # 2019-01-05 修改了前台的接口，后端需要获取到前台传入的targetdate参数
         now=request.GET.get('targetdate')
         if request.GET.get('kind')=='now':
-            now=self.nowDate
+            # now=self.nowDate
+            pass
         else :
             now = self.getDayLastTime(now)
         # now=self.nowDate
