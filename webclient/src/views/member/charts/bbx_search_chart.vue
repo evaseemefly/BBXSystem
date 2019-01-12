@@ -3,7 +3,78 @@
 </template>
 
 <script>
-import { loadRealtime } from "../../../api/api.js";
+
+import { loadRealtime } from '../../../api/api.js';
+
+// 使用策略模式
+var strategies = {
+  'w': function (list) {
+    var columns = [];
+    var values = [];
+    list.forEach(obj => {
+      /*
+      后端返回的结果
+      1- 存在时
+      {
+         "timestamp": "2018-12-30 16:00:00",
+         "val": {
+                  "ws": 0,
+                  "wd": 60
+                }
+      }
+
+      2- 不存在时：
+      {
+        "timestamp": "2018-12-01 00:00:00",
+        "val": {}
+      }
+      */
+      // 1- 先判断val是否包含ws与wd
+      if (obj.val['ws'] != null && obj.val['wd'] != null) {
+        if ((obj.val.ws != 9999 && obj.val.ws != 999.9) || (obj.val.wd != 9999 && obj.val.wd != 999.9)) {
+          //如果数据为缺省值那么就改成0
+          values.push({
+            value: obj.val.ws,
+            symbolRotate: obj.val.wd
+          });
+          columns.push(obj.timestamp);
+        } else {
+          values.push(null);
+          columns.push(obj.timestamp);
+        }
+      }
+
+    })
+    return {
+      columns: columns,
+      values: values
+    }
+  },
+  'default': function (list) {
+    var columns = [];
+    var values = [];
+    list.forEach(obj => {
+      // myself.values.push(obj.val);
+      // myself.columns.push(obj.timestamp);
+      if (obj.val != 9999 && obj.val != 999.9) {
+        //如果数据为缺省值那么就改成0
+        values.push(obj.val);
+        columns.push(obj.timestamp);
+      } else {
+        values.push(null);
+        columns.push(obj.timestamp);
+      }
+    })
+    return {
+      columns: columns,
+      values: values
+    }
+  }
+}
+var strategyAppendRealtimeData = function (factor, list) {
+  return strategies[factor](list)
+}
+
 // import {*} from '../../../api/api.js'
 export default {
   data() {
@@ -22,13 +93,22 @@ export default {
     bid: Number
   },
   methods: {
-    initCharts: function() {
+
+    initCharts: function (factor) {
       var myself = this;
       if (myself.mychart === null) {
         // 基于准备好的dom，初始化echarts图表
-        this.myChart = echarts.init(document.getElementById("main"));
+        myself.myChart = echarts.init(document.getElementById('main'));
         //				var myChartContent=echarts.init(document.getElementById('bar_content'));
         //		var myBar = echarts.init(document.getElementById('mybar'));
+        // this.disposeCharts();
+        /*
+          此处需要加入一个工厂方法，
+          根据传入的factor
+          若facotr为 ws wd时，option中的series与普通的略有不同
+
+
+        */
         var option = {
           tooltip: {
             show: true
@@ -95,16 +175,84 @@ export default {
                 }
               }
             }
-          ]
-        };
 
-        // 为echarts对象加载数据
-        this.myChart.setOption(option);
+          }]
+        };
+        if (factor === 'ws' || factor === 'wd') {
+          // option.series['symbol'] = 'triangle';
+          option.series[0]['symbolSize'] = [40, 20];
+          // option.series['symbol'] = 'image:../../../../../assets/common/arrows.png'
+          option.series[0]['symbol'] = 'image://common/arrows.png'
+        } else {
+          option.series[0]['symbol'] = 'circle';
+          option.series[0]['symbolSize'] = 8;
+        }
+        // 为echarts对象加载数据 
+        myself.myChart.setOption(option);
       } else {
         this.disposeCharts();
       }
     },
-    loadReatimeData: function() {
+
+    // 
+    strategyAppendRealtimeData: function (facotr, list) {
+      var myself = this;
+      var strategies = {
+        'w': function (list) {
+          list.forEach(obj => {
+            /*
+            后端返回的结果
+            1- 存在时
+            {
+               "timestamp": "2018-12-30 16:00:00",
+               "val": {
+                        "ws": 0,
+                        "wd": 60
+                      }
+            }
+
+            2- 不存在时：
+            {
+              "timestamp": "2018-12-01 00:00:00",
+              "val": {}
+            }
+            */
+            // 1- 先判断val是否包含ws与wd
+            if (obj.val['ws'] != null && obj.val['wd'] != null) {
+              if ((obj.val.ws != 9999 && obj.val.ws != 999.9) || (obj.val.wd != 9999 && obj.val.wd != 999.9)) {
+                //如果数据为缺省值那么就改成0
+                myself.values.push({
+                  value: obj.val.ws,
+                  symbolRotate: obj.val.wd
+                });
+                myself.columns.push(obj.timestamp);
+              } else {
+                myself.values.push(null);
+                myself.columns.push(obj.timestamp);
+              }
+            }
+
+          })
+        },
+        'default': function (list) {
+          list.forEach(obj => {
+            // myself.values.push(obj.val);
+            // myself.columns.push(obj.timestamp);
+            if (obj.val != 9999 && obj.val != 999.9) {
+              //如果数据为缺省值那么就改成0
+              myself.values.push(obj.val);
+              myself.columns.push(obj.timestamp);
+            } else {
+              myself.values.push(null);
+              myself.columns.push(obj.timestamp);
+            }
+          })
+        }
+      };
+      return strategies[facotr](list);
+    },
+
+    loadReatimeData: function () {
       var myself = this;
       // 此处注意需要清空
       this.values = [];
@@ -114,25 +262,34 @@ export default {
         bid: myself.bid
       };
       loadRealtime(searchCondition).then(res => {
+        var factor = (myself.factor == 'ws' || myself.factor == 'wd') ? 'w' : 'default';
+        var obj = strategyAppendRealtimeData(factor, res.data);
+        myself.values = obj['values'];
+        myself.columns = obj['columns'];
+        // myself.strategyAppendRealtimeData(factor, res.data);
+        // strategyTemp(factor, res.data);
         // console.log(res)
-        res.data.forEach(obj => {
-          // myself.values.push(obj.val);
-          // myself.columns.push(obj.timestamp);
-          if (obj.val != 9999 && obj.val != 999.9) {
-            //如果数据为缺省值那么就改成0
-            myself.values.push(obj.val);
-            myself.columns.push(obj.timestamp);
-          } else {
-            myself.values.push(null);
-            myself.columns.push(obj.timestamp);
-          }
-        });
 
-        myself.initCharts();
+        // 19-01-10
+        // res.data.forEach(obj => {
+        //   // myself.values.push(obj.val);
+        //   // myself.columns.push(obj.timestamp);
+        //   if (obj.val != 9999 && obj.val != 999.9) {
+        //     //如果数据为缺省值那么就改成0
+        //     myself.values.push(obj.val);
+        //     myself.columns.push(obj.timestamp);
+        //   } else {
+        //     myself.values.push(null);
+        //     myself.columns.push(obj.timestamp);
+        //   }
+        // })
+
+        myself.initCharts(myself.factor);
         // myself.values = res.data.val;
       });
     },
-    disposeCharts: function() {
+    // 销毁echarts
+    disposeCharts: function () {
       if (this.mychart != null) {
         this.mychart.dispose();
       }

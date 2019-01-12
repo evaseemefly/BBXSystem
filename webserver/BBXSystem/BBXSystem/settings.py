@@ -116,7 +116,7 @@ DATABASES = {
 
         # 线上数据库
         # 'NAME': 'BBX',
-        # # centos
+        # centos
         # 'USER': 'arfu',
         # 'PASSWORD': '@Tongxin321'
         

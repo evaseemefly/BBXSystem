@@ -52,7 +52,15 @@ export default {
             trigger: 'item',
             formatter: "{a} <br/>{b} : {c} ({d}%)"
           },
-
+          // 图例组件
+          legend: {
+            orient: 'vertical',
+            x: 'left',
+            data: ['正常', '迟到', '未到', '缺失'],
+            textStyle: {
+              color: '#B0E0E6'
+            }
+          },
           visualMap: {
             show: false,
             min: 0,
@@ -61,14 +69,18 @@ export default {
               colorLightness: [0, 1]
             }
           },
+
           series: [
             {
               name: myself.name,
               type: 'pie',
               radius: '55%',
-              center: ['50%', '50%'],
+              center: ['50%', '60%'], // 注意此处需要下调圆心的位置，不然会对顶部的title有遮挡
+              minAngle: 2, //最小的扇区角度（0 ~ 360）
+              color: ['#40E0D0', '#87CEEB', '#B0E0E6', '#33A1C9'],
               // data: myself.values.sort(function (a, b) { return a.value - b.value; }),
-              data: myself.values.sort(function (a, b) { return a.value - b.value; }),
+              // data: myself.values.sort(function (a, b) { return a.value - b.value; }),
+              data: myself.values,
               // data: [{
               //   value: 10,
               //   name: '正常'
@@ -88,29 +100,33 @@ export default {
               // ],
               roseType: 'radius',
               label: {
+                // position: 'outside',
                 normal: {
                   textStyle: {
-                    color: 'rgba(255, 255, 255, 0.3)'
-                  }
+                    // color: 'rgba(255, 255, 255, 0.3)'
+                    color: '#B0E0E6'
+                  },
+                  position: 'outside',
                 }
               },
               labelLine: {
                 normal: {
                   lineStyle: {
                     color: 'rgba(255, 255, 255, 0.3)'
+                    // color: '#FFFAFA'
                   },
                   smooth: 0.2,
                   length: 10,
                   length2: 20
                 }
               },
-              itemStyle: {
-                normal: {
-                  color: '#40E0D0',
-                  shadowBlur: 200,
-                  shadowColor: 'rgba(0, 0, 0, 0.5)'
-                }
-              },
+              // itemStyle: {
+              //   normal: {
+              //     color: '#40E0D0',
+              //     shadowBlur: 200,
+              //     shadowColor: 'rgba(0, 0, 0, 0.5)'
+              //   }
+              // },
 
               animationType: 'scale',
               animationEasing: 'elasticOut',
@@ -136,8 +152,8 @@ export default {
       for (let v in myself.state) {
         let tempObj = {};
         let keyval = {};
-        console.log(v);
-        console.log(myself.state[v]);
+        // console.log(v);
+        // console.log(myself.state[v]);
         tempObj[v] = myself.state[v];
         keyval.name = myself.dict[v];
         keyval.value = myself.state[v];

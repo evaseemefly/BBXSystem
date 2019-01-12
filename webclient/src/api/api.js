@@ -4,7 +4,6 @@ import axios from "axios";
 export const host = "http://127.0.0.1:8000";
 // export const host = "http://192.168.139.128:8015";
 // export const host = "http://128.5.6.112:8015";
-
 axios.defaults.withCredentials = true;
 axios.defaults.headers = {
   // 'Access-Control-Allow-Headers': 'Authorization,Origin, X-Requested-With, Content-Type, Accept,access-control-allow-methods,access-control-allow-origin',
@@ -72,4 +71,10 @@ export const loadAllAreaStatistic = par => {
 export const loadBBXState = (area, time) => {
   let bbxStateUrl = `${host}/bbx/GetBaseState/${area}/${time}`;
   return axios.get(bbxStateUrl);
+};
+
+// 根据bid获取船舶的详情信息
+export const loadBBXDetail = par => {
+  let bbxDetailUrl = `${host}/bbx/detail`;
+  return axios.get(bbxDetailUrl, { params: par });
 };
