@@ -4,7 +4,7 @@
 
 <script>
 import { loadRealtime } from "../../../api/api.js";
-import { areaDict } from '../../../components/js/common/area.js';
+import { areaDict } from "../../../components/js/common/area.js";
 // import {*} from '../../../api/api.js'
 export default {
   data() {
@@ -22,9 +22,6 @@ export default {
   },
   methods: {
     initCharts: function() {
-      let height = $(window).height() - 255;
-      $("#main").css({ height: height + "px" });
-
       var myself = this;
       if (myself.mychart === null) {
         // 基于准备好的dom，初始化echarts图表
@@ -165,7 +162,10 @@ export default {
       }
     }
   },
-  mounted: function () { }
+  mounted: function() {
+    let height = $(window).height() - 255;
+    $("#main").css({ height: height + "px" });
+  }
 };
 </script>
 

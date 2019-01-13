@@ -47,6 +47,10 @@ export default {
       // var params = to;
       // console.log(params);
       this.changeKind();
+    },
+    // 监听kind，当kind变化时
+    kind: function (newVal) {
+
     }
   }
 }

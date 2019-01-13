@@ -44,8 +44,8 @@ from .serializers import BBXInfoSerializer,BBXDetailInfoSerializer
 
 dateState_dict={
     "normal":12,
-    "late":24,
-    "noarrival":36,
+    "late":18,
+    "noarrival":24,
     "invalid":-1
 }
 
@@ -96,6 +96,37 @@ class BaseTimeView():
         now=now-timedelta(hours=settings.BBX_UTC_INTERVAL)
         return now
 
+    def utcDate(self,dt):
+        '''
+            获取传入时间的世界时
+        :param dt:
+        :return:
+        '''
+        dt=dt-timedelta(hours=8)
+        return dt
+
+    def localDate(self,dt):
+        '''
+            获取本地时间
+        :param dt:
+        :return:
+        '''
+        return dt
+
+    # TODO 方法改为工厂方法，子类调用时，除了要传入时间以外还要穿入kind
+    def getDateFactory(self,kind,dt):
+        '''
+            根据 local与history 获取时间
+        :param kind:
+        :param dt:
+        :return:
+        '''
+        if kind=='now':
+            return self.localDate(dt)
+        elif kind=='history':
+            return self.utcDate(dt)
+
+
     def targetDateStart(self,targetdate):
         '''
             获取指定日期的起始时间00：00
@@ -108,14 +139,18 @@ class BaseTimeView():
         date_time = date_time + timedelta(hours=00, minutes=00)
         return date_time
 
-    def targetDate(self,targetdate):
+    def getDayLastTime(self, targetdate):
         '''
             根据传入的目标日期获取该日期的最后时刻（dt）
         :param targetdate:
         :return:
         '''
         # 传入的targetdate可能是一个str
-        date_time=datetime.strptime(targetdate,'%Y-%m-%d')
+        # 此处加入一个判断targetdate是否为dateime类型，若是str类型则转换
+        if isinstance(targetdate,str):
+           date_time=datetime.strptime(targetdate,'%Y-%m-%d')
+        else:
+            date_time=targetdate
         # 注意由于传入的targetdate是一个'yyyy-mm-dd'格式的，所以需要加入当前天的最后时刻
         date_time=date_time+timedelta(hours=23,minutes=59)
         return date_time

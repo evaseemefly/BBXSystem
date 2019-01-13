@@ -46,3 +46,29 @@ def getMonthDateList(target_date):
         first_day+=a_day
 
     return date_list
+
+# def local2Utc(target_date,kind='history'):
+#     '''
+#         将本地时间改为世界时
+#     :param target_date:
+#     :return:
+#     '''
+#     # 传入的可能是str也可能是date类型
+#     if isinstance(target_date,str):
+#         # 转成date
+#         if
+#         target_date=datetime.strptime(target_date, '%Y-%m-%d')
+#     # 本地时间-8为世界时
+#     target_date=target_date + timedelta(hours=-8)
+#     return target_date.strftime('%Y-%m-%d')
+
+def local2Utc(target_date):
+    '''
+        将本地时间改为世界时
+    :param target_date:
+    :return:
+    '''
+
+    # 本地时间-8为世界时
+    target_date=target_date + timedelta(hours=-8)
+    return target_date

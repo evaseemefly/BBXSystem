@@ -112,7 +112,10 @@ DATABASES = {
         # 'NAME': 'bbxsystemgis',
         # 'NAME': 'bbxsys',
         # 现在使用的最新的数据库名称
-        'NAME': 'bbxsys',
+        # mac
+        #'NAME': 'bbx',
+        # zw
+         'NAME': 'bbxsys',
 
         # 线上数据库
         # 'NAME': 'BBX',
@@ -130,11 +133,12 @@ DATABASES = {
         # 'HOST':'127.0.0.1',
 
         # mac
-        # 'USER': 'root',
-        # 'PASSWORD': '111111'
-#     # mac
-        'USER': 'root',
-        'PASSWORD': '111111'
+        #'USER':'root',
+        #'PASSWORD':'12345678',
+
+        # zw
+        'USER':'root',
+        'PASSWORD':'111111'
 
 
         # 'HOST':'127.0.0.1',
@@ -178,6 +182,8 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
+# 设置当前的时区
+# TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
