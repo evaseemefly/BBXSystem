@@ -5,6 +5,7 @@
 <script>
 
 import { loadRealtime } from '../../../api/api.js';
+import { menulist } from '../../../module/search/menu_list.js'
 
 // 使用策略模式
 var strategies = {
@@ -114,7 +115,7 @@ export default {
             show: true
           },
           legend: {
-            data: ["波浪"]
+            data: [myself.title]
           },
           xAxis: [
             {
@@ -146,7 +147,7 @@ export default {
           ],
           series: [
             {
-              name: "波浪", //需要与legend中的data相同
+              name: myself.title, //需要与legend中的data相同
               type: "line",
               smooth: true, //不是折线，是曲线
               itemStyle: {
@@ -297,6 +298,8 @@ export default {
   },
   watch: {
     factor: function (newVal) {
+      var menu = menulist;
+      this.title = menu[newVal].name;
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();

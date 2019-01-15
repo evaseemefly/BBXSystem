@@ -5,9 +5,11 @@
 <script>
 import { loadRealtime } from "../../../api/api.js";
 import { areaDict } from "../../../components/js/common/area.js";
+import { menulist } from '../../../module/search/menu_list.js'
+import { strategyAppendRealtimeData } from '../../../module/search/ws_strategies.js';
 // import {*} from '../../../api/api.js'
 export default {
-  data() {
+  data () {
     return {
       title: "",
       columns: [],
@@ -21,8 +23,9 @@ export default {
     dateRange: String
   },
   methods: {
-    initCharts: function() {
+    initCharts: function (factor) {
       var myself = this;
+
       if (myself.mychart === null) {
         // 基于准备好的dom，初始化echarts图表
         this.myChart = echarts.init(document.getElementById("main"));
@@ -33,7 +36,7 @@ export default {
             show: true
           },
           legend: {
-            data: ["波浪"]
+            data: [myself.title]
           },
           xAxis: [
             {
@@ -63,7 +66,7 @@ export default {
           ],
           series: [
             {
-              name: "波浪", //需要与legend中的data相同
+              name: myself.title, //需要与legend中的data相同
               type: "line",
               smooth: true, //不是折线，是曲线
               itemStyle: {
@@ -95,13 +98,22 @@ export default {
           ]
         };
 
+        if (factor === 'ws' || factor === 'wd') {
+          // option.series['symbol'] = 'triangle';
+          option.series[0]['symbolSize'] = [40, 20];
+          // option.series['symbol'] = 'image:../../../../../assets/common/arrows.png'
+          option.series[0]['symbol'] = 'image://common/arrows.png'
+        } else {
+          option.series[0]['symbol'] = 'circle';
+          option.series[0]['symbolSize'] = 8;
+        }
         // 为echarts对象加载数据
         this.myChart.setOption(option);
       } else {
         this.disposeCharts();
       }
     },
-    loadReatimeData: function() {
+    loadReatimeData: function () {
       var myself = this;
       // 此处注意需要清空
       this.values = [];
@@ -112,57 +124,72 @@ export default {
         dateRange: myself.dateRange
       };
       loadRealtime(searchCondition).then(res => {
-        res.data.forEach(obj => {
-          // by zw v1版
-          // if (obj.val < 999) {
-          //   //如果数据为缺省值那么就改成0
-          //   myself.values.push(obj.val);
-          //   myself.columns.push(obj.timestamp);
-          // } else {
-          //   myself.values.push(0);
-          //   myself.columns.push(obj.timestamp);
-          // }
-          // v2 版 by evaseemefly
-          if (obj.val != 9999 && obj.val != 999.9) {
-            //如果数据为缺省值那么就改成0
-            myself.values.push(obj.val);
-            myself.columns.push(obj.timestamp);
-          } else {
-            myself.values.push(null);
-            myself.columns.push(obj.timestamp);
-          }
-        });
+        // res.data.forEach(obj => {
+        //   // by zw v1版
+        //   // if (obj.val < 999) {
+        //   //   //如果数据为缺省值那么就改成0
+        //   //   myself.values.push(obj.val);
+        //   //   myself.columns.push(obj.timestamp);
+        //   // } else {
+        //   //   myself.values.push(0);
+        //   //   myself.columns.push(obj.timestamp);
+        //   // }
+        //   // v2 版 by evaseemefly
+        //   // if (obj.val != 9999 && obj.val != 999.9) {
+        //   //   //如果数据为缺省值那么就改成0
+        //   //   myself.values.push(obj.val);
+        //   //   myself.columns.push(obj.timestamp);
+        //   // } else {
+        //   //   myself.values.push(null);
+        //   //   myself.columns.push(obj.timestamp);
+        //   // }
 
-        myself.initCharts();
+
+        // });
+
+        // v3 版本
+        var factor = (myself.factor == 'ws' || myself.factor == 'wd') ? 'w' : 'default';
+        var obj = strategyAppendRealtimeData(factor, res.data);
+        myself.values = obj['values'];
+        myself.columns = obj['columns'];
+
+        myself.initCharts(myself.factor);
         // myself.values = res.data.val;
       });
     },
-    disposeCharts: function() {
+    disposeCharts: function () {
       if (this.mychart != null) {
         this.mychart.dispose();
       }
-    }
+    },
+
   },
   watch: {
-    factor: function(newVal) {
+    factor: function (newVal) {
+      //当factor发生变化时
+      // console.log(newVal);
+      var menu = menulist;
+      this.title = menu[newVal].name;
+      // console.log(menu[newVal]);
+      // var menulist = menulist;
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     },
-    bid: function(newVal) {
+    bid: function (newVal) {
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     },
-    dateRange: function(newVal) {
+    dateRange: function (newVal) {
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     }
   },
-  mounted: function() {
+  mounted: function () {
     let height = $(window).height() - 255;
     $("#main").css({ height: height + "px" });
   }

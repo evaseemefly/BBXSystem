@@ -72,30 +72,11 @@
 
 <script>
 import { loadBBXlistByNow } from '../../../api/api.js';
+import { optionsFactors } from '../../../module/search/menu_options.js';
 export default {
   data () {
     return {
-      optionsFactor: [
-        //   {
-        //   text: '降雨',
-        //   value: 'rain'
-        // },
-        {
-          text: '能见度',
-          value: 'vis'
-        },
-        {
-          text: '风向',
-          value: 'wd'
-        },
-        {
-          text: '风速',
-          value: 'ws'
-        },
-        {
-          text: '气温',
-          value: 'at'
-        }],
+      optionsFactor: optionsFactors,
       optionsBBX: [],
       selectedFactor: null,
       selectedBBX: null,

@@ -2,7 +2,10 @@
   <div id="mycontent">
     <div id="basemap"></div>
     <div id="timeline"></div>
-    <modalMain ref='modalChild'></modalMain>
+    <modalMain
+      ref='modalChild'
+      :kind="kind"
+    ></modalMain>
     <div
       id="track_btn"
       class="btn-group"

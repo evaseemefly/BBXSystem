@@ -128,10 +128,14 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
     '''
         获取指定要素的观测值序列
     '''
+
+    @method_decorator(history_requeired)
+    @method_decorator(date_required)
     def get(self,request):
         factor=request.GET.get('factor','')
         bid=int(request.GET.get('bid',-1))
         dateRangeStr = request.GET.get('dateRange', '')
+        kind=request.GET.get('kind')
         # 此处加一个判断，若未传入target，则将当前的时间赋给targetdate
         targetdate = request.GET.get('targetdate', None)
         targetdate=targetdate if targetdate is not None else datetime.now().strftime('%Y-%m-%d')
@@ -147,12 +151,14 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
             start_date = datetime.strptime(start_date + ' 00:00', '%Y-%m-%d %H:%M')
             end_date = datetime.strptime(end_date + ' 23:59', '%Y-%m-%d %H:%M')
         except Exception  as e:
-            now = datetime.now()
-            start_date = now-timedelta(hours=24)
-            end_date = now
+            now = targetdate
+            (start_date,end_date)=(now - timedelta(hours=24),now) if kind=='now' else (now,now+timedelta(hours=24))
+            # start_date = now-timedelta(hours=24)
+            # end_date = now
         #说好的要减8 hours
-        start_date=start_date - timedelta(hours=8)
-        end_date = end_date - timedelta(hours=8)
+        # 已加载装饰器中
+        # start_date=start_date - timedelta(hours=8)
+        # end_date = end_date - timedelta(hours=8)
         list= self.getTargetFactorList(bid,start_date,end_date,factor)
         json_data= RealtimeWdWsSerializer(list,many=True).data if (factor=='wd' or factor=='ws') else RealtimeSimpSerializer(list,many=True).data
         # json_data=RealtimeSimpSerializer(list,many=True).data

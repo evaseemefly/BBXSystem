@@ -1,27 +1,54 @@
 <template>
   <div class="container">
-    <div class="panel-body" style="padding-bottom:0px;">
+    <div
+      class="panel-body"
+      style="padding-bottom:0px;"
+    >
       <div class="panel">
         <div class="panel-heading">查询条件</div>
         <div class="panel-body table-parent-panel searchbar">
-          <form id="formSearch" class="form-horizontal">
-            <div class="form-group" style="margin-top:15px">
-              <label class="control-label col-sm-1" for="txt_search_departmentname">船舶</label>
+          <form
+            id="formSearch"
+            class="form-horizontal"
+          >
+            <div
+              class="form-group"
+              style="margin-top:15px"
+            >
+              <label
+                class="control-label col-sm-1"
+                for="txt_search_departmentname"
+              >船舶</label>
               <div class="col-md-2">
-                <select class="form-control" v-model="selectedBBX">
-                  <option v-for="option in optionsBBX" v-bind:value="option.value">{{option.text}}</option>
+                <select
+                  class="form-control"
+                  v-model="selectedBBX"
+                >
+                  <option
+                    v-for="option in optionsBBX"
+                    v-bind:value="option.value"
+                  >{{option.text}}</option>
                 </select>
               </div>
-              <label class="control-label col-sm-1" for="txt_search_departmentname">要素</label>
+              <label
+                class="control-label col-sm-1"
+                for="txt_search_departmentname"
+              >要素</label>
               <div class="col-md-2">
-                <select class="form-control" v-model="selectedFactor">
+                <select
+                  class="form-control"
+                  v-model="selectedFactor"
+                >
                   <option
                     v-for="option in optionsFactor"
                     v-bind:value="option.value"
                   >{{option.text}}</option>
                 </select>
               </div>
-              <label class="control-label col-sm-1" for="txt_search_departmentname">时间</label>
+              <label
+                class="control-label col-sm-1"
+                for="txt_search_departmentname"
+              >时间</label>
               <div class="col-md-2">
                 <Date-picker
                   type="daterange"
@@ -34,7 +61,10 @@
                 ></Date-picker>
               </div>
 
-              <div class="col-md-2" style="text-align:left;">
+              <div
+                class="col-md-2"
+                style="text-align:left;"
+              >
                 <button
                   type="button"
                   id="btn_search"
@@ -52,34 +82,36 @@
 </template>
 <script>
 import { loadBBXlistByNow } from "../../../api/api.js";
+import { optionsFactors } from '../../../module/search/menu_options.js';
 
 export default {
-  data() {
+  data () {
     return {
-      optionsFactor: [
-        {
-          text: "降雨",
-          value: "rain"
-        },
-        {
-          text: "能见度",
-          value: "vis"
-        },
-        {
-          text: "风向",
-          value: "wd"
-        },
-        {
-          text: "风速",
-          value: "ws"
-        },
-        {
-          text: "气温",
-          value: "at"
-        }
-      ],
+      // optionsFactor: [
+      //   {
+      //     text: "降雨",
+      //     value: "rain"
+      //   },
+      //   {
+      //     text: "能见度",
+      //     value: "vis"
+      //   },
+      //   {
+      //     text: "风向",
+      //     value: "wd"
+      //   },
+      //   {
+      //     text: "风速",
+      //     value: "ws"
+      //   },
+      //   {
+      //     text: "气温",
+      //     value: "at"
+      //   }
+      // ],
+      optionsFactor: optionsFactors,
       datePickerOption: {
-        disabledDate(date, date2) {
+        disabledDate (date, date2) {
           // let now = new Date();
           // let nowstr = `${now.getFullYear()}-${now.getMonth() +
           //   1}-${now.getDate()} 23:59:59`;
@@ -95,10 +127,10 @@ export default {
     };
   },
   methods: {
-    summit: function() {
+    summit: function () {
       console.log("提交给后端");
     },
-    initFatherParams: function() {
+    initFatherParams: function () {
       var myself = this;
 
       this.$emit(
@@ -108,7 +140,7 @@ export default {
         myself.dateRange
       );
     },
-    loadBBXList: function() {
+    loadBBXList: function () {
       var myself = this;
       var params = {
         operation: "now",
@@ -125,7 +157,7 @@ export default {
         }
       });
     },
-    datePickerChosenChanged: function(event) {
+    datePickerChosenChanged: function (event) {
       if (this.dateRange) {
         let time1 = this.dateRange[0];
         let time2 = this.dateRange[1];
@@ -141,7 +173,7 @@ export default {
       this.initFatherParams();
     }
   },
-  mounted: function() {
+  mounted: function () {
     // this.optionsBBX.push({
     //   text: 'BBXA',
     //   value: 1
@@ -149,10 +181,10 @@ export default {
     this.loadBBXList();
   },
   watch: {
-    selectedFactor: function() {
+    selectedFactor: function () {
       this.initFatherParams();
     },
-    selectedBBX: function() {
+    selectedBBX: function () {
       this.initFatherParams();
     }
   }

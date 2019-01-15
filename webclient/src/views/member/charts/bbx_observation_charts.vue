@@ -21,6 +21,7 @@ export default {
       // title:title,
       // columns:columns,
       // values:values
+      mychart: null
     }
   },
   props: {
@@ -29,14 +30,27 @@ export default {
     // 列数据
     columns: Array,
     // values
-    values: Array
+    values: Array,
+    factor: String
   },
   methods: {
+    // 销毁echarts
+    disposeCharts: function () {
+      if (this.mychart != null) {
+        this.mychart.dispose();
+      }
+    },
     // 初始化echarts表格    
     initCharts: function (params) {
       // 基于准备好的dom，初始化echarts图表
       var myself = this;
-      var myChart = echarts.init(document.getElementById('main'));
+      myself.mychart = null;
+      this.disposeCharts();
+      if (myself.myChart === null) {
+
+      }
+      myself.myChart = echarts.init(document.getElementById('main'));
+
       // this.values = [];
       // this.columns = [];
       // console.log(params);
@@ -111,8 +125,21 @@ export default {
         },]
       };
 
+      // 加入是否为wd或ws的判断
+      if (myself.factor === 'ws' || myself.factor === 'wd') {
+        // option.series['symbol'] = 'triangle';
+        option.series[0]['symbolSize'] = [40, 20];
+        // option.series['symbol'] = 'image:../../../../../assets/common/arrows.png'
+        // 注意由于此处已经嵌套了一级的路由，所以使用绝对路径，需要先返回上一级才是实际的public根目录
+        option.series[0]['symbol'] = 'image://../common/arrows.png'
+      } else {
+        option.series[0]['symbol'] = 'circle';
+        option.series[0]['symbolSize'] = 8;
+      }
+
       // 为echarts对象加载数据 
-      myChart.setOption(option);
+      myself.myChart.setOption(option);
+
       this.slideDown();
     },
     //销毁echarts表格
@@ -130,6 +157,16 @@ export default {
   },
   mounted: function () {
     this.slideUp();
+  },
+  watch: {
+    values: function (newVal) {
+      // console.log(newVal);
+      var myself = this;
+      if (newVal.length > 0) {
+        this.initCharts();
+      }
+
+    }
   }
 }
 
