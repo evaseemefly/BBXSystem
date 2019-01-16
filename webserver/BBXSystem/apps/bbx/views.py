@@ -42,7 +42,7 @@ from BBXSystem import settings
 # from .serializers import BBXInfoSerializer,BBXDetailInfoSerializer,BBXStateDetailMidSerializer
 from .serializers import *
 # 父类视图层
-from .views_base import BBXBaseView,BBXTrackBaseView,BaseTimeView
+from .views_base import BBXBaseView,BBXTrackBaseView,BaseTimeView,dateState_dict
 
 # 海区元祖
 area_tup=(
@@ -279,37 +279,48 @@ def getBaseState(request,area='',nowDate=''):
         d = datetime.now()
     # 好像是时区问题所以必须加8小时才行
     d = d.astimezone(pytz.UTC)+timedelta(hours=8)
-    bbxinfolist = BBXInfo.objects.all().filter(area=area)
+    #bbxinfolist = BBXInfo.objects.all().filter(area=area)
     timelimit =d.__str__()
     lst =[]
-    print(timelimit.__str__(),nowDate)
-    for x in bbxinfolist:
+    #for x in bbxinfolist:
+    #    dic = dict()
+    #    dic['code']=x.code
+    #    dic['name']=x.code
+    #    dt=x.bbxspacetempinfo_set.filter(nowdate__lte=timelimit).aggregate(Max('nowdate'))
+    #    if dt['nowdate__max'] is not None:
+    #        dic['state'] = dt['nowdate__max']
+    #        dic['lastestTime'] = dt['nowdate__max'].strftime('%Y-%m-%d %H:%M:%S')
+    #    else:
+    #        dic['state']='invalid'
+    #        dic['lastestTime']='近期没有数据'
+    #    lst.append(dic)
+    #不知道这么比是不是会有bug 直接用datetime比可能更稳一点
+    querySet = BBXSpaceTempInfo.objects.values('code').annotate(Max('nowdate')).filter(bid__area=area,nowdate__lte=timelimit)
+    for x in querySet:
         dic = dict()
-        dic['code']=x.code
-        dic['name']=x.code
-        dt=x.bbxspacetempinfo_set.filter(nowdate__lte=timelimit).aggregate(Max('nowdate'))
-        if dt['nowdate__max'] is not None:
-            dic['state'] = dt['nowdate__max']
-            dic['lastestTime'] = dt['nowdate__max'].strftime('%Y-%m-%d %H:%M:%S')
+        dic['code']=x['code']
+        dic['name']=x['code']
+        if x['nowdate__max'] is not None:
+            dic['state']=x['nowdate__max']
+            dic['lastestTime']=x['nowdate__max'].strftime('%Y-%m-%d %H:%M:%S')
         else:
             dic['state']='invalid'
-            dic['lastestTime']='近期没有数据'
+            dic['lastesttime']='近期没有数据'
         lst.append(dic)
 
-    ok_seconds = 1.5*60*60
-    late_seconds=6*60*60
-
+    ok_date =d- timedelta(hours=dateState_dict['normal'])
+    late_date=d-timedelta(hours=dateState_dict['late'])
+    notarrival_date =d- timedelta(hours=dateState_dict['noarrival'])
 
     #根据日期判断状态
     for x in lst:
         state = x['state']
         if state != 'invalid':
-            nowdateDelta = d-state
             #光用秒减的话int可能会溢出导致判断失败,所以加个days判断
-            if nowdateDelta.days>=1:
+            if state<=notarrival_date:
                 state='invalid'
-            elif nowdateDelta.seconds>ok_seconds:
-                if nowdateDelta.seconds>late_seconds:
+            elif state<ok_date:
+                if state<late_date:
                     state='noarrival'
                 else:
                     state='late'
