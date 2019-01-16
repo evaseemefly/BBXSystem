@@ -31,26 +31,41 @@ export default new Router({
     {
       path: "",
       name: "default",
+      meta: {
+        title: "首页"
+      },
       component: MainHome
     },
     {
       path: "/home",
       name: "home",
+      meta: {
+        title: "首页"
+      },
       component: MyHome
     },
     {
       path: "/map/:kind",
       name: "map",
+      meta: {
+        title: "地图"
+      },
       component: Map
     },
     {
       path: "/state",
       name: "state",
+      meta: {
+        title: "状态"
+      },
       component: State
     },
     {
       path: "/search",
       name: "search",
+      meta: {
+        title: "查询"
+      },
       component: Search
     },
     {
@@ -65,6 +80,9 @@ export default new Router({
     {
       path: "/searchWithTime",
       name: "searchWithTime",
+      meta: {
+        title: "查询"
+      },
       component: SearchWithTime
     }
   ]

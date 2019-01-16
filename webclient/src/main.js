@@ -19,6 +19,10 @@ import "dateformat";
 // import "./components/js/common/date.js";
 
 Vue.use(ElementUI);
+router.beforeEach((to, from, next) => {
+  window.document.title = to.meta.title;
+  next();
+});
 window.jquery = window.$ = jquery;
 new Vue({
   router,
