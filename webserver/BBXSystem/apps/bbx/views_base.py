@@ -192,22 +192,52 @@ class BBXBaseView(BaseView):
         # 2- 根据起止时间进行筛选
         # 2-1 获取该海区的所有bbx基础列表
         bbxlist = self.getAreaALLBBXBaseList(area)
+        # match_date_list=[]
         for bbx_temp in bbxlist:
             stateDetailList=[]
+            # 优化之前的备份
             for key in dateState_dict:
                 temp_state = dateState_dict[key]
                 # 获取指定状态的判断时间范围（起止时间）
                 start_data, end_data = self._getStateDatetimes(key, nowdate)
+                # match_date_list.push([start_data,end_data])
                 # print(temp_state)
                 # 先不做无效船舶的判断
                 # if temp_state>0:
                 # self._checkBBXMatchingLen()
+
                 count = self._checkBBXMatchingLen(bbx_temp.bid, start_data, end_data)
                 temp_detail_mid=StateDetailMidInfo(key,count)
                 stateDetailList.append(temp_detail_mid)
                 # else:
                 #     pass
             bbx_state_detail_list.append(BBXStateDetailMidInfo(area, bbx_temp.bid,bbx_temp.code,stateDetailList))
+
+
+            # index=0
+            # for key in dateState_dict:
+            #     index+=1
+            #     temp_state = dateState_dict[key]
+            #     # 获取指定状态的判断时间范围（起止时间）
+            #     start_data=None
+            #     end_data=None
+            #     if len(match_date_list)<4:
+            #         start_data, end_data = self._getStateDatetimes(key, nowdate)
+            #         match_date_list.append([start_data,end_data])
+            #     else:
+            #         start_data=match_date_list[index-1][0]
+            #         end_data = match_date_list[index - 1][0]
+            #     # print(temp_state)
+            #     # 先不做无效船舶的判断
+            #     # if temp_state>0:
+            #     # self._checkBBXMatchingLen()
+            #
+            #     count = self._checkBBXMatchingLen(bbx_temp.bid, start_data, end_data)
+            #     temp_detail_mid=StateDetailMidInfo(key,count)
+            #     stateDetailList.append(temp_detail_mid)
+            #     # else:
+            #     #     pass
+            # bbx_state_detail_list.append(BBXStateDetailMidInfo(area, bbx_temp.bid,bbx_temp.code,stateDetailList))
         return bbx_state_detail_list
 
     def _checkBBXMatchingLen(self,bid,start,end):
