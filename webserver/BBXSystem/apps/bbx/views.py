@@ -220,8 +220,6 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
             index+=1
         json_data=StatisticMidInfoSerializer(list_area,many=True).data
         return Response(json_data)
-
-
         # self.getBBXStateListbyArea()
 
 
