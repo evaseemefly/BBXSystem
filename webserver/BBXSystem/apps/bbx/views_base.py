@@ -208,8 +208,8 @@ class BBXBaseView(BaseView):
                 # if temp_state>0:
                 # self._checkBBXMatchingLen()
 
-                # count = self._checkBBXMatchingLen(bbx_temp.bid, start_data, end_data)
-                count = self._checkBBXMatchingCount(start_data, end_data)
+                count = self._checkBBXMatchingLen(bbx_temp.bid, start_data, end_data)
+                # count = self._checkBBXMatchingCount(start_data, end_data)
                 temp_detail_mid=StateDetailMidInfo(key,count)
                 stateDetailList.append(temp_detail_mid)
                 # else:
@@ -262,7 +262,8 @@ class BBXBaseView(BaseView):
         return count
 
     def _checkBBXMatchingCount(self,start,end):
-        res=BBXSpaceTempInfo.objects.filter(nowdate__lte=end,nowdate__gte=start).annotate(num_bbxs=Count('bid__bid'))
+        # res=BBXSpaceTempInfo.objects.filter(nowdate__lte=end,nowdate__gte=start).annotate(num_bbxs=Count('bid__bid'))
+        res=BBXSpaceTempInfo.objects.annotate(Max('nowdate')).filter(bid__area='s', nowdate__lte=end,nowdate__gte=start)
         return res
 
     def getTargetFactorList(self,bid,start,end,factor):
