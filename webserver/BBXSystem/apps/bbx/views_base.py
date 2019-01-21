@@ -14,6 +14,8 @@ from django.db.models import Max
 from rest_framework import status
 import json
 
+from django.db.models import Count
+
 from datetime import datetime,timedelta
 import pytz
 
@@ -206,7 +208,8 @@ class BBXBaseView(BaseView):
                 # if temp_state>0:
                 # self._checkBBXMatchingLen()
 
-                count = self._checkBBXMatchingLen(bbx_temp.bid, start_data, end_data)
+                # count = self._checkBBXMatchingLen(bbx_temp.bid, start_data, end_data)
+                count = self._checkBBXMatchingCount(start_data, end_data)
                 temp_detail_mid=StateDetailMidInfo(key,count)
                 stateDetailList.append(temp_detail_mid)
                 # else:
@@ -257,6 +260,10 @@ class BBXBaseView(BaseView):
             list=BBXSpaceTempInfo.objects.filter(bid_id=bid,nowdate__lte=end,nowdate__gte=start)
         count=len(list)
         return count
+
+    def _checkBBXMatchingCount(self,start,end):
+        res=BBXSpaceTempInfo.objects.filter(nowdate__lte=end,nowdate__gte=start).annotate(num_bbxs=Count('bid__bid'))
+        return res
 
     def getTargetFactorList(self,bid,start,end,factor):
         '''
