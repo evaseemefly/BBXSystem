@@ -133,8 +133,12 @@ DATABASES = {
         # 'HOST':'127.0.0.1',
 
         # mac
+        # 'USER':'root',
+        # 'PASSWORD':'12345678',
+
+        # mac
         'USER':'root',
-        'PASSWORD':'12345678',
+        'PASSWORD':'nmefc123',
 
         # zw
         # 'USER':'root',

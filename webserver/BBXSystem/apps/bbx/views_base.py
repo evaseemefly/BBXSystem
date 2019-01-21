@@ -22,7 +22,7 @@ import pytz
 # model
 from .models import *
 # 中间模型
-from .middle_models import BBXDetailMidInfo,BBXStateDetailMidInfo,StateDetailMidInfo,BBXTrackMidInfo,RealtimeMidInfo
+from .middle_models import BBXDetailMidInfo,BBXStateDetailMidInfo,StateDetailMidInfo,BBXTrackMidInfo,RealtimeMidInfo,BBXMaxDateMidInfo
 from bbxgis.models import *
 from bbxgis.serializers import *
 
@@ -164,6 +164,7 @@ class BBXBaseView(BaseView):
     '''
 
     '''
+    # TODO （可用的）获取制定海区的船舶状态列表
     def getBBXStateListbyArea(self,area,nowdate):
         '''
             根据海区查询该海区所有船舶的传输状态
@@ -243,6 +244,37 @@ class BBXBaseView(BaseView):
             # bbx_state_detail_list.append(BBXStateDetailMidInfo(area, bbx_temp.bid,bbx_temp.code,stateDetailList))
         return bbx_state_detail_list
 
+    # TODO （优化后的）获取指定海区的船舶状态列表方法
+    def getBBXStateListByArea(self,area,now):
+        '''
+            根据还去查询该还去所有船舶的传输状态
+        :param area:
+        :param now:
+        :return:
+        '''
+        # 1-获取时间范围
+        start_data=now
+        end_data=now
+        bbx_state_detail_list=[]
+        # 2- 根据起止时间进行筛选
+
+        for key in dateState_dict:
+            # 获取指定状态的判断时间范围（起止时间）
+            start_data, end_data = self._getStateDatetimes(key, now)
+            # 注意此处获取的是一个queryset(数组)
+            temp=self._checkBBXMatchingCount(area,start_data,end_data)
+            # temp_detail_mid=StateDetailMidInfo(key,count)
+            # stateDetailList.append(temp_detail_mid)
+            #     # else:
+            #     #     pass
+            # bbx_state_detail_list.append(BBXStateDetailMidInfo(area, bbx_temp.bid,bbx_temp.code,stateDetailList))
+
+            bbx_state_detail_list.append(BBXMaxDateMidInfo(temp[0])) if temp.exists() else None
+
+        return bbx_state_detail_list
+
+
+
     def _checkBBXMatchingLen(self,bid,start,end):
         '''
             获取指定船舶在指定时间内的数据量
@@ -261,9 +293,14 @@ class BBXBaseView(BaseView):
         count=len(list)
         return count
 
-    def _checkBBXMatchingCount(self,start,end):
-        # res=BBXSpaceTempInfo.objects.filter(nowdate__lte=end,nowdate__gte=start).annotate(num_bbxs=Count('bid__bid'))
-        res=BBXSpaceTempInfo.objects.annotate(Max('nowdate')).filter(bid__area='s', nowdate__lte=end,nowdate__gte=start)
+    def _checkBBXMatchingCount(self,area,start,end):
+        '''
+            根据起止日期获取制定时间段内的船舶数据量
+        :param start:
+        :param end:
+        :return:
+        '''
+        res=BBXSpaceTempInfo.objects.filter( nowdate__lte=end,nowdate__gte=start,bid__area=area).values('bid_id','code','bid__area').annotate(Max('nowdate'))
         return res
 
     def getTargetFactorList(self,bid,start,end,factor):

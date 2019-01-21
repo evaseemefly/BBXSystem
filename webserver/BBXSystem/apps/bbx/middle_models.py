@@ -19,6 +19,16 @@ class BBXStateDetailMidInfo:
         # self.state=state
         # self.count=count
 
+class BBXMaxDateMidInfo:
+    '''
+        船舶最近时间model
+    '''
+    def __init__(self,dict):
+        self.bid=dict['bid_id']
+        self.code=dict['code']
+        self.area=dict['bid__area']
+        self.lastDateTime=dict['nowdate__max']
+
 class StateDetailMidInfo:
     '''
         不同状态以及接收到的个数
@@ -26,6 +36,8 @@ class StateDetailMidInfo:
     def __init__(self,state,count):
         self.state=state
         self.count=count
+
+
 
 class AreaStatisticMidInfo:
     def __init__(self,area,static):

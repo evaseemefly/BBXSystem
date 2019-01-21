@@ -172,7 +172,7 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
         p1：有可能传入的时当前时间，获取往前推24小时的统计情况
         p2：传入的指定日期，获取改日的统计情况
     '''
-
+    # TODO （优化的）get请求
     # @method_decorator(data_loaclUtc)
     @method_decorator(history_requeired)
     @method_decorator(date_required)
@@ -186,7 +186,9 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
         # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         list=[]
         for area in areas:
-            list.append(self.getBBXStateListbyArea(area,now))
+            # 未优化的版本
+            # list.append(self.getBBXStateListbyArea(area,now))
+            list.append(self.getBBXStateListByArea(area, now))
         #
         index=0
         list_area=[]
@@ -220,7 +222,53 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
             index+=1
         json_data=StatisticMidInfoSerializer(list_area,many=True).data
         return Response(json_data)
-        # self.getBBXStateListbyArea()
+
+
+        # 19-01-21 备份使用
+        # def get(self, request):
+        #     now = request.GET.get('targetdate')
+        #     # now= datetime.now()
+        #     areas = ['n', 'e', 's']
+        #     # targetDate='2018-12-08 00:00'
+        #     if request.GET.get('kind') == 'history':
+        #         now = self.getDayLastTime(now)
+        #     # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
+        #     list = []
+        #     for area in areas:
+        #         list.append(self.getBBXStateListbyArea(area, now))
+        #     #
+        #     index = 0
+        #     list_area = []
+        #     for areabbxlist in list:
+        #         statistic_list = []
+        #         list_normal = [temp.code for temp in areabbxlist if temp.stateDetailList[0].count != 0]
+        #         StatisticMidInfo('normal', len(list_normal), list_normal)
+        #         statistic_list.append(StatisticMidInfo('normal', len(list_normal), list_normal))
+        #
+        #         list_late = [temp.code for temp in areabbxlist
+        #                      if temp.stateDetailList[0].count == 0
+        #                      and temp.stateDetailList[1].count != 0]
+        #         statistic_list.append(StatisticMidInfo('late', len(list_late), list_late))
+        #
+        #         list_norarrival = [temp.code for temp in areabbxlist
+        #                            if temp.stateDetailList[0].count == 0
+        #                            and temp.stateDetailList[1].count == 0
+        #                            and temp.stateDetailList[2].count != 0]
+        #         statistic_list.append(StatisticMidInfo('noarrival', len(list_norarrival), list_norarrival))
+        #
+        #         list_invalid = [temp.code for temp in areabbxlist
+        #                         if temp.stateDetailList[0].count == 0
+        #                         and temp.stateDetailList[1].count == 0
+        #                         and temp.stateDetailList[2].count == 0
+        #                         and temp.stateDetailList[3].count != 0]
+        #         StatisticMidInfo('invalid', len(list_invalid), list_invalid)
+        #         statistic_list.append(StatisticMidInfo('invalid', len(list_invalid), list_invalid))
+        #
+        #         list_area.append(AreaStatisticMidInfo(areas[index], statistic_list))
+        #         index += 1
+        #     json_data = StatisticMidInfoSerializer(list_area, many=True).data
+        #     return Response(json_data)
+        #
 
 
 
