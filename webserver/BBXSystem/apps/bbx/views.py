@@ -187,9 +187,9 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
         list=[]
         for area in areas:
             # 未优化的版本
-            # list.append(self.getBBXStateListbyArea(area,now))
-            list.append(self.getBBXStateListByArea(area, now))
-        #
+            # TODO 未优化版本
+            list.append(self.getBBXStateListbyArea(area,now))
+            # list.append(self.getBBXStateListByArea(area, now))
         index=0
         list_area=[]
         for areabbxlist in list:
@@ -322,9 +322,11 @@ def getBaseState(request,area='',nowDate=''):
     try:
         d = datetime.strptime(nowDate,'%Y-%m-%d %H:%M')
     except Exception as err:
-        d = datetime.now()
+        # 为d赋值now时，注意需要加入时区
+        d = datetime.utcnow().replace(tzinfo=utc)
     # 好像是时区问题所以必须加8小时才行
-    d = d.astimezone(pytz.UTC)+timedelta(hours=8)
+    # 此处暂时注释掉，不需要加8
+    # d = d.astimezone(pytz.UTC)+timedelta(hours=8)
     #bbxinfolist = BBXInfo.objects.all().filter(area=area)
     timelimit =d.__str__()
     lst =[]

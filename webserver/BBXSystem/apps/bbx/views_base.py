@@ -293,6 +293,7 @@ class BBXBaseView(BaseView):
         count=len(list)
         return count
 
+    # TODO 优化后的根据海区及起止时间获取全部的船舶的最新时间
     def _checkBBXMatchingCount(self,area,start,end):
         '''
             根据起止日期获取制定时间段内的船舶数据量
