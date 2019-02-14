@@ -136,6 +136,10 @@ DATABASES = {
         'USER':'root',
         'PASSWORD':'12345678',
 
+        # mac
+        # 'USER':'root',
+        # 'PASSWORD':'nmefc123',
+
         # zw
         # 'USER':'root',
         # 'PASSWORD':'111111'

@@ -3,14 +3,15 @@ from datetime import datetime,timedelta
 from functools import wraps
 from django.core.exceptions import ObjectDoesNotExist
 from pytz import timezone
+from django.utils import timezone
 from django.utils.timezone import utc
 from django.http import HttpResponseRedirect
 # 为视图使用的自定义装饰器
-
+import pytz
 # 自己的一些组件
 from common import DateCommon
 
-sct_tz=timezone('Asia/Shanghai')
+sct_tz=pytz.timezone('Asia/Shanghai')
 
 def date_required(func):
     '''
@@ -32,7 +33,11 @@ def date_required(func):
                 pass
             elif kind=='history':
                 # history str时转成 yyyy-mm-dd
+                # TODO 此处若为history时，例如将 '2019-01-03' 转换为utc时间时，时间并未减8
                 targetdate=datetime.strptime(targetdate,'%Y-%m-%d').replace(tzinfo=utc)
+                targetdate=targetdate+timedelta(hours=-8)
+                tzname = timezone.get_current_timezone_name()
+                # targetdate=pytz.timezone(tzname).localize(targetdate)
 
             # 转换为世界时
             # targetdate=DateCommon.local2Utc(targetdate)
