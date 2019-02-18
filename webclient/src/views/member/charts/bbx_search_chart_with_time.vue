@@ -176,13 +176,13 @@ export default {
         this.loadReatimeData();
       }
     },
-    bid: function(newVal) {
+    bid: function() {
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     },
-    dateRange: function(newVal) {
+    dateRange: function() {
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
