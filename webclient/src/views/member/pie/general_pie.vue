@@ -78,9 +78,8 @@ export default {
               center: ['50%', '60%'], // 注意此处需要下调圆心的位置，不然会对顶部的title有遮挡
               minAngle: 2, //最小的扇区角度（0 ~ 360）
               color: ['#40E0D0', '#87CEEB', '#B0E0E6', '#33A1C9'],
+              data: myself.values.sort(function (a, b) { return a.value - b.value; }),
               // data: myself.values.sort(function (a, b) { return a.value - b.value; }),
-              // data: myself.values.sort(function (a, b) { return a.value - b.value; }),
-              data: myself.values,
               // data: [{
               //   value: 10,
               //   name: '正常'
@@ -99,6 +98,7 @@ export default {
               // }
               // ],
               roseType: 'radius',
+              // roseType: 'area',
               label: {
                 // position: 'outside',
                 normal: {
@@ -120,13 +120,28 @@ export default {
                   length2: 20
                 }
               },
-              // itemStyle: {
-              //   normal: {
-              //     color: '#40E0D0',
-              //     shadowBlur: 200,
-              //     shadowColor: 'rgba(0, 0, 0, 0.5)'
-              //   }
-              // },
+              itemStyle: {
+                normal: {
+                  color: '#40E0D0',
+                  shadowBlur: 200,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+
+                // 径向渐变，前三个参数分别是圆心 x, y 和半径，取值同线性渐变
+                // color: {
+                //   type: 'linear',
+                //   x: 0,
+                //   y: 0,
+                //   x2: 0,
+                //   y2: 1,
+                //   colorStops: [{
+                //     offset: 0, color: 'red' // 0% 处的颜色
+                //   }, {
+                //     offset: 1, color: 'blue' // 100% 处的颜色
+                //   }],
+                //   globalCoord: false // 缺省为 false
+                // }
+              },
 
               animationType: 'scale',
               animationEasing: 'elasticOut',

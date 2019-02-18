@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import APIView
-from django.db.models import Max
+from django.db.models import Max,Min
 from rest_framework import status
 import json
 
@@ -79,7 +79,7 @@ class BaseView():
             end=start
         return start,end
 
-    def _bbxTrackDatetimes(self,nowdate,interval):
+    def _bbxTrackDatetimes(self,nowdate:datetime,interval:int):
         '''
             获取船舶移动轨迹的起止时间
         :param nowdate:
@@ -376,49 +376,90 @@ class BBXTrackBaseView(BaseView):
     '''
         船舶轨迹父视图
     '''
-    def getAllBBXTrackList(self,targetDate):
+    def getAllBBXTrackList(self,targetDate:datetime,**kwargs):
         '''
             获取全部的船舶（有最近数据的轨迹）
         :return:
         '''
         # S1-船舶轨迹显示的最近时间长度
         BBX_TRACK_INTERVAL
-        # 1-获取全部的船舶集合
-        list_all_bbx=self.getAllBBXlist()
-        # 2-根据全部的船舶集合获取每一条船的轨迹
-        # 2-1 获取起止时间
-        start,end=self._bbxTrackDatetimes(targetDate,BBX_TRACK_INTERVAL)
-        list_bbxtrack=[]
-        for temp in list_all_bbx:
-            latlngs=[]
-            list_track=BBXSpaceTempInfo.objects.filter(nowdate__lte=end,nowdate__gte=start,bid_id=temp.bid)
-            # 提取该track的经纬度到一个集合中
-            # 注意此处存在一个bug，若列表推导，使用{temp_track.lat,temp_track.lon}
-            # 顺序有时会出现颠倒的状况
-            # 字典为无序集合，使用数组解决问题
-            # latlngs=[
-            #     [temp_track.lat,temp_track.lon]
-            # for temp_track in list_track]
+        list_bbxtrack = []
+        # 获取是否为now的标识符
+        # TODO  获取**kwargs是否存在的方式
+        isnow = kwargs.get('isnow') if 'isnow' in kwargs else False
+        # 若isnow为false，则执行下面的操作：
+        if isnow is False:
+            # 1-获取全部的船舶集合
+            list_all_bbx=self.getAllBBXlist()
+            # 2-根据全部的船舶集合获取每一条船的轨迹
+            # 2-1 获取起止时间
+            start,end=self._bbxTrackDatetimes(targetDate,BBX_TRACK_INTERVAL)
 
-            # latlngs = [
-            #     ([temp_track.lat, temp_track.lon] if (temp_track.lat==9999 or temp_track.lon==9999) else [])
-            #     for temp_track in list_track]
+            # isnow=kwargs.get('isnow')
 
-            # 注意此处不能向前台传递[]空的部分，使用最后的方式
-            # latlngs=[
-            #     [] if (temp_track.lat==9999 or temp_track.lon==9999) else [temp_track.lat,temp_track.lon]
-            # for temp_track in list_track]
+            for temp in list_all_bbx:
+                latlngs=[]
+                list_track=BBXSpaceTempInfo.objects.filter(nowdate__lte=end,nowdate__gte=start,bid_id=temp.bid)
+                # 提取该track的经纬度到一个集合中
+                # 注意此处存在一个bug，若列表推导，使用{temp_track.lat,temp_track.lon}
+                # 顺序有时会出现颠倒的状况
+                # 字典为无序集合，使用数组解决问题
+                # latlngs=[
+                #     [temp_track.lat,temp_track.lon]
+                # for temp_track in list_track]
 
-            latlngs = [
-                [temp_track.lat, temp_track.lon]
-                for temp_track in list_track
-                if temp_track.lat!=9999 and temp_track.lon!=9999]
+                # latlngs = [
+                #     ([temp_track.lat, temp_track.lon] if (temp_track.lat==9999 or temp_track.lon==9999) else [])
+                #     for temp_track in list_track]
+
+                # 注意此处不能向前台传递[]空的部分，使用最后的方式
+                # latlngs=[
+                #     [] if (temp_track.lat==9999 or temp_track.lon==9999) else [temp_track.lat,temp_track.lon]
+                # for temp_track in list_track]
+
+                latlngs = [
+                    [temp_track.lat, temp_track.lon]
+                    for temp_track in list_track
+                    if temp_track.lat!=9999 and temp_track.lon!=9999]
 
 
-            # for temp_track in list_track:
-            #     if temp_track.lat==9999 or temp_track.lng==9999:
-            #         []
-            list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,latlngs))
+                # for temp_track in list_track:
+                #     if temp_track.lat==9999 or temp_track.lng==9999:
+                #         []
+                list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,latlngs))
+        else:
+            # 获取所有船舶的最新的地理位置数据
+            list=self._getLastBBXTrackList()
+            for temp in list:
+                list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,[[temp.lat,temp.lon]]))
+                # print(temp)
+            # pass
         return list_bbxtrack
 
+    def _getLastBBXTrackList(self):
+        '''
+            获取所有船舶的最近的位置信息
+        :return:
+        '''
 
+        # 实现的sql语句
+        '''
+            SELECT * FROM bbx.bbx_bbxspacetempinfo as bb
+            group by bb.code
+            order by bb.nowdate desc
+            
+            SELECT bb.code,bb.lat,bb.lon,bb.nowdate FROM bbx.bbx_bbxspacetempinfo as bb
+            group by bb.code
+            order by bb.nowdate desc
+        '''
+        # 此种方式不行
+        # list = BBXSpaceTempInfo.objects.distinct('code').annotate(Count('code'))
+
+        # list = BBXSpaceTempInfo.objects.distinct('code').order_by('nowdate')
+        # list=BBXSpaceTempInfo.objects.annotate(Count('code'))
+        # list=BBXSpaceTempInfo.objects.values('bid','code','lat','lon').annotate(Min('nowdate'))
+        # list=BBXSpaceTempInfo.objects.values('code','nowdate','lat','lon').annotate(Count('code'))
+        # list = BBXSpaceTempInfo.objects.annotate(Count('code'),Min('nowdate')).values('code')
+        list = BBXSpaceTempInfo.objects.values_list('nowdate').annotate(Count('code')).order_by('nowdate')
+        # list = BBXSpaceTempInfo.objects.annotate(Count('code'),Min('nowdate'))
+        return list

@@ -301,7 +301,9 @@ class BBXGPSTrackView(APIView,BBXTrackBaseView,BaseTimeView):
         # now = datetime.now()
         # 2019-01-05 修改了前台的接口，后端需要获取到前台传入的targetdate参数
         now=request.GET.get('targetdate')
+        isnow=False
         if request.GET.get('kind')=='now':
+            isnow=True
             # now=self.nowDate
             pass
         else :
@@ -310,7 +312,7 @@ class BBXGPSTrackView(APIView,BBXTrackBaseView,BaseTimeView):
         # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         # 先获取全部的船舶轨迹
         # 1-获取全部船舶的list
-        list_track= self.getAllBBXTrackList(now)
+        list_track= self.getAllBBXTrackList(now,isnow=isnow)
         json_data=BBXTrackMidInfoSerializer(list_track,many=True).data
         return Response(json_data)
 

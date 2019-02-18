@@ -1,1 +1,3 @@
-*.pyc
+/webserver/BBXSystem/apps/bbx/migrations
+/webserver/BBXSystem/apps/bbxgis/migrations
+/webserver/BBXSystem/.idea

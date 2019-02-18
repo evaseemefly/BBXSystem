@@ -113,13 +113,13 @@ DATABASES = {
         # 'NAME': 'bbxsys',
         # 现在使用的最新的数据库名称
         # mac
-        #'NAME': 'bbx',
+        'NAME': 'bbx',
         # zw
-          'NAME': 'bbxsys',
+        # 'NAME': 'bbxsys',
 
         # 线上数据库
         # 'NAME': 'BBX',
-        # centos
+        # # centos
         # 'USER': 'arfu',
         # 'PASSWORD': '@Tongxin321'
         
@@ -128,21 +128,23 @@ DATABASES = {
         # 'PASSWORD':'123456',
 
         # p52s
-        # 'USER':'root',
-        # 'PASSWORD':'123456',
+        'USER':'root',
+        'PASSWORD':'123456',
         # 'HOST':'127.0.0.1',
 
         # mac
-        #'USER':'root',
-        #'PASSWORD':'12345678',
+
+        # 'USER':'root',
+        # 'PASSWORD':'12345678',
+
 
         # mac
         # 'USER':'root',
         # 'PASSWORD':'nmefc123',
 
         # zw
-         'USER':'root',
-         'PASSWORD':'111111'
+        # 'USER':'root',
+        # 'PASSWORD':'111111'
 
 
         # 'HOST':'127.0.0.1',
