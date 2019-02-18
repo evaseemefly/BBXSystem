@@ -13,7 +13,7 @@
                 <th>DT</th>
                 <th>LAT</th>
                 <th>LON</th>
-                <th>VAL({{this.facotr==''?'':this.factor.toUpperCase()}})</th>
+                <th>VAL({{this.factor?this.factor.toUpperCase():''}})</th>
               </thead>
               <tbody>
                 <tr v-for="(row,idx) in tableData" :key="idx">
