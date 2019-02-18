@@ -112,21 +112,21 @@ DATABASES = {
         # 'NAME': 'bbxsystemgis',
         # 'NAME': 'bbxsys',
         # 现在使用的最新的数据库名称
-        # 'NAME': 'bbx',
+        'NAME': 'bbx',
 
         # 线上数据库
-        'NAME': 'BBX',
-        # centos
-        'USER': 'arfu',
-        'PASSWORD': '@Tongxin321'
+        # 'NAME': 'BBX',
+        # # centos
+        # 'USER': 'arfu',
+        # 'PASSWORD': '@Tongxin321'
         
         # w540
         # 'USER':'root',
         # 'PASSWORD':'123456',
 
         # p52s
-        # 'USER':'root',
-        # 'PASSWORD':'123456',
+        'USER':'root',
+        'PASSWORD':'123456',
         # 'HOST':'127.0.0.1',
 
         # mac

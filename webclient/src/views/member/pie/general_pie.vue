@@ -52,7 +52,8 @@ export default {
             trigger: 'item',
             formatter: "{a} <br/>{b} : {c} ({d}%)"
           },
-
+          color: [ '#473792','#8861A7','#BBA2CC'],
+          // color: ['#c23531','#2f4554', '#61a0a8', '#d48265'],
           visualMap: {
             show: false,
             min: 0,
@@ -67,8 +68,8 @@ export default {
               type: 'pie',
               radius: '55%',
               center: ['50%', '50%'],
-              // data: myself.values.sort(function (a, b) { return a.value - b.value; }),
               data: myself.values.sort(function (a, b) { return a.value - b.value; }),
+              // data: myself.values.sort(function (a, b) { return a.value - b.value; }),
               // data: [{
               //   value: 10,
               //   name: '正常'
@@ -87,6 +88,7 @@ export default {
               // }
               // ],
               roseType: 'radius',
+              // roseType: 'area',
               label: {
                 normal: {
                   textStyle: {
@@ -110,6 +112,21 @@ export default {
                   shadowBlur: 200,
                   shadowColor: 'rgba(0, 0, 0, 0.5)'
                 }
+
+                // 径向渐变，前三个参数分别是圆心 x, y 和半径，取值同线性渐变
+                // color: {
+                //   type: 'linear',
+                //   x: 0,
+                //   y: 0,
+                //   x2: 0,
+                //   y2: 1,
+                //   colorStops: [{
+                //     offset: 0, color: 'red' // 0% 处的颜色
+                //   }, {
+                //     offset: 1, color: 'blue' // 100% 处的颜色
+                //   }],
+                //   globalCoord: false // 缺省为 false
+                // }
               },
 
               animationType: 'scale',

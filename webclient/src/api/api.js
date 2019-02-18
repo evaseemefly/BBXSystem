@@ -1,9 +1,9 @@
 import axios from "axios";
 
 // 后端的请求地址及端口
-// export const host = "http://127.0.0.1:8000";
+export const host = "http://127.0.0.1:8000";
 // export const host = "http://192.168.139.128:8015";
-export const host = "http://128.5.6.112:8015";
+// export const host = "http://128.5.6.112:8015";
 axios.defaults.withCredentials = true;
 axios.defaults.headers = {
   // 'Access-Control-Allow-Headers': 'Authorization,Origin, X-Requested-With, Content-Type, Accept,access-control-allow-methods,access-control-allow-origin',
