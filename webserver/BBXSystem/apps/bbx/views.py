@@ -11,6 +11,7 @@ from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import APIView
 from django.db.models import Max
+from django.db import connection
 # from datetime import datetime
 from rest_framework import status
 import json
@@ -111,6 +112,20 @@ class BBXAllListView(APIView,BBXBaseView):
         '''
         bbx_list=BBXInfo.objects.filter(area=area)
         return bbx_list
+
+class BBXGetAllBoatWithoutTime(APIView,BBXBaseView):
+    '''
+    为了查询历史数据用，直接获取所有船舶没有时间限制，如果限定二十四小时就有问题了，不知道限定多长的时间先直接获取所有
+    '''
+    def get(self,request):
+        boatsInfo = BBXInfo.objects.all()
+        lst = []
+        for boat in boatsInfo:
+            boatDic = {}
+            boatDic['code']=boat.code
+            boatDic['bid']=boat.bid
+            lst.append(boatDic)
+        return HttpResponse(json.dumps(lst), content_type="application/json")
 
 
 class BBXStateListView(APIView,BBXBaseView,BaseTimeView):
@@ -312,7 +327,33 @@ class BBXAllStateListView(APIView):
         '''
         pass
 
+class BBXGetTableInfo(APIView,BBXBaseView):
+    '''
+        读取7天内的信息
+    '''
 
+    def get(self,request):
+        #factor=request.GET.get('factor','')
+        bid=int(request.GET.get('bid',-1))
+        dateRangeStr = request.GET.get('dateRange', '')
+        (datestart,dateend)=dateRangeStr.split(' ')
+        reslut = None
+        print(dateRangeStr,bid)
+        with connection.cursor() as cursor:
+            cursor.execute("""
+            select
+            bsid,`code`,DATE_FORMAT(nowdate,'%%Y-%%m-%%d %%H-%%i-%%s') as nowdate,lat,lon,heading,speed,a.bid_id,rdid,rain
+            ,vis,cloudc,wd,ws,cwd,cws,`at`,dpt,bp,wetnow,wet1,
+            wet2,cloudlc,clouds,cloudms,cloudhs,wt,wvs,wv,surge1d,surge1c
+            ,surge1h,surge2d,surge2c,surge2h
+            FROM bbx_bbxspaceTempInfo AS a LEFT JOIN bbx_realTimeData AS b
+            ON a.bid_id=b.bid_id AND DATE_FORMAT(a.nowdate,'%%Y%%m%%d%%h')=DATE_FORMAT(b.timestamp,'%%Y%%m%%d%%h')
+             WHERE a.bid_id = %s  AND a.nowdate>=%s AND a.nowdate<=%s order by a.nowdate 
+            """,[str(bid),datestart,dateend])
+            result = super().dictfetchall(cursor)
+
+        #Response("Done")
+        return HttpResponse(json.dumps(result),content_type="application/json")
 
 
 

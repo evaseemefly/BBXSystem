@@ -88,6 +88,14 @@ class BaseView():
         '''
         return getDataRang(nowdate,interval)
 
+    def dictfetchall(self,cursor):
+        "用dict返回每一行"
+        columns = [col[0] for col in cursor.description]
+        return [
+            dict(zip(columns, row))
+            for row in cursor.fetchall()
+        ]
+
 class BaseTimeView():
     '''
         专门处理和船舶相关的时间的
@@ -364,8 +372,6 @@ class BBXBaseView(BaseView):
 
         return bbx_list
 
-
-
 class BBXTrackBaseView(BaseView):
     '''
         船舶轨迹父视图
@@ -414,4 +420,5 @@ class BBXTrackBaseView(BaseView):
             #         []
             list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,latlngs))
         return list_bbxtrack
+
 

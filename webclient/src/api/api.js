@@ -75,6 +75,12 @@ export const loadBBXState = (area, time) => {
 
 // 根据bid获取船舶的详情信息
 export const loadBBXDetail = par => {
-  let bbxDetailUrl = `${host}/bbx/detail`
-  return axios.get(bbxDetailUrl, { params: par })
+  let bbxDetailUrl = `${host}/bbx/detail`;
+  return axios.get(bbxDetailUrl, { params: par });
+};
+//获取历史数据下表格的数据
+export const loadBBXTableData = (bid, time) => {
+  let bbxTableDataUrl = `${host}/bbx/GetTableData?bid=${bid}&dateRange=${time}`;
+  return axios.get(bbxTableDataUrl)
 }
+

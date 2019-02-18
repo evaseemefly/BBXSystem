@@ -4,12 +4,14 @@
       <searchCondition @initParams="initParams"></searchCondition>
       <!-- <searchResult></searchResult> -->
       <searchEchartsWithTime :factor="selectedFactor" :bid="selectedBBX" :dateRange="dateRange"></searchEchartsWithTime>
+      <searchTableWithTime :factor="selectedFactor" :bid="selectedBBX" :dateRange="dateRange"></searchTableWithTime>
     </div>
   </div>
 </template>
 <script>
 import searchCondition from "../member/searchbar/searchCondition";
 import searchEchartsWithTime from "../member/charts/bbx_search_chart_with_time.vue";
+import searchTableWithTime from "../member/charts/bbx_search_table_with_time";
 export default {
   data() {
     return {
@@ -40,7 +42,8 @@ export default {
   },
   components: {
     searchCondition,
-    searchEchartsWithTime
+    searchEchartsWithTime,
+    searchTableWithTime
   }
 };
 </script>
@@ -51,6 +54,7 @@ export default {
   top: 50px;
   padding-top: 10px;
   background-color: rgba(13, 18, 40, 0.831);
+  /* height: 2000px; */
 }
 </style>
 
