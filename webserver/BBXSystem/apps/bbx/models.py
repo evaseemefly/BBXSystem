@@ -62,6 +62,7 @@ class BBXSpaceTempInfo(models.Model):
         verbose_name=u"船舶基础数据（临时表）"
         verbose_name_plural=verbose_name
 
+
 class RealtimeData(models.Model):
     '''
         志愿船的水文气象要素（临时表）

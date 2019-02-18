@@ -13,3 +13,22 @@ export function BBXTrackInfo(id, code, start, end, latlngs, speeds) {
   this.latlngs = latlngs;
   this.speeds = speeds;
 }
+
+// 海区状态
+export function AreaStatisticsInfo(id, area, name, state) {
+  this.id = id;
+  this.area = area;
+  this.name = name;
+  this.state = state;
+  // this.normal = normal;
+  // this.late = late;
+  // this.noarrival = noarrival;
+  // this.invalid = invalid;
+}
+
+export function StatesInfo(normal, late, noarrival, invalid) {
+  this.normal = normal;
+  this.late = late;
+  this.noarrival = noarrival;
+  this.invalid = invalid;
+}
