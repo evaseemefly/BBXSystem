@@ -10,9 +10,11 @@ from django.db.models import Q
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import APIView
-from django.db.models import Max
+from django.db.models import Max,Min
 from rest_framework import status
 import json
+
+from django.db.models import Count
 
 from datetime import datetime,timedelta
 import pytz
@@ -20,7 +22,7 @@ import pytz
 # model
 from .models import *
 # 中间模型
-from .middle_models import BBXDetailMidInfo,BBXStateDetailMidInfo,StateDetailMidInfo,BBXTrackMidInfo,RealtimeMidInfo
+from .middle_models import BBXDetailMidInfo,BBXStateDetailMidInfo,StateDetailMidInfo,BBXTrackMidInfo,RealtimeMidInfo,BBXMaxDateMidInfo
 from bbxgis.models import *
 from bbxgis.serializers import *
 
@@ -44,8 +46,8 @@ from .serializers import BBXInfoSerializer,BBXDetailInfoSerializer
 
 dateState_dict={
     "normal":12,
-    "late":24,
-    "noarrival":36,
+    "late":18,
+    "noarrival":24,
     "invalid":-1
 }
 
@@ -77,7 +79,7 @@ class BaseView():
             end=start
         return start,end
 
-    def _bbxTrackDatetimes(self,nowdate,interval):
+    def _bbxTrackDatetimes(self,nowdate:datetime,interval:int):
         '''
             获取船舶移动轨迹的起止时间
         :param nowdate:
@@ -85,6 +87,14 @@ class BaseView():
         :return:
         '''
         return getDataRang(nowdate,interval)
+
+    def dictfetchall(self,cursor):
+        "用dict返回每一行"
+        columns = [col[0] for col in cursor.description]
+        return [
+            dict(zip(columns, row))
+            for row in cursor.fetchall()
+        ]
 
 class BaseTimeView():
     '''
@@ -95,6 +105,37 @@ class BaseTimeView():
         now=datetime.now()
         now=now-timedelta(hours=settings.BBX_UTC_INTERVAL)
         return now
+
+    def utcDate(self,dt):
+        '''
+            获取传入时间的世界时
+        :param dt:
+        :return:
+        '''
+        dt=dt-timedelta(hours=8)
+        return dt
+
+    def localDate(self,dt):
+        '''
+            获取本地时间
+        :param dt:
+        :return:
+        '''
+        return dt
+
+    # TODO 方法改为工厂方法，子类调用时，除了要传入时间以外还要穿入kind
+    def getDateFactory(self,kind,dt):
+        '''
+            根据 local与history 获取时间
+        :param kind:
+        :param dt:
+        :return:
+        '''
+        if kind=='now':
+            return self.localDate(dt)
+        elif kind=='history':
+            return self.utcDate(dt)
+
 
     def targetDateStart(self,targetdate):
         '''
@@ -108,14 +149,18 @@ class BaseTimeView():
         date_time = date_time + timedelta(hours=00, minutes=00)
         return date_time
 
-    def targetDate(self,targetdate):
+    def getDayLastTime(self, targetdate):
         '''
             根据传入的目标日期获取该日期的最后时刻（dt）
         :param targetdate:
         :return:
         '''
         # 传入的targetdate可能是一个str
-        date_time=datetime.strptime(targetdate,'%Y-%m-%d')
+        # 此处加入一个判断targetdate是否为dateime类型，若是str类型则转换
+        if isinstance(targetdate,str):
+           date_time=datetime.strptime(targetdate,'%Y-%m-%d')
+        else:
+            date_time=targetdate
         # 注意由于传入的targetdate是一个'yyyy-mm-dd'格式的，所以需要加入当前天的最后时刻
         date_time=date_time+timedelta(hours=23,minutes=59)
         return date_time
@@ -127,6 +172,7 @@ class BBXBaseView(BaseView):
     '''
 
     '''
+    # TODO （可用的）获取制定海区的船舶状态列表
     def getBBXStateListbyArea(self,area,nowdate):
         '''
             根据海区查询该海区所有船舶的传输状态
@@ -157,23 +203,85 @@ class BBXBaseView(BaseView):
         # 2- 根据起止时间进行筛选
         # 2-1 获取该海区的所有bbx基础列表
         bbxlist = self.getAreaALLBBXBaseList(area)
+        # match_date_list=[]
         for bbx_temp in bbxlist:
             stateDetailList=[]
+            # 优化之前的备份
             for key in dateState_dict:
                 temp_state = dateState_dict[key]
                 # 获取指定状态的判断时间范围（起止时间）
                 start_data, end_data = self._getStateDatetimes(key, nowdate)
+                # match_date_list.push([start_data,end_data])
                 # print(temp_state)
                 # 先不做无效船舶的判断
                 # if temp_state>0:
                 # self._checkBBXMatchingLen()
+
                 count = self._checkBBXMatchingLen(bbx_temp.bid, start_data, end_data)
+                # count = self._checkBBXMatchingCount(start_data, end_data)
                 temp_detail_mid=StateDetailMidInfo(key,count)
                 stateDetailList.append(temp_detail_mid)
                 # else:
                 #     pass
             bbx_state_detail_list.append(BBXStateDetailMidInfo(area, bbx_temp.bid,bbx_temp.code,stateDetailList))
+
+
+            # index=0
+            # for key in dateState_dict:
+            #     index+=1
+            #     temp_state = dateState_dict[key]
+            #     # 获取指定状态的判断时间范围（起止时间）
+            #     start_data=None
+            #     end_data=None
+            #     if len(match_date_list)<4:
+            #         start_data, end_data = self._getStateDatetimes(key, nowdate)
+            #         match_date_list.append([start_data,end_data])
+            #     else:
+            #         start_data=match_date_list[index-1][0]
+            #         end_data = match_date_list[index - 1][0]
+            #     # print(temp_state)
+            #     # 先不做无效船舶的判断
+            #     # if temp_state>0:
+            #     # self._checkBBXMatchingLen()
+            #
+            #     count = self._checkBBXMatchingLen(bbx_temp.bid, start_data, end_data)
+            #     temp_detail_mid=StateDetailMidInfo(key,count)
+            #     stateDetailList.append(temp_detail_mid)
+            #     # else:
+            #     #     pass
+            # bbx_state_detail_list.append(BBXStateDetailMidInfo(area, bbx_temp.bid,bbx_temp.code,stateDetailList))
         return bbx_state_detail_list
+
+    # TODO （优化后的）获取指定海区的船舶状态列表方法
+    def getBBXStateListByArea(self,area,now):
+        '''
+            根据还去查询该还去所有船舶的传输状态
+        :param area:
+        :param now:
+        :return:
+        '''
+        # 1-获取时间范围
+        start_data=now
+        end_data=now
+        bbx_state_detail_list=[]
+        # 2- 根据起止时间进行筛选
+
+        for key in dateState_dict:
+            # 获取指定状态的判断时间范围（起止时间）
+            start_data, end_data = self._getStateDatetimes(key, now)
+            # 注意此处获取的是一个queryset(数组)
+            temp=self._checkBBXMatchingCount(area,start_data,end_data)
+            # temp_detail_mid=StateDetailMidInfo(key,count)
+            # stateDetailList.append(temp_detail_mid)
+            #     # else:
+            #     #     pass
+            # bbx_state_detail_list.append(BBXStateDetailMidInfo(area, bbx_temp.bid,bbx_temp.code,stateDetailList))
+
+            bbx_state_detail_list.append(BBXMaxDateMidInfo(temp[0])) if temp.exists() else None
+
+        return bbx_state_detail_list
+
+
 
     def _checkBBXMatchingLen(self,bid,start,end):
         '''
@@ -193,6 +301,17 @@ class BBXBaseView(BaseView):
         count=len(list)
         return count
 
+    # TODO 优化后的根据海区及起止时间获取全部的船舶的最新时间
+    def _checkBBXMatchingCount(self,area,start,end):
+        '''
+            根据起止日期获取制定时间段内的船舶数据量
+        :param start:
+        :param end:
+        :return:
+        '''
+        res=BBXSpaceTempInfo.objects.filter( nowdate__lte=end,nowdate__gte=start,bid__area=area).values('bid_id','code','bid__area').annotate(Max('nowdate'))
+        return res
+
     def getTargetFactorList(self,bid,start,end,factor):
         '''
             获取指定船舶的指定要素观测值
@@ -204,13 +323,24 @@ class BBXBaseView(BaseView):
         '''
         # start=start-timedelta(hours=8)
         # end=end-timedelta(hours=8)
-        list= RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp',factor)
 
-        list_convert=[RealtimeMidInfo(temp['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),temp[factor].__round__(2)) for temp in list]
+        # 对于风速与风向，要同时获取
+        if factor=='ws' or factor=='wd':
+            list=RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp','wd','ws')
+            # list=list[:3]
+            list_convert = [RealtimeMidInfo(temp['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),
+                                {'ws':temp['ws'].__round__(2),
+                                 'wd':temp['wd']})
+                            for temp in list]
+        else:
+            list = RealtimeData.objects.filter(bid_id=bid, timestamp__lte=end, timestamp__gte=start).values('timestamp',factor)
+            list_convert=[RealtimeMidInfo(temp['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),temp[factor].__round__(2)) for temp in list]
         #为了如果没得到任何结果，让屏幕显示点东西
         if len(list_convert) == 0:
-            dict_first = {'timestamp':start.strftime('%Y-%m-%d %H:%M:%S'),'val':0}
-            dict_last={'timestamp':end.strftime('%Y-%m-%d %H:%M:%S'),'val':0}
+            # 对于风向风速为val填充{}，其他默认填充0
+            defaultAppend= lambda :{} if (factor=='wd' or factor=='ws') else 0
+            dict_first = {'timestamp':start.strftime('%Y-%m-%d %H:%M:%S'),'val':defaultAppend()}
+            dict_last={'timestamp':end.strftime('%Y-%m-%d %H:%M:%S'),'val':defaultAppend()}
             list_convert.append(dict_first)
             list_convert.append(dict_last)
         return list_convert
@@ -242,54 +372,94 @@ class BBXBaseView(BaseView):
 
         return bbx_list
 
-
-
 class BBXTrackBaseView(BaseView):
     '''
         船舶轨迹父视图
     '''
-    def getAllBBXTrackList(self,targetDate):
+    def getAllBBXTrackList(self,targetDate:datetime,**kwargs):
         '''
             获取全部的船舶（有最近数据的轨迹）
         :return:
         '''
         # S1-船舶轨迹显示的最近时间长度
         BBX_TRACK_INTERVAL
-        # 1-获取全部的船舶集合
-        list_all_bbx=self.getAllBBXlist()
-        # 2-根据全部的船舶集合获取每一条船的轨迹
-        # 2-1 获取起止时间
-        start,end=self._bbxTrackDatetimes(targetDate,BBX_TRACK_INTERVAL)
-        list_bbxtrack=[]
-        for temp in list_all_bbx:
-            latlngs=[]
-            list_track=BBXSpaceTempInfo.objects.filter(nowdate__lte=end,nowdate__gte=start,bid_id=temp.bid)
-            # 提取该track的经纬度到一个集合中
-            # 注意此处存在一个bug，若列表推导，使用{temp_track.lat,temp_track.lon}
-            # 顺序有时会出现颠倒的状况
-            # 字典为无序集合，使用数组解决问题
-            # latlngs=[
-            #     [temp_track.lat,temp_track.lon]
-            # for temp_track in list_track]
+        list_bbxtrack = []
+        # 获取是否为now的标识符
+        # TODO  获取**kwargs是否存在的方式
+        isnow = kwargs.get('isnow') if 'isnow' in kwargs else False
+        # 若isnow为false，则执行下面的操作：
+        if isnow is False:
+            # 1-获取全部的船舶集合
+            list_all_bbx=self.getAllBBXlist()
+            # 2-根据全部的船舶集合获取每一条船的轨迹
+            # 2-1 获取起止时间
+            start,end=self._bbxTrackDatetimes(targetDate,BBX_TRACK_INTERVAL)
 
-            # latlngs = [
-            #     ([temp_track.lat, temp_track.lon] if (temp_track.lat==9999 or temp_track.lon==9999) else [])
-            #     for temp_track in list_track]
+            # isnow=kwargs.get('isnow')
 
-            # 注意此处不能向前台传递[]空的部分，使用最后的方式
-            # latlngs=[
-            #     [] if (temp_track.lat==9999 or temp_track.lon==9999) else [temp_track.lat,temp_track.lon]
-            # for temp_track in list_track]
+            for temp in list_all_bbx:
+                latlngs=[]
+                list_track=BBXSpaceTempInfo.objects.filter(nowdate__lte=end,nowdate__gte=start,bid_id=temp.bid)
+                # 提取该track的经纬度到一个集合中
+                # 注意此处存在一个bug，若列表推导，使用{temp_track.lat,temp_track.lon}
+                # 顺序有时会出现颠倒的状况
+                # 字典为无序集合，使用数组解决问题
+                # latlngs=[
+                #     [temp_track.lat,temp_track.lon]
+                # for temp_track in list_track]
 
-            latlngs = [
-                [temp_track.lat, temp_track.lon]
-                for temp_track in list_track
-                if temp_track.lat!=9999 and temp_track.lon!=9999]
+                # latlngs = [
+                #     ([temp_track.lat, temp_track.lon] if (temp_track.lat==9999 or temp_track.lon==9999) else [])
+                #     for temp_track in list_track]
+
+                # 注意此处不能向前台传递[]空的部分，使用最后的方式
+                # latlngs=[
+                #     [] if (temp_track.lat==9999 or temp_track.lon==9999) else [temp_track.lat,temp_track.lon]
+                # for temp_track in list_track]
+
+                latlngs = [
+                    [temp_track.lat, temp_track.lon]
+                    for temp_track in list_track
+                    if temp_track.lat!=9999 and temp_track.lon!=9999]
 
 
-            # for temp_track in list_track:
-            #     if temp_track.lat==9999 or temp_track.lng==9999:
-            #         []
-            list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,latlngs))
+                # for temp_track in list_track:
+                #     if temp_track.lat==9999 or temp_track.lng==9999:
+                #         []
+                list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,latlngs))
+        else:
+            # 获取所有船舶的最新的地理位置数据
+            list=self._getLastBBXTrackList()
+            for temp in list:
+                list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,[[temp.lat,temp.lon]]))
+                # print(temp)
+            # pass
         return list_bbxtrack
 
+    def _getLastBBXTrackList(self):
+        '''
+            获取所有船舶的最近的位置信息
+        :return:
+        '''
+
+        # 实现的sql语句
+        '''
+            SELECT * FROM bbx.bbx_bbxspacetempinfo as bb
+            group by bb.code
+            order by bb.nowdate desc
+            
+            SELECT bb.code,bb.lat,bb.lon,bb.nowdate FROM bbx.bbx_bbxspacetempinfo as bb
+            group by bb.code
+            order by bb.nowdate desc
+        '''
+        # 此种方式不行
+        # list = BBXSpaceTempInfo.objects.distinct('code').annotate(Count('code'))
+
+        # list = BBXSpaceTempInfo.objects.distinct('code').order_by('nowdate')
+        # list=BBXSpaceTempInfo.objects.annotate(Count('code'))
+        # list=BBXSpaceTempInfo.objects.values('bid','code','lat','lon').annotate(Min('nowdate'))
+        # list=BBXSpaceTempInfo.objects.values('code','nowdate','lat','lon').annotate(Count('code'))
+        # list = BBXSpaceTempInfo.objects.annotate(Count('code'),Min('nowdate')).values('code')
+        list = BBXSpaceTempInfo.objects.values_list('nowdate').annotate(Count('code')).order_by('nowdate')
+        # list = BBXSpaceTempInfo.objects.annotate(Count('code'),Min('nowdate'))
+        return list

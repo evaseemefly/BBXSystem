@@ -71,6 +71,7 @@
               :columns="childColumns"
               :values="childVals"
               :title="childTitle"
+              :factor="childFactor"
               ref="bbxObs"
             ></bbxObservation>
           </div>
@@ -97,53 +98,62 @@
 import bbxObservation from '../../member/charts/bbx_observation_charts.vue'
 import bbxDetailTable from '../common/bbx_detail_table.vue';
 //前后端api
-import { loadRealtime } from '../../../api/api.js'
+import { loadRealtime } from '../../../api/api.js';
+
+import { strategyAppendRealtimeData } from '../../../module/search/ws_strategies.js';
+import { menulist } from '../../../module/search/menu_list.js';
 export default {
   //modal框主体部分
   data () {
     return {
-      menulist: [
-        // {
-        //   name: '降水',
-        //   code: 'rain',
-        //   url: ''
-        // },
-        {
-          name: '能见度',
-          code: 'vis',
-          url: ''
-        },
-        {
-          name: '风速',
-          code: 'ws',
-          url: ''
-        }, {
-          name: '气温',
-          code: 'at',
-          url: ''
-        }, {
-          name: '气压',
-          code: 'bp',
-          url: ''
-        }, {
-          name: '水温',
-          code: 'wt',
-          url: ''
-        }, {
-          name: '浪高',
-          code: 'wv',
-          url: ''
-        }
+      menulist: menulist,
+      // menulist: [
+      //   // {
+      //   //   name: '降水',
+      //   //   code: 'rain',
+      //   //   url: ''
+      //   // },
+      //   {
+      //     name: '能见度',
+      //     code: 'vis',
+      //     url: ''
+      //   },
+      //   {
+      //     name: '风速',
+      //     code: 'ws',
+      //     url: ''
+      //   }, {
+      //     name: '气温',
+      //     code: 'at',
+      //     url: ''
+      //   }, {
+      //     name: '气压',
+      //     code: 'bp',
+      //     url: ''
+      //   }, {
+      //     name: '水温',
+      //     code: 'wt',
+      //     url: ''
+      //   }, {
+      //     name: '浪高',
+      //     code: 'wv',
+      //     url: ''
+      //   }
 
-      ],
+      // ],
       indexMenu: 0,
       targetDate: null,
       childVals: [],
       childColumns: [],
+      childFactor: null,
       childTitle: '测试测试',
       bbxCode: '',
-      bid: 0
+      bid: 0,
+      factor: null
     }
+  },
+  props: {
+    kind: null
   },
   components: {
     bbxObservation,
@@ -168,36 +178,48 @@ export default {
 
     // 切换导航栏
     active: function (index) {
-      console.log(index);
+      // console.log(index);
       this.indexMenu = index;
     },
 
     // 加载指定code以及指定datetime的观测值
-    loadDetailData: function (code, bid, factor, date) {
+    loadDetailData: function (code, bid, factor, date, kind) {
       var myself = this;
       let params = {
         code: code,
         targetdate: date,
         factor: factor,
-        bid: bid
+        bid: bid,
+        kind: kind
       };
       this.childVals = [];
       this.childColumns = [];
+      this.childFactor = factor;
       loadRealtime(params).then(res => {
+
         // 暂时注释掉真正读取的操作
         // 父组件将由后台返回的vals与columns赋值为要传递给子组件的data中
-        res.data.forEach(obj => {
-          if (obj.val != 9999 && obj.val != 999.9) {
-            myself.childVals.push(obj.val);
-            myself.childColumns.push(obj.timestamp);
-          }
-          else {
-            myself.childVals.push(null);
-            myself.childColumns.push(obj.timestamp);
-          }
-        });
+
+        // 使用方式1，会导致子组件中的columns与values更新在initCharts之后
+        var factor = (myself.factor == 'ws' || myself.factor == 'wd') ? 'w' : 'default';
+        var obj = strategyAppendRealtimeData(factor, res.data);
+        myself.childVals = obj['values'];
+        myself.childColumns = obj['columns'];
+
+        // 原始办法 方式v2
+        // 此处由策略模式替代 19-01-15
+        // res.data.forEach(obj => {
+        //   if (obj.val != 9999 && obj.val != 999.9) {
+        //     myself.childVals.push(obj.val);
+        //     myself.childColumns.push(obj.timestamp);
+        //   }
+        //   else {
+        //     myself.childVals.push(null);
+        //     myself.childColumns.push(obj.timestamp);
+        //   }
+        // });
         // 初始化echarts
-        this.initCharts(params);
+        // this.initCharts(params);
       });
     },
     mounted () {
@@ -209,12 +231,19 @@ export default {
     indexMenu: function (newVal, oldVal) {
       // 获取当前选中的菜单中对应的code
       var factor = this.menulist[newVal].code;
+      // 修改当前的factor
+      this.factor = factor;
+      // 修改子组件的title
+      this.childTitle = this.menulist[newVal].name;
       // console.log(nowCode);
       var code = this.bbxCode;
       var bid = this.bid;
       var targetdate = this.targetDate;
+      var kind = this.kind;
+
+      this.childFactor = factor;
       // 
-      this.loadDetailData(code, bid, factor, targetdate);
+      this.loadDetailData(code, bid, factor, targetdate, kind);
     }
   }
 

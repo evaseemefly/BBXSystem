@@ -31,7 +31,12 @@
           <ul class="nav navbar-nav">
             <li class="active">
               <!-- <a href="#">船舶地图<span class="sr-only">(current)</span></a> -->
-              <router-link to="/map">船舶地图</router-link>
+              <!-- <router-link to="/map">船舶地图</router-link> -->
+              <router-link :to="{ name: 'map', params: { kind: 'now' }}">船舶实时轨迹</router-link>
+            </li>
+            <li class="active">
+              <!-- <a href="#">船舶地图<span class="sr-only">(current)</span></a> -->
+              <router-link :to="{ name: 'map', params: { kind: 'history' }}">船舶历史轨迹</router-link>
             </li>
             <li>
               <!-- <a href="#">状态显示</a> -->

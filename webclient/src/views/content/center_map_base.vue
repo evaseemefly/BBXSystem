@@ -2,7 +2,10 @@
   <div id="mycontent">
     <div id="basemap"></div>
     <div id="timeline"></div>
-    <modalMain ref='modalChild'></modalMain>
+    <modalMain
+      ref='modalChild'
+      :kind="kind"
+    ></modalMain>
     <div
       id="track_btn"
       class="btn-group"
@@ -39,7 +42,10 @@
         >终止</span>
       </button>
     </div>
-    <div id="date_btn">
+    <div
+      id="date_btn"
+      v-show="!isNow"
+    >
       <datePicker @loadTracks="loadTracks"></datePicker>
     </div>
   </div>
@@ -56,19 +62,7 @@ import "../../components/js/map/trackback/LeafletPlayback.js";
 import vis from "vis";
 // 引入bus
 import bus from '../../assets/eventBus.js';
-// import 'leaflet-plugin-trackplayback'
-// import shp from 'shpjs';
-// import '../../components/js/map/trackplay/control.trackplayback.js'
-// import `${baseUrl}/components/js/vis.min.js`;
-// require('/components/js/vis.min.js')
-// import "/vis.min.js";
 
-// import 'vis/dist/vis.js'
-// import '../../components/js/map/trackback/vis.js'
-// import '../../components/js/map/trackback/vis.min.js';
-// import jQuery from 'jquery';
-// import 'jquery';
-// import '../../components/css/map/leaflet.css';
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
 import "leaflet-defaulticon-compatibility";
@@ -86,7 +80,8 @@ import { BBXTrackInfo } from "../../models/bbx.js";
 import datePicker from "../member/date/datepicker.vue";
 // 前后端交互api
 import { loadBBXNowList, loadBBXGPS, loadBBXTrack } from "../../api/api.js";
-
+// 引入dateformat
+var dateFormat = require('dateformat');
 // import func from './vue-temp/vue-editor-bridge.js';
 export default {
   data () {
@@ -100,8 +95,13 @@ export default {
       //polyline对象数组
       polylines: [],
       // 当前时间
-      targetDate: null
+      targetDate: null,
+      // isNow: false
     };
+  },
+  props: {
+    // 时间的种类
+    kind: String
   },
   components: {
     modalMain,
@@ -110,24 +110,54 @@ export default {
   methods: {
     //开始，暂停，终止事件
     trackMarkerStart: function () {
-      console.log("开始");
-      this.trackMarkers.forEach(obj => {
-        obj.start();
-      });
+      // console.log("开始");
+      var myself = this;
+      var index = 0;
+      for (let obj of myself.trackMarkers) {
+        if (obj._latlngs.length > 1) {
+          obj.start();
+        }
+
+        // index += 1;
+        // console.log(index);
+        // console.log(obj._leaflet_id);
+        // console.log(obj._latlng);
+      }
+      // this.trackMarkers.forEach(obj => {
+      //   obj.start();
+      //   index += 1;
+      //   console.log(index);
+      //   console.log(obj._leaflet_id);
+      //   console.log(obj._latlng);
+      // });
     },
     // 暂停
     trackMarkerPause: function () {
-      console.log("暂停");
-      this.trackMarkers.forEach(obj => {
-        obj.pause();
-      });
+      // console.log("暂停");
+      var myself = this;
+      for (let obj of myself.trackMarkers) {
+        if (obj._latlngs.length > 1) {
+          obj.pause();
+        }
+
+      }
+      // this.trackMarkers.forEach(obj => {
+      //   obj.pause();
+      // });
     },
     //终止
     trackMarkerEnd: function () {
-      console.log("终止");
-      this.trackMarkers.forEach(obj => {
-        obj.stop();
-      });
+      // console.log("终止");
+      var myself = this;
+      for (let obj of myself.trackMarkers) {
+        if (obj._latlngs.length > 1) {
+          obj.stop();
+        }
+
+      }
+      // this.trackMarkers.forEach(obj => {
+      //   obj.stop();
+      // });
     },
     // 设置当前日期，传入date（格式为：yyyy-mm-dd）
     initTargetDate: function (now) {
@@ -135,11 +165,13 @@ export default {
     },
     // 根据传入的日期获取该日期的轨迹列表，传入的date（格式为：yyyy-mm-dd）
     loadTracks: function (now) {
+      var myself = this;
       // 每次调用前需要先清空data
       this.clearMarkers();
       this.initTargetDate(now);
       var targetdate = {
-        targetdate: now
+        targetdate: now,
+        kind: myself.kind
       };
       loadBBXTrack(targetdate).then(res => {
         var myself = this;
@@ -147,7 +179,9 @@ export default {
         var end = "";
         var tracks = [];
         //
+        var index = 0;
         for (let temp of res.data) {
+          index += 1;
           if (temp.latlngs.length != 0) {
             var trackTemp = new BBXTrackInfo(
               temp.bid,
@@ -168,6 +202,7 @@ export default {
             });
           }
         }
+        // console.log('获取tarck完成');
       })
     },
     // 清除当前markers以及折线
@@ -317,7 +352,7 @@ export default {
           myself.showModalFrame(bbxInfo);
         });
       });
-      myMovingMarker.start();
+      // myMovingMarker.start();
       return myMovingMarker;
     },
     // 调用加载子组件modal框
@@ -325,7 +360,7 @@ export default {
       // 调用modal子组件的showModal方法，显示modal窗口，并加载echarts数据
       this.$refs.modalChild.showModal(params);
     },
-    // 获取后台的trak数据
+    // 获取后台的trak数据 （弃用，使用loadTracks）
     loadBBXsTrack: function () {
       loadBBXTrack().then(res => {
         var myself = this;
@@ -364,7 +399,7 @@ export default {
             });
           }
         }
-        console.log(myself.trackMarkers);
+        // console.log(myself.trackMarkers);
       });
     },
     // 弃用
@@ -522,16 +557,37 @@ export default {
     // this.loadMarker();
     // this.loadMovingMarker();
     // 2-获取后台返回的船舶轨迹信息
-    this.loadBBXsTrack();
+    // this.loadBBXsTrack();
     // this.loadShip();
     // this.loadGPS();
     // this.play();
   },
+  computed: {
+    isNow: function () {
+      return this.kind === 'now';
+    }
+  },
   watch: {
     targetDate: function (newVal) {
+      var myself = this;
       // console.log(newVal+oldVal);
+      // 此处修改还需要传入kind
+      var params = {
+        targetdate: newVal,
+        kind: myself.kind
+      }
       // 通过事件总线通知别的兄弟组件更新targetdate的值
-      bus.$emit('on-targetDate', newVal);
+      bus.$emit('on-targetDate', params);
+    },
+    kind: function (newVal) {
+      if (newVal === 'now') {
+        // 1-初始化地图引擎
+        // this.initMap();
+        this.targetDate = dateFormat(new Date(), 'yyyy-mm-dd');
+        // 2-获取后台返回的船舶轨迹信息
+        // this.loadBBXsTrack();
+        this.loadTracks(this.targetDate);
+      }
     }
   },
 };

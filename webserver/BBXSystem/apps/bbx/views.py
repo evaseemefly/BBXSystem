@@ -11,13 +11,21 @@ from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import APIView
 from django.db.models import Max
+from django.db import connection
+# from datetime import datetime
 from rest_framework import status
 import json
 
-from datetime import datetime,timedelta
-import time
-import pytz
+from pytz import timezone
+from django.utils.timezone import utc
 
+# from datetime import datetime,timedelta
+# import datetime
+from datetime import datetime
+# import time
+import pytz
+#为特定请求方法添加装饰器
+from django.utils.decorators import method_decorator
 # model
 from .models import BBXInfo,BBXSpaceTempInfo
 # 中间模型
@@ -26,6 +34,8 @@ from .middle_models import *
 from bbxgis.models import *
 from bbxgis.serializers import *
 
+# 引入自定义装饰器
+from .decorator_view import  *
 # 配置文件
 from BBXSystem import settings
 
@@ -33,7 +43,7 @@ from BBXSystem import settings
 # from .serializers import BBXInfoSerializer,BBXDetailInfoSerializer,BBXStateDetailMidSerializer
 from .serializers import *
 # 父类视图层
-from .views_base import BBXBaseView,BBXTrackBaseView,BaseTimeView
+from .views_base import BBXBaseView,BBXTrackBaseView,BaseTimeView,dateState_dict
 
 # 海区元祖
 area_tup=(
@@ -103,6 +113,20 @@ class BBXAllListView(APIView,BBXBaseView):
         bbx_list=BBXInfo.objects.filter(area=area)
         return bbx_list
 
+class BBXGetAllBoatWithoutTime(APIView,BBXBaseView):
+    '''
+    为了查询历史数据用，直接获取所有船舶没有时间限制，如果限定二十四小时就有问题了，不知道限定多长的时间先直接获取所有
+    '''
+    def get(self,request):
+        boatsInfo = BBXInfo.objects.all()
+        lst = []
+        for boat in boatsInfo:
+            boatDic = {}
+            boatDic['code']=boat.code
+            boatDic['bid']=boat.bid
+            lst.append(boatDic)
+        return HttpResponse(json.dumps(lst), content_type="application/json")
+
 
 class BBXStateListView(APIView,BBXBaseView,BaseTimeView):
     '''
@@ -119,10 +143,14 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
     '''
         获取指定要素的观测值序列
     '''
+
+    @method_decorator(history_requeired)
+    @method_decorator(date_required)
     def get(self,request):
         factor=request.GET.get('factor','')
         bid=int(request.GET.get('bid',-1))
         dateRangeStr = request.GET.get('dateRange', '')
+        kind=request.GET.get('kind')
         # 此处加一个判断，若未传入target，则将当前的时间赋给targetdate
         targetdate = request.GET.get('targetdate', None)
         targetdate=targetdate if targetdate is not None else datetime.now().strftime('%Y-%m-%d')
@@ -138,31 +166,45 @@ class RealtimeListView(APIView,BBXBaseView,BaseTimeView):
             start_date = datetime.strptime(start_date + ' 00:00', '%Y-%m-%d %H:%M')
             end_date = datetime.strptime(end_date + ' 23:59', '%Y-%m-%d %H:%M')
         except Exception  as e:
-            now = datetime.now()
-            # start_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 00:00', '%Y-%m-%d %H:%M')
-            # end_date = datetime.strptime(now.strftime('%Y-%m-%d') + ' 23:59', '%Y-%m-%d %H:%M')
-            start_date = datetime.strptime(targetdate+ ' 00:00', '%Y-%m-%d %H:%M')
-            end_date = datetime.strptime(targetdate + ' 23:59', '%Y-%m-%d %H:%M')
-
+            now = targetdate
+            (start_date,end_date)=(now - timedelta(hours=24),now) if kind=='now' else (now,now+timedelta(hours=24))
+            # start_date = now-timedelta(hours=24)
+            # end_date = now
+        #说好的要减8 hours
+        # 已加载装饰器中
+        # start_date=start_date - timedelta(hours=8)
+        # end_date = end_date - timedelta(hours=8)
         list= self.getTargetFactorList(bid,start_date,end_date,factor)
-        json_data=RealtimeSimpSerializer(list,many=True).data
+        json_data= RealtimeWdWsSerializer(list,many=True).data if (factor=='wd' or factor=='ws') else RealtimeSimpSerializer(list,many=True).data
+        # json_data=RealtimeSimpSerializer(list,many=True).data
         return Response(json_data)
+
 
 class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
     '''
         获取指定海区的传输状态汇总
             传输正常的船舶数量，迟到、未到、缺失
+        p1：有可能传入的时当前时间，获取往前推24小时的统计情况
+        p2：传入的指定日期，获取改日的统计情况
     '''
+    # TODO （优化的）get请求
+    # @method_decorator(data_loaclUtc)
+    @method_decorator(history_requeired)
+    @method_decorator(date_required)
     def get(self,request):
         now=request.GET.get('targetdate')
+        # now= datetime.now()
         areas=['n','e','s']
         # targetDate='2018-12-08 00:00'
-        now=self.targetDate(now)
+        if request.GET.get('kind')=='history':
+            now=self.getDayLastTime(now)
         # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         list=[]
         for area in areas:
+            # 未优化的版本
+            # TODO 未优化版本
             list.append(self.getBBXStateListbyArea(area,now))
-        #
+            # list.append(self.getBBXStateListByArea(area, now))
         index=0
         list_area=[]
         for areabbxlist in list:
@@ -181,7 +223,7 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
                            if temp.stateDetailList[0].count== 0
                            and temp.stateDetailList[1].count==0
                            and temp.stateDetailList[2].count!=0]
-            statistic_list.append(StatisticMidInfo('norarrival', len(list_norarrival), list_norarrival))
+            statistic_list.append(StatisticMidInfo('noarrival', len(list_norarrival), list_norarrival))
 
             list_invalid = [temp.code for temp in areabbxlist
                            if temp.stateDetailList[0].count== 0
@@ -197,24 +239,80 @@ class AreaStatisticView(APIView,BBXBaseView,BaseTimeView):
         return Response(json_data)
 
 
-        # self.getBBXStateListbyArea()
+        # 19-01-21 备份使用
+        # def get(self, request):
+        #     now = request.GET.get('targetdate')
+        #     # now= datetime.now()
+        #     areas = ['n', 'e', 's']
+        #     # targetDate='2018-12-08 00:00'
+        #     if request.GET.get('kind') == 'history':
+        #         now = self.getDayLastTime(now)
+        #     # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
+        #     list = []
+        #     for area in areas:
+        #         list.append(self.getBBXStateListbyArea(area, now))
+        #     #
+        #     index = 0
+        #     list_area = []
+        #     for areabbxlist in list:
+        #         statistic_list = []
+        #         list_normal = [temp.code for temp in areabbxlist if temp.stateDetailList[0].count != 0]
+        #         StatisticMidInfo('normal', len(list_normal), list_normal)
+        #         statistic_list.append(StatisticMidInfo('normal', len(list_normal), list_normal))
+        #
+        #         list_late = [temp.code for temp in areabbxlist
+        #                      if temp.stateDetailList[0].count == 0
+        #                      and temp.stateDetailList[1].count != 0]
+        #         statistic_list.append(StatisticMidInfo('late', len(list_late), list_late))
+        #
+        #         list_norarrival = [temp.code for temp in areabbxlist
+        #                            if temp.stateDetailList[0].count == 0
+        #                            and temp.stateDetailList[1].count == 0
+        #                            and temp.stateDetailList[2].count != 0]
+        #         statistic_list.append(StatisticMidInfo('noarrival', len(list_norarrival), list_norarrival))
+        #
+        #         list_invalid = [temp.code for temp in areabbxlist
+        #                         if temp.stateDetailList[0].count == 0
+        #                         and temp.stateDetailList[1].count == 0
+        #                         and temp.stateDetailList[2].count == 0
+        #                         and temp.stateDetailList[3].count != 0]
+        #         StatisticMidInfo('invalid', len(list_invalid), list_invalid)
+        #         statistic_list.append(StatisticMidInfo('invalid', len(list_invalid), list_invalid))
+        #
+        #         list_area.append(AreaStatisticMidInfo(areas[index], statistic_list))
+        #         index += 1
+        #     json_data = StatisticMidInfoSerializer(list_area, many=True).data
+        #     return Response(json_data)
+        #
+
+
 
 class BBXGPSTrackView(APIView,BBXTrackBaseView,BaseTimeView):
     '''
         获取指定的船舶轨迹
     '''
+
+    @method_decorator(history_requeired)
+    @method_decorator(date_required)
+    # @method_decorator(date_required)
     def get(self,request):
         code="all"
         # targetDate = '2018-12-08 00:00'
         # now = datetime.now()
         # 2019-01-05 修改了前台的接口，后端需要获取到前台传入的targetdate参数
         now=request.GET.get('targetdate')
+        isnow=False
+        if request.GET.get('kind')=='now':
+            isnow=True
+            # now=self.nowDate
+            pass
+        else :
+            now = self.getDayLastTime(now)
         # now=self.nowDate
         # test_date = datetime.strptime(targetDate, '%Y-%m-%d %H:%M')
         # 先获取全部的船舶轨迹
         # 1-获取全部船舶的list
-        now=self.targetDate(now)
-        list_track= self.getAllBBXTrackList(now)
+        list_track= self.getAllBBXTrackList(now,isnow=isnow)
         json_data=BBXTrackMidInfoSerializer(list_track,many=True).data
         return Response(json_data)
 
@@ -231,7 +329,33 @@ class BBXAllStateListView(APIView):
         '''
         pass
 
+class BBXGetTableInfo(APIView,BBXBaseView):
+    '''
+        读取7天内的信息
+    '''
 
+    def get(self,request):
+        #factor=request.GET.get('factor','')
+        bid=int(request.GET.get('bid',-1))
+        dateRangeStr = request.GET.get('dateRange', '')
+        (datestart,dateend)=dateRangeStr.split(' ')
+        reslut = None
+        print(dateRangeStr,bid)
+        with connection.cursor() as cursor:
+            cursor.execute("""
+            select
+            bsid,`code`,DATE_FORMAT(nowdate,'%%Y-%%m-%%d %%H-%%i-%%s') as nowdate,lat,lon,heading,speed,a.bid_id,rdid,rain
+            ,vis,cloudc,wd,ws,cwd,cws,`at`,dpt,bp,wetnow,wet1,
+            wet2,cloudlc,clouds,cloudms,cloudhs,wt,wvs,wv,surge1d,surge1c
+            ,surge1h,surge2d,surge2c,surge2h
+            FROM bbx_bbxspaceTempInfo AS a LEFT JOIN bbx_realTimeData AS b
+            ON a.bid_id=b.bid_id AND DATE_FORMAT(a.nowdate,'%%Y%%m%%d%%h')=DATE_FORMAT(b.timestamp,'%%Y%%m%%d%%h')
+             WHERE a.bid_id = %s  AND a.nowdate>=%s AND a.nowdate<=%s order by a.nowdate 
+            """,[str(bid),datestart,dateend])
+            result = super().dictfetchall(cursor)
+
+        #Response("Done")
+        return HttpResponse(json.dumps(result),content_type="application/json")
 
 
 
@@ -241,40 +365,53 @@ def getBaseState(request,area='',nowDate=''):
     try:
         d = datetime.strptime(nowDate,'%Y-%m-%d %H:%M')
     except Exception as err:
-        d = datetime.now()
+        # 为d赋值now时，注意需要加入时区
+        d = datetime.utcnow().replace(tzinfo=utc)
     # 好像是时区问题所以必须加8小时才行
-    d = d.astimezone(pytz.UTC)+timedelta(hours=8)
-    bbxinfolist = BBXInfo.objects.all().filter(area=area)
+    # 此处暂时注释掉，不需要加8
+    # d = d.astimezone(pytz.UTC)+timedelta(hours=8)
+    #bbxinfolist = BBXInfo.objects.all().filter(area=area)
     timelimit =d.__str__()
     lst =[]
-    print(timelimit.__str__(),nowDate)
-    for x in bbxinfolist:
+    #for x in bbxinfolist:
+    #    dic = dict()
+    #    dic['code']=x.code
+    #    dic['name']=x.code
+    #    dt=x.bbxspacetempinfo_set.filter(nowdate__lte=timelimit).aggregate(Max('nowdate'))
+    #    if dt['nowdate__max'] is not None:
+    #        dic['state'] = dt['nowdate__max']
+    #        dic['lastestTime'] = dt['nowdate__max'].strftime('%Y-%m-%d %H:%M:%S')
+    #    else:
+    #        dic['state']='invalid'
+    #        dic['lastestTime']='近期没有数据'
+    #    lst.append(dic)
+    #不知道这么比是不是会有bug 直接用datetime比可能更稳一点
+    querySet = BBXSpaceTempInfo.objects.values('code').annotate(Max('nowdate')).filter(bid__area=area,nowdate__lte=timelimit)
+    for x in querySet:
         dic = dict()
-        dic['code']=x.code
-        dic['name']=x.code
-        dt=x.bbxspacetempinfo_set.filter(nowdate__lte=timelimit).aggregate(Max('nowdate'))
-        if dt['nowdate__max'] is not None:
-            dic['state'] = dt['nowdate__max']
-            dic['lastestTime'] = dt['nowdate__max'].strftime('%Y-%m-%d %H:%M:%S')
+        dic['code']=x['code']
+        dic['name']=x['code']
+        if x['nowdate__max'] is not None:
+            dic['state']=x['nowdate__max']
+            dic['lastestTime']=x['nowdate__max'].strftime('%Y-%m-%d %H:%M:%S')
         else:
             dic['state']='invalid'
-            dic['lastestTime']='近期没有数据'
+            dic['lastesttime']='近期没有数据'
         lst.append(dic)
 
-    ok_seconds = 1.5*60*60
-    late_seconds=6*60*60
-
+    ok_date =d- timedelta(hours=dateState_dict['normal'])
+    late_date=d-timedelta(hours=dateState_dict['late'])
+    notarrival_date =d- timedelta(hours=dateState_dict['noarrival'])
 
     #根据日期判断状态
     for x in lst:
         state = x['state']
         if state != 'invalid':
-            nowdateDelta = d-state
             #光用秒减的话int可能会溢出导致判断失败,所以加个days判断
-            if nowdateDelta.days>=1:
+            if state<=notarrival_date:
                 state='invalid'
-            elif nowdateDelta.seconds>ok_seconds:
-                if nowdateDelta.seconds>late_seconds:
+            elif state<ok_date:
+                if state<late_date:
                     state='noarrival'
                 else:
                     state='late'
