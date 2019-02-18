@@ -3,13 +3,12 @@
 </template>
 
 <script>
-
-import { loadRealtime } from '../../../api/api.js';
-import { menulist } from '../../../module/search/menu_list.js'
+import { loadRealtime } from "../../../api/api.js";
+import { menulist } from "../../../module/search/menu_list.js";
 
 // 使用策略模式
 var strategies = {
-  'w': function (list) {
+  w: function(list) {
     var columns = [];
     var values = [];
     list.forEach(obj => {
@@ -31,8 +30,11 @@ var strategies = {
       }
       */
       // 1- 先判断val是否包含ws与wd
-      if (obj.val['ws'] != null && obj.val['wd'] != null) {
-        if ((obj.val.ws != 9999 && obj.val.ws != 999.9) || (obj.val.wd != 9999 && obj.val.wd != 999.9)) {
+      if (obj.val["ws"] != null && obj.val["wd"] != null) {
+        if (
+          (obj.val.ws != 9999 && obj.val.ws != 999.9) ||
+          (obj.val.wd != 9999 && obj.val.wd != 999.9)
+        ) {
           //如果数据为缺省值那么就改成0
           values.push({
             value: obj.val.ws,
@@ -44,14 +46,13 @@ var strategies = {
           columns.push(obj.timestamp);
         }
       }
-
-    })
+    });
     return {
       columns: columns,
       values: values
-    }
+    };
   },
-  'default': function (list) {
+  default: function(list) {
     var columns = [];
     var values = [];
     list.forEach(obj => {
@@ -65,20 +66,20 @@ var strategies = {
         values.push(null);
         columns.push(obj.timestamp);
       }
-    })
+    });
     return {
       columns: columns,
       values: values
-    }
+    };
   }
-}
-var strategyAppendRealtimeData = function (factor, list) {
-  return strategies[factor](list)
-}
+};
+var strategyAppendRealtimeData = function(factor, list) {
+  return strategies[factor](list);
+};
 
 // import {*} from '../../../api/api.js'
 export default {
-  data () {
+  data() {
     return {
       title: "",
       columns: [],
@@ -94,12 +95,11 @@ export default {
     bid: Number
   },
   methods: {
-
-    initCharts: function (factor) {
+    initCharts: function(factor) {
       var myself = this;
       if (myself.mychart === null) {
         // 基于准备好的dom，初始化echarts图表
-        myself.myChart = echarts.init(document.getElementById('main'));
+        myself.myChart = echarts.init(document.getElementById("main"));
         //				var myChartContent=echarts.init(document.getElementById('bar_content'));
         //		var myBar = echarts.init(document.getElementById('mybar'));
         // this.disposeCharts();
@@ -137,6 +137,7 @@ export default {
               // min: 600,
               // max: 1300,
               type: "value",
+              scale: factor == "bp",
               axisLabel: {
                 //					interval: 0,
                 textStyle: {
@@ -176,30 +177,29 @@ export default {
                 }
               }
             }
-
           ]
         };
-        if (factor === 'ws' || factor === 'wd') {
+        if (factor === "ws" || factor === "wd") {
           // option.series['symbol'] = 'triangle';
-          option.series[0]['symbolSize'] = [40, 20];
+          option.series[0]["symbolSize"] = [40, 20];
           // option.series['symbol'] = 'image:../../../../../assets/common/arrows.png'
-          option.series[0]['symbol'] = 'image://common/arrows.png'
+          option.series[0]["symbol"] = "image://common/arrows.png";
         } else {
-          option.series[0]['symbol'] = 'circle';
-          option.series[0]['symbolSize'] = 8;
+          option.series[0]["symbol"] = "circle";
+          option.series[0]["symbolSize"] = 8;
         }
-        // 为echarts对象加载数据 
+        // 为echarts对象加载数据
         myself.myChart.setOption(option);
       } else {
         this.disposeCharts();
       }
     },
 
-    // 
-    strategyAppendRealtimeData: function (facotr, list) {
+    //
+    strategyAppendRealtimeData: function(facotr, list) {
       var myself = this;
       var strategies = {
-        'w': function (list) {
+        w: function(list) {
           list.forEach(obj => {
             /*
             后端返回的结果
@@ -219,8 +219,11 @@ export default {
             }
             */
             // 1- 先判断val是否包含ws与wd
-            if (obj.val['ws'] != null && obj.val['wd'] != null) {
-              if ((obj.val.ws != 9999 && obj.val.ws != 999.9) || (obj.val.wd != 9999 && obj.val.wd != 999.9)) {
+            if (obj.val["ws"] != null && obj.val["wd"] != null) {
+              if (
+                (obj.val.ws != 9999 && obj.val.ws != 999.9) ||
+                (obj.val.wd != 9999 && obj.val.wd != 999.9)
+              ) {
                 //如果数据为缺省值那么就改成0
                 myself.values.push({
                   value: obj.val.ws,
@@ -232,10 +235,9 @@ export default {
                 myself.columns.push(obj.timestamp);
               }
             }
-
-          })
+          });
         },
-        'default': function (list) {
+        default: function(list) {
           list.forEach(obj => {
             // myself.values.push(obj.val);
             // myself.columns.push(obj.timestamp);
@@ -247,13 +249,13 @@ export default {
               myself.values.push(null);
               myself.columns.push(obj.timestamp);
             }
-          })
+          });
         }
       };
       return strategies[facotr](list);
     },
 
-    loadReatimeData: function () {
+    loadReatimeData: function() {
       var myself = this;
       // 此处注意需要清空
       this.values = [];
@@ -263,10 +265,11 @@ export default {
         bid: myself.bid
       };
       loadRealtime(searchCondition).then(res => {
-        var factor = (myself.factor == 'ws' || myself.factor == 'wd') ? 'w' : 'default';
+        var factor =
+          myself.factor == "ws" || myself.factor == "wd" ? "w" : "default";
         var obj = strategyAppendRealtimeData(factor, res.data);
-        myself.values = obj['values'];
-        myself.columns = obj['columns'];
+        myself.values = obj["values"];
+        myself.columns = obj["columns"];
         // myself.strategyAppendRealtimeData(factor, res.data);
         // strategyTemp(factor, res.data);
         // console.log(res)
@@ -290,14 +293,14 @@ export default {
       });
     },
     // 销毁echarts
-    disposeCharts: function () {
+    disposeCharts: function() {
       if (this.mychart != null) {
         this.mychart.dispose();
       }
     }
   },
   watch: {
-    factor: function (newVal) {
+    factor: function(newVal) {
       var menu = menulist;
       this.title = menu[newVal].name;
       // 需要判断是否bid与factor两个均不为null
@@ -305,14 +308,14 @@ export default {
         this.loadReatimeData();
       }
     },
-    bid: function (newVal) {
+    bid: function(newVal) {
       // 需要判断是否bid与factor两个均不为null
       if ((this.factor != null) & (this.bid != null)) {
         this.loadReatimeData();
       }
     }
   },
-  mounted: function () { }
+  mounted: function() {}
 };
 </script>
 

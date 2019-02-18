@@ -291,12 +291,13 @@ class BBXGetTableInfo(APIView,BBXBaseView):
         bid=int(request.GET.get('bid',-1))
         dateRangeStr = request.GET.get('dateRange', '')
         (datestart,dateend)=dateRangeStr.split(' ')
+        datestart=datestart+' 00:00:00'
+        dateend=dateend+' 23:59:59'
         reslut = None
-        print(dateRangeStr,bid)
         with connection.cursor() as cursor:
             cursor.execute("""
             select
-            bsid,`code`,DATE_FORMAT(nowdate,'%%Y-%%m-%%d %%H-%%i-%%s') as nowdate,lat,lon,heading,speed,a.bid_id,rdid,rain
+            bsid,`code`,DATE_FORMAT(nowdate,'%%Y-%%m-%%d %%H:%%i') as nowdate,lat,lon,heading,speed,a.bid_id,rdid,rain
             ,vis,cloudc,wd,ws,cwd,cws,`at`,dpt,bp,wetnow,wet1,
             wet2,cloudlc,clouds,cloudms,cloudhs,wt,wvs,wv,surge1d,surge1c
             ,surge1h,surge2d,surge2c,surge2h
