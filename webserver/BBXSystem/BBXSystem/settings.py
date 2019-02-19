@@ -119,7 +119,7 @@ DATABASES = {
 
         # 线上数据库
         # 'NAME': 'BBX',
-        # centos
+        # # centos
         # 'USER': 'arfu',
         # 'PASSWORD': '@Tongxin321'
         
@@ -128,13 +128,13 @@ DATABASES = {
         # 'PASSWORD':'123456',
 
         # p52s
-        # 'USER':'root',
-        # 'PASSWORD':'123456',
+        'USER':'root',
+        'PASSWORD':'123456',
         # 'HOST':'127.0.0.1',
 
         # mac
-        'USER':'root',
-        'PASSWORD':'12345678',
+        # 'USER':'root',
+        #         # 'PASSWORD':'12345678',
 
         # mac
         # 'USER':'root',

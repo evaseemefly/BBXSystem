@@ -15,7 +15,7 @@ def getMonthDateRang(target_date):
 
     return (start_date,end_date)
 
-def getDataRang(target_date,hours):
+def getDataRang(target_date:datetime,hours:int):
     '''
         将当前时间向后推days天
     :param target_date:
