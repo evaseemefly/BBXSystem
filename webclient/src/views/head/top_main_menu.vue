@@ -99,4 +99,8 @@ export default {
   transform: scale(1.1);
   box-shadow: 0px 1px 2px black;
 }
+.navbar-nav {
+  float: right;
+  margin-right: 200px;
+}
 </style>
