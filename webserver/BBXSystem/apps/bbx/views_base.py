@@ -461,7 +461,7 @@ class BBXTrackBaseView(BaseView):
                             [temp_track.lat, temp_track.lon]
                             for temp_track in list_track
                             if temp_track.lat != 9999 and temp_track.lon != 9999]
-                        list_bbxtrack_final.append(BBXTrackMidInfo(temp.code, temp.bid, latlngs,temp.nowdate))
+                        list_bbxtrack_final.append(BBXTrackMidInfo(track_temp.code, track_temp.bid, latlngs,track_temp.nowdate))
 
             # for temp_BBX in list_bbxtrack_last:
             #     latlngs=[]
