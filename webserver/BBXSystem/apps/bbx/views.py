@@ -342,14 +342,16 @@ class BBXGetTableInfo(APIView,BBXBaseView):
         datestart=datestart+' 00:00:00'
         dateend=dateend+' 23:59:59'
         reslut = None
+
         with connection.cursor() as cursor:
+            # TODO 此处有错误，修改，还有需要修改的
             cursor.execute("""
             select
             bsid,`code`,DATE_FORMAT(nowdate,'%%Y-%%m-%%d %%H:%%i') as nowdate,lat,lon,heading,speed,a.bid_id,rdid,rain
             ,vis,cloudc,wd,ws,cwd,cws,`at`,dpt,bp,wetnow,wet1,
             wet2,cloudlc,clouds,cloudms,cloudhs,wt,wvs,wv,surge1d,surge1c
             ,surge1h,surge2d,surge2c,surge2h
-            FROM bbx_bbxspaceTempInfo AS a LEFT JOIN bbx_realTimeData AS b
+            FROM bbx_bbxspacetempinfo AS a LEFT JOIN bbx_realtimedata AS b
             ON a.bid_id=b.bid_id AND DATE_FORMAT(a.nowdate,'%%Y%%m%%d%%h')=DATE_FORMAT(b.timestamp,'%%Y%%m%%d%%h')
              WHERE a.bid_id = %s  AND a.nowdate>=%s AND a.nowdate<=%s order by a.nowdate 
             """,[str(bid),datestart,dateend])

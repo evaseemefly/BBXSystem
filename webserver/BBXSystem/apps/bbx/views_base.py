@@ -383,7 +383,8 @@ class BBXTrackBaseView(BaseView):
         '''
         # S1-船舶轨迹显示的最近时间长度
         BBX_TRACK_INTERVAL
-        list_bbxtrack = []
+        list_bbxtrack_last = []
+        list_bbxtrack_final=[]
         # 获取是否为now的标识符
         # TODO  获取**kwargs是否存在的方式
         isnow = kwargs.get('isnow') if 'isnow' in kwargs else False
@@ -423,30 +424,58 @@ class BBXTrackBaseView(BaseView):
                 # for temp_track in list_track:
                 #     if temp_track.lat==9999 or temp_track.lng==9999:
                 #         []
-                list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,latlngs))
+                list_bbxtrack_last.append(BBXTrackMidInfo(temp.code,temp.bid,latlngs))
+        # 对于isnow为true的情况要特殊对待
         else:
             # 获取所有船舶的最新的地理位置数据（注意只有最新的经纬度，需要再次循环遍历一边获取有最新值的）
             list=self._getLastBBXTrackList()
             for temp in list:
-                if isinstance(temp.bid,int):
-                    list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,[[temp.lat,temp.lon]]))
-                else:
-                    # 若不是int类型说明其中的bid是BBXInfo类型，所以获取对应的bid，即bid.bid即可
-                    list_bbxtrack.append(BBXTrackMidInfo(temp.code, temp.bid.bid, [[temp.lat, temp.lon]]))
+                # 使用 三元运算符解决
+                list_bbxtrack_last.append(
+                    BBXTrackMidInfo(temp.code,
+                                    temp.bid if isinstance(temp.bid,int) else temp.bid.bid,
+                                    [[temp.lat, temp.lon]],
+                                    temp.nowdate)
+                )
+                # 笨的办法
+                # if isinstance(temp.bid,int):
+                #     list_bbxtrack_last.append(BBXTrackMidInfo(temp.code,temp.bid,[[temp.lat,temp.lon]],temp.nowdate))
+                # else:
+                #     # 若不是int类型说明其中的bid是BBXInfo类型，所以获取对应的bid，即bid.bid即可
+                #     list_bbxtrack_last.append(BBXTrackMidInfo(temp.code, temp.bid.bid, [[temp.lat, temp.lon]],temp.nowdate))
                 # print(temp)
-            for temp_BBX in list_bbxtrack:
-                latlngs=[]
-                list_track = BBXSpaceTempInfo.objects.filter(nowdate__lte=end, nowdate__gte=start, bid_id=temp_BBX.bid)
-                if len(list_track)==0:
-                    pass
+            # TODO 对于最后轨迹列表，找到其中的nowdate小于start的时间的
+            # 拥有当日轨迹的列表
+            # list_bbxtrack_ownnowtrack=[track_temp for track_temp in list_bbxtrack_last if track_temp.nowdate>start]
+
+            for track_temp in list_bbxtrack_last:
+                if track_temp.nowdate<start:
+                    list_bbxtrack_final.append(track_temp)
                 else:
-                    latlngs = [
-                        [temp_track.lat, temp_track.lon]
-                        for temp_track in list_track
-                        if temp_track.lat != 9999 and temp_track.lon != 9999]
-                    list_bbxtrack.append(BBXTrackMidInfo(temp.code, temp.bid, latlngs))
+                    list_track = BBXSpaceTempInfo.objects.filter(nowdate__lte=end, nowdate__gte=start,
+                                                                 bid_id=track_temp.bid)
+                    if len(list_track) == 0:
+                        pass
+                    else:
+                        latlngs = [
+                            [temp_track.lat, temp_track.lon]
+                            for temp_track in list_track
+                            if temp_track.lat != 9999 and temp_track.lon != 9999]
+                        list_bbxtrack_final.append(BBXTrackMidInfo(temp.code, temp.bid, latlngs))
+
+            # for temp_BBX in list_bbxtrack_last:
+            #     latlngs=[]
+            #     list_track = BBXSpaceTempInfo.objects.filter(nowdate__lte=end, nowdate__gte=start, bid_id=temp_BBX.bid)
+            #     if len(list_track)==0:
+            #         pass
+            #     else:
+            #         latlngs = [
+            #             [temp_track.lat, temp_track.lon]
+            #             for temp_track in list_track
+            #             if temp_track.lat != 9999 and temp_track.lon != 9999]
+            #         list_bbxtrack_last.append(BBXTrackMidInfo(temp.code, temp.bid, latlngs))
             # pass
-        return list_bbxtrack
+        return list_bbxtrack_final
 
     def _getLastBBXTrackList(self):
         '''

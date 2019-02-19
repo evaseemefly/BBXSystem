@@ -51,10 +51,11 @@ class StatisticMidInfo:
         self.list=list
 
 class BBXTrackMidInfo:
-    def __init__(self,code,bid,latlngs):
+    def __init__(self,code:str,bid:int,latlngs:[],now):
         self.code=code
         self.bid=bid
         self.latlngs=latlngs
+        self.nowdate=now
 
 class RealtimeMidInfo:
     def __init__(self,timestamp,val):
