@@ -387,16 +387,13 @@ class BBXTrackBaseView(BaseView):
         # 获取是否为now的标识符
         # TODO  获取**kwargs是否存在的方式
         isnow = kwargs.get('isnow') if 'isnow' in kwargs else False
+        # 2-1 获取起止时间
+        start, end = self._bbxTrackDatetimes(targetDate, BBX_TRACK_INTERVAL)
         # 若isnow为false，则执行下面的操作：
         if isnow is False:
             # 1-获取全部的船舶集合
             list_all_bbx=self.getAllBBXlist()
             # 2-根据全部的船舶集合获取每一条船的轨迹
-            # 2-1 获取起止时间
-            start,end=self._bbxTrackDatetimes(targetDate,BBX_TRACK_INTERVAL)
-
-            # isnow=kwargs.get('isnow')
-
             for temp in list_all_bbx:
                 latlngs=[]
                 list_track=BBXSpaceTempInfo.objects.filter(nowdate__lte=end,nowdate__gte=start,bid_id=temp.bid)
@@ -428,11 +425,26 @@ class BBXTrackBaseView(BaseView):
                 #         []
                 list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,latlngs))
         else:
-            # 获取所有船舶的最新的地理位置数据
+            # 获取所有船舶的最新的地理位置数据（注意只有最新的经纬度，需要再次循环遍历一边获取有最新值的）
             list=self._getLastBBXTrackList()
             for temp in list:
-                list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,[[temp.lat,temp.lon]]))
+                if isinstance(temp.bid,int):
+                    list_bbxtrack.append(BBXTrackMidInfo(temp.code,temp.bid,[[temp.lat,temp.lon]]))
+                else:
+                    # 若不是int类型说明其中的bid是BBXInfo类型，所以获取对应的bid，即bid.bid即可
+                    list_bbxtrack.append(BBXTrackMidInfo(temp.code, temp.bid.bid, [[temp.lat, temp.lon]]))
                 # print(temp)
+            for temp_BBX in list_bbxtrack:
+                latlngs=[]
+                list_track = BBXSpaceTempInfo.objects.filter(nowdate__lte=end, nowdate__gte=start, bid_id=temp_BBX.bid)
+                if len(list_track)==0:
+                    pass
+                else:
+                    latlngs = [
+                        [temp_track.lat, temp_track.lon]
+                        for temp_track in list_track
+                        if temp_track.lat != 9999 and temp_track.lon != 9999]
+                    list_bbxtrack.append(BBXTrackMidInfo(temp.code, temp.bid, latlngs))
             # pass
         return list_bbxtrack
 
@@ -448,7 +460,8 @@ class BBXTrackBaseView(BaseView):
             group by bb.code
             order by bb.nowdate desc
             
-            SELECT bb.code,bb.lat,bb.lon,bb.nowdate FROM bbx.bbx_bbxspacetempinfo as bb
+            SELECT bb.code,bb.lat,bb.lon,bb.nowdate 
+            FROM bbx.bbx_bbxspacetempinfo as bb
             group by bb.code
             order by bb.nowdate desc
         '''
@@ -458,8 +471,71 @@ class BBXTrackBaseView(BaseView):
         # list = BBXSpaceTempInfo.objects.distinct('code').order_by('nowdate')
         # list=BBXSpaceTempInfo.objects.annotate(Count('code'))
         # list=BBXSpaceTempInfo.objects.values('bid','code','lat','lon').annotate(Min('nowdate'))
-        # list=BBXSpaceTempInfo.objects.values('code','nowdate','lat','lon').annotate(Count('code'))
+        # 方式1：可行，但是假如其他字段不可行
+        '''
+            
+
+            SELECT `bbx_bbxspacetempinfo`.`nowdate`, COUNT(`bbx_bbxspacetempinfo`.`code`) AS `code__count` 
+            FROM `bbx_bbxspacetempinfo` 
+            GROUP BY `bbx_bbxspacetempinfo`.`nowdate` 
+            ORDER BY NULL
+
+        '''
+        # list=BBXSpaceTempInfo.objects.values('code').annotate(Count('code'))
+
+        # 方式2   不可行
+        '''
+            SELECT `bbx_bbxspacetempinfo`.`lat`, `bbx_bbxspacetempinfo`.`lon` 
+            FROM `bbx_bbxspacetempinfo` 
+            GROUP BY `bbx_bbxspacetempinfo`.`code`, `bbx_bbxspacetempinfo`.`lat`, `bbx_bbxspacetempinfo`.`lon` 
+            ORDER BY NULL
+
+        '''
+        # list=BBXSpaceTempInfo.objects.values('code').annotate(Count('code')).values('lat','lon')
+
+        # 方式2：不可行
+        '''
+            SELECT `bbx_bbxspacetempinfo`.`code`, `bbx_bbxspacetempinfo`.`nowdate`, COUNT(`bbx_bbxspacetempinfo`.`code`) AS `code__count` 
+            FROM `bbx_bbxspacetempinfo` 
+            GROUP BY `bbx_bbxspacetempinfo`.`code`, `bbx_bbxspacetempinfo`.`nowdate` 
+            ORDER BY NULL
+
+        '''
+        # list=BBXSpaceTempInfo.objects.values('code','').annotate(Count('code'))
+
+        # print(list.query)
+
+
         # list = BBXSpaceTempInfo.objects.annotate(Count('code'),Min('nowdate')).values('code')
-        list = BBXSpaceTempInfo.objects.values_list('nowdate').annotate(Count('code')).order_by('nowdate')
+        # list = BBXSpaceTempInfo.objects.values('code').annotate(codeCount=Count('code'))
+        # res=BBXSpaceTempInfo.objects.values('code').annotate(total=Count('code')).all()
+        # print(res.query)
+        # 方式3：不可行
+        # from django.db.models.query import QuerySet
+        # query=list=BBXSpaceTempInfo.objects.all().query
+        # query.group_by=['code']
+        # res=QuerySet(query=query,model=BBXSpaceTempInfo)
         # list = BBXSpaceTempInfo.objects.annotate(Count('code'),Min('nowdate'))
+
+        # 方式4：
+        # list=BBXSpaceTempInfo.objects.all()
+        # list.query.group_by=['code']
+        # print(list.query)
+
+        # 方式5：
+        # 尝试使用此种方式
+        '''
+            SELECT * 
+            FROM bbx_bbxspacetempinfo as bs
+            JOIN 
+            (
+            SELECT code,MAX(bb.nowdate) date_min
+            FROM bbx_bbxspacetempinfo as bb
+            GROUP BY bb.code
+            ) dis
+            ON dis.code=bs.code and dis.date_min=bs.nowdate
+        '''
+        list=BBXSpaceTempInfo.objects.raw('SELECT * FROM bbx_bbxspacetempinfo as bs JOIN (SELECT code,MAX(bb.nowdate) date_min  FROM bbx_bbxspacetempinfo as bb GROUP BY bb.code ) dis ON dis.code=bs.code and dis.date_min=bs.nowdate')
+        # sub_list=BBXSpaceTempInfo.objects.values('code').annotate(Count('code'))
+        # list=BBXSpaceTempInfo.objects
         return list
