@@ -51,7 +51,7 @@ class StatisticMidInfo:
         self.list=list
 
 class BBXTrackMidInfo:
-    def __init__(self,code:str,bid:int,latlngs:[],now):
+    def __init__(self,code:str,bid:int,latlngs:[],now=None):
         self.code=code
         self.bid=bid
         self.latlngs=latlngs

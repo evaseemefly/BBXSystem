@@ -424,7 +424,7 @@ class BBXTrackBaseView(BaseView):
                 # for temp_track in list_track:
                 #     if temp_track.lat==9999 or temp_track.lng==9999:
                 #         []
-                list_bbxtrack_last.append(BBXTrackMidInfo(temp.code,temp.bid,latlngs))
+                list_bbxtrack_final.append(BBXTrackMidInfo(temp.code,temp.bid,latlngs))
         # 对于isnow为true的情况要特殊对待
         else:
             # 获取所有船舶的最新的地理位置数据（注意只有最新的经纬度，需要再次循环遍历一边获取有最新值的）
@@ -461,7 +461,7 @@ class BBXTrackBaseView(BaseView):
                             [temp_track.lat, temp_track.lon]
                             for temp_track in list_track
                             if temp_track.lat != 9999 and temp_track.lon != 9999]
-                        list_bbxtrack_final.append(BBXTrackMidInfo(temp.code, temp.bid, latlngs))
+                        list_bbxtrack_final.append(BBXTrackMidInfo(temp.code, temp.bid, latlngs,temp.nowdate))
 
             # for temp_BBX in list_bbxtrack_last:
             #     latlngs=[]
