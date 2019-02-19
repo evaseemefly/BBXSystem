@@ -1,27 +1,27 @@
 <template>
   <div>
-    <div class="container">
+    <div class="container" v-show="hasData">
       <div class="row">
         <div class="panel panel-default">
           <!-- Default panel contents -->
-          <div class="panel-heading">数据详情</div>
+          <div class="panel-heading table-title">数据详情</div>
           <div class="panel-body">
             <!-- Table -->
-            <table class="table table-striped table-bordered" v-show="hasData">
+            <table class="table table-striped table-bordered table-hover dataTable">
               <thead>
-                <th>index</th>
-                <th>dt</th>
-                <th>lat</th>
-                <th>lon</th>
-                <th>val</th>
+                <th>INDEX</th>
+                <th>DT</th>
+                <th>LAT</th>
+                <th>LON</th>
+                <th>VAL({{this.factor?this.factor.toUpperCase():''}})</th>
               </thead>
               <tbody>
                 <tr v-for="(row,idx) in tableData" :key="idx">
-                  <td>{{idx}}</td>
-                  <td>{{row.nowdate}}</td>
-                  <td>{{row.lat}}</td>
-                  <td>{{row.lon}}</td>
-                  <td>{{row.factor}}</td>
+                  <td class="table-cell table-index">{{idx+1}}</td>
+                  <td class="table-cell">{{row.nowdate }}</td>
+                  <td class="table-cell">{{row.lat }}</td>
+                  <td class="table-cell">{{row.lon }}</td>
+                  <td class="table-cell">{{row.factor }}</td>
                 </tr>
               </tbody>
             </table>
@@ -62,11 +62,22 @@ export default {
   },
   methods: {
     loadData() {
-      if (!this.bid || !this.dateRange) {
+      // if (!this.bid || !this.dateRange) {
+      //   this.tableData = [];
+      //   return;
+      // }
+      if (!this.bid) {
         this.tableData = [];
         return;
       }
-      loadBBXTableData(this.bid, this.dateRange).then(res => {
+      let paramDateRange = this.dateRange;
+      if (!paramDateRange) {
+        let d = new Date();
+        paramDateRange = `${d.getFullYear()}-${d.getMonth() +
+          1}-${d.getDate()} ${d.getFullYear()}-${d.getMonth() +
+          1}-${d.getDate()}`;
+      }
+      loadBBXTableData(this.bid, paramDateRange).then(res => {
         if (res.status === 200) {
           this.originData = res.data;
           this.rebuildTableData();
@@ -96,4 +107,43 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.table-cell {
+  text-align: left;
+}
+.container {
+  font-family: "微软雅黑";
+  transition: 0.5s;
+}
+.panel-default > .panel-heading {
+  background-color: rgb(33, 108, 81) !important;
+  color: aliceblue !important;
+  font-size: 2em;
+  font-weight: bold;
+  text-shadow: 2px 2px 10px #000;
+}
+.panel-default > .panel-body {
+  padding: 0;
+}
+td,
+th {
+  padding-left: 5px;
+}
+.table-index {
+  font-size: larger;
+  font-weight: border;
+  font-family: black;
+}
+.panel {
+  border-style: none;
+}
+table {
+  cursor: pointer;
+}
+.panel-body {
+  box-shadow: 0 2px 10px rgb(229, 238, 238);
+}
+</style>
+
 

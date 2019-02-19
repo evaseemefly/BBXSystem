@@ -115,7 +115,7 @@ DATABASES = {
         # mac
         'NAME': 'bbx',
         # zw
-        #  'NAME': 'bbxsys',
+        # 'NAME': 'bbxsys',
 
         # 线上数据库
         # 'NAME': 'BBX',
@@ -133,8 +133,10 @@ DATABASES = {
         # 'HOST':'127.0.0.1',
 
         # mac
+
         # 'USER':'root',
-        #         # 'PASSWORD':'12345678',
+        # 'PASSWORD':'12345678',
+
 
         # mac
         # 'USER':'root',

@@ -91,9 +91,8 @@ export default {
     return {
       optionsFactor: optionsFactors,
       datePickerOption: {
-        disabledDate (date, date2) {
-          console.log(date2);
-          return date && date.valueOf() < Date.now() - 31 * 2 * 24 * 60 * 60 * 1000;
+        disabledDate(date, date2) {
+          return date && date.valueOf() < Date.now() - 31 * 24 * 60 * 60 * 1000;
         }
       },
       dateRange: "",
@@ -123,8 +122,6 @@ export default {
         nowdate: "2018-12-08 00:00"
       };
       loadBBXList(params).then(res => {
-        console.log(res);
-
         res.data.forEach(obj => {
           myself.optionsBBX.push({
             text: obj.code,
