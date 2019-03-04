@@ -77,8 +77,9 @@ export default {
               radius: '55%',
               center: ['50%', '60%'], // 注意此处需要下调圆心的位置，不然会对顶部的title有遮挡
               minAngle: 2, //最小的扇区角度（0 ~ 360）
-              color: ['#40E0D0', '#87CEEB', '#B0E0E6', '#33A1C9'],
-              data: myself.values.sort(function (a, b) { return a.value - b.value; }),
+              color: ['rgb(84, 240, 17)', 'rgb(249, 241, 17)', 'rgb(240, 9, 9)', 'rgb(178, 184, 184)'],
+              // data: myself.values.sort(function (a, b) { return a.value - b.value; }),
+              data: myself.values,
               // data: myself.values.sort(function (a, b) { return a.value - b.value; }),
               // data: [{
               //   value: 10,
@@ -122,7 +123,7 @@ export default {
               },
               itemStyle: {
                 normal: {
-                  color: '#40E0D0',
+                  // color: '#40E0D0',
                   shadowBlur: 200,
                   shadowColor: 'rgba(0, 0, 0, 0.5)'
                 }
@@ -192,5 +193,7 @@ export default {
   height: 23%;
   /*width: 500px;*/
   margin-bottom: 20px;
+
+  background: rgb(178, 184, 184);
 }
 </style>

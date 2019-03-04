@@ -3,13 +3,13 @@
     <div v-for='item of arealist'>
       <AreaState :area=item></AreaState>
     </div>
-
+    <StateLegend></StateLegend>
   </div>
 </template>
 
 <script>
 import AreaState from '../member/area_state.vue'
-
+import StateLegend from '../member/common/state_ legend.vue'
 export default {
   data () {
     return {
@@ -22,7 +22,8 @@ export default {
     }
   },
   components: {
-    AreaState
+    AreaState,
+    StateLegend
   }
 
 }

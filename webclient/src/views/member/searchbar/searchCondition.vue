@@ -25,9 +25,9 @@
                   v-model="selectedBBX"
                 >
                   <option
-                    v-for="(option,idx) in optionsBBX"
+                    v-for="(option,idx) in optionsBBX_order"
+                    :key="option.text"
                     v-bind:value="option.value"
-                    :key="idx"
                   >{{option.text}}</option>
                 </select>
               </div>
@@ -159,6 +159,13 @@ export default {
     },
     selectedBBX: function () {
       this.initFatherParams();
+    }
+  },
+  computed: {
+    optionsBBX_order: function () {
+      // return _.orderBy(this.optionsBBX, "text")
+      return this.lodash.orderBy(this.optionsBBX, "text");
+      // return []
     }
   }
 };

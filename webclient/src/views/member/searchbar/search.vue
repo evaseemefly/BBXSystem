@@ -26,7 +26,8 @@
                   v-model="selectedBBX"
                 >
                   <option
-                    v-for='option in optionsBBX'
+                    v-for='option in optionsBBX_order'
+                    :key="option.text"
                     v-bind:value="option.value"
                   >
                     {{option.text}}
@@ -71,6 +72,7 @@
 </template>
 
 <script>
+// import _ from 'lodash';
 import { loadBBXlistByNow } from '../../../api/api.js';
 import { optionsFactors } from '../../../module/search/menu_options.js';
 export default {
@@ -124,6 +126,13 @@ export default {
     },
     selectedBBX: function () {
       this.initFatherParams();
+    }
+  },
+  computed: {
+    optionsBBX_order: function () {
+      // return _.orderBy(this.optionsBBX, "text")
+      return this.lodash.orderBy(this.optionsBBX, "text");
+      // return []
     }
   }
 

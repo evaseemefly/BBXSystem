@@ -16,8 +16,11 @@ import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 
 import "dateformat";
+import VueLodash from "vue-lodash";
 // import "./components/js/common/date.js";
 
+const options = { name: "lodash" };
+Vue.use(VueLodash, options);
 Vue.use(ElementUI);
 router.beforeEach((to, from, next) => {
   window.document.title = to.meta.title;

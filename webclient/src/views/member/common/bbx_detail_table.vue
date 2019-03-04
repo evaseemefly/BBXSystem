@@ -74,7 +74,7 @@ export default {
   watch: {
     // 当bid修改时重新加载表格
     bid: function (newVal) {
-      console.log(newVal);
+      // console.log(newVal);
       this.initTable(newVal);
     }
   }
