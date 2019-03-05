@@ -65,6 +65,7 @@ export default {
         },
         xAxis: [{
           type: 'category',
+
           data: myself.columns,
           //使用以下方式实现显示全部x坐标上的点
           "axisLabel": {
@@ -82,6 +83,7 @@ export default {
           //   return min;
           // },
           type: 'value',
+          scale: myself.factor == "bp",
           "axisLabel": {
             //					interval: 0,
             textStyle: {
